@@ -1,0 +1,149 @@
+/* --- การตั้งค่าพื้นฐาน --- */
+body {
+    font-family: Arial, sans-serif; /* หรือฟอนต์ที่คุณใช้ */
+    margin: 0;
+    background-color: #f4f4f4; /* สีพื้นหลังเว็บ (ถ้ามี) */
+}
+
+/* --- 1. แถบนำทางด้านบน (สีเข้ม) --- */
+.top-bar {
+    display: flex;
+    justify-content: space-between; /* จัดซ้าย-ขวา */
+    align-items: center;
+    background-color: #2C1E1E; /* สีน้ำตาลเข้ม (ปรับได้) */
+    padding: 8px 25px;
+    color: white;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none; /* ลบขีดเส้นใต้ลิงก์ */
+    color: white; /* สีตัวอักษร */
+}
+
+.logo-image {
+    height: 40px; /* ขนาดโลโก้ (ปรับได้) */
+    width: 40px;
+    border-radius: 50%; /* ทำให้โลโก้กลม */
+    margin-right: 12px;
+    object-fit: cover; /* กันภาพบี้ */
+    background-color: #fff; /* สีพื้นหลังโลโก้ (ถ้าโลโก้ใส) */
+}
+
+.logo-text {
+    font-size: 1.5rem; /* ขนาดตัวอักษรชื่อเว็บ (ปรับได้) */
+    font-weight: bold;
+}
+
+.cart-link {
+    position: relative; /* เพื่อให้ badge ลอยทับได้ */
+    color: white;
+    font-size: 1.5rem; /* ขนาดไอคอนถุง (ปรับได้) */
+    text-decoration: none;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;  /* ขยับขึ้นบน */
+    right: -10px; /* ขยับไปทางขวา */
+    background-color: #E63946; /* สีแดง */
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem; /* ขนาดตัวเลข */
+    font-weight: bold;
+    border: 1px solid white; /* ขอบขาวเล็กน้อย */
+}
+
+
+/* --- 2. แถบหมวดหมู่สินค้า (สีขาว) --- */
+.category-nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 25px;
+    /* ทำให้เลื่อนซ้าย-ขวาได้ถ้าล้นจอ */
+    overflow-x: auto; 
+    white-space: nowrap; /* บังคับให้เป็นบรรทัดเดียว */
+}
+
+.category-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* ทำให้เรียงเป็นแถว */
+}
+
+.category-nav li {
+    /* ไม่ต้องใส่ display: inline-block; เพราะใช้ flex แล้ว */
+}
+
+.category-nav a {
+    display: block;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.95rem;
+    border-bottom: 3px solid transparent; /* ซ่อนขีดเส้นใต้ไว้ก่อน */
+    transition: color 0.2s;
+}
+
+.category-nav a:hover {
+    color: #007bff; /* สีเวลาเมาส์ชี้ (ปรับได้) */
+}
+
+/* สไตล์ของ "ใหม่!" */
+.category-nav a.new-item {
+    background-color: #E63946; /* สีแดง */
+    color: white;
+    border-radius: 8px; /* ทำให้ขอบมน */
+    font-weight: bold;
+    padding: 6px 12px;
+    margin-top: 8px; /* จัดกึ่งกลางแนวตั้งเล็กน้อย */
+    margin-bottom: 8px;
+    border-bottom: 3px solid transparent; /* ปิดขีดเส้นใต้ของ new-item */
+}
+
+.category-nav a.new-item:hover {
+    background-color: #c9303c; /* สีแดงเข้มขึ้นเวลาชี้ */
+    color: white;
+}
+
+/* !!! นี่คือคลาสที่ทำให้ "สกินแคร์" ถูกเลือก !!! */
+.category-nav a.active {
+    font-weight: bold;
+    color: #000;
+    border-bottom: 3px solid #000; /* ขีดเส้นใต้สีดำ */
+}
+
+
+/* --- 3. Breadcrumb --- */
+.breadcrumb-nav {
+    background-color: #f9f9f9; /* สีพื้นหลัง breadcrumb (ปรับได้) */
+    padding: 10px 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.breadcrumb-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-nav li {
+    display: inline; /* เรียงต่อกัน */
+    font-size: 0.85rem;
+}
+
+.breadcrumb-nav a {
+    text-decoration: none;
+    color: #555;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}

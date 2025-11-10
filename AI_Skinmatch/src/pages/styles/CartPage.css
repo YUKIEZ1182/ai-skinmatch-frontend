@@ -1,0 +1,167 @@
+/* 🎨 src/pages/CartPage.css */
+
+/* 🛒 โครงหลักของหน้าตะกร้า */
+.cart-page {
+  display: flex;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  background-color: #fff;
+}
+
+/* รายการสินค้า */
+.cart-items {
+  flex: 2;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.cart-items h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--primary-color);
+}
+
+/* ตารางสินค้า */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #eaeaea;
+  font-weight: 600;
+}
+
+.cart-table td {
+  padding: 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.cart-table tr.out-of-stock {
+  opacity: 0.5;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-controls button {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.qty-controls button:hover {
+  background: var(--light-color);
+}
+
+.delete-btn {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #b71c1c;
+}
+
+/* 🧾 สรุปรายการสินค้า */
+.cart-summary {
+  flex: 1;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+}
+
+.cart-summary h3 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.checkout-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.checkout-button:hover {
+  background-color: #4b2a2a;
+}
+
+/* สินค้าที่เกี่ยวข้อง */
+.related-products {
+  margin-top: 40px;
+}
+.related-products h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+.related-item {
+  text-align: center;
+  background-color: #fafafa;
+  padding: 12px;
+  border-radius: 10px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.related-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+.related-item img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* 📱 Responsive */
+@media (max-width: 900px) {
+  .cart-page {
+    flex-direction: column;
+  }
+  .cart-summary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-page {
+    padding: 10px;
+  }
+  .cart-items,
+  .cart-summary {
+    padding: 16px;
+  }
+}

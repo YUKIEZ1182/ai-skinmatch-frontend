@@ -1,0 +1,9 @@
+/* src/App.css */
+
+/* .app-container คือคลาสของ div นอกสุดใน App.jsx */
+.app-container {
+  max-width: 1920px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff, #fff);
+  box-sizing: border-box; 
+}
