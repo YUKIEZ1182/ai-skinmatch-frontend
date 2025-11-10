@@ -1,6 +1,6 @@
 // 🧱 src/pages/CartPage.jsx
 import React, { useState } from "react";
-import "../pages/styles/CartPage.css";
+import "./styles/CartPage.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Breadcrumb from "../components/Breadcrumb";

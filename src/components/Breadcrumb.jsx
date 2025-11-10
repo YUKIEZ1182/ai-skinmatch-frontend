@@ -1,5 +1,5 @@
 import React from "react";
-import "../components/styles/Breadcrumb.css";
+import "./styles/Breadcrumb.css";
 
 function Breadcrumb({ items = [] }) {
   console.log('--- LOG: Breadcrumb items received:', items);

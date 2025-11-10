@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../components/styles/Footer.css";
+import "./styles/Footer.css";
 import logo from "../assets/logo.png";
 
 function Footer() {
