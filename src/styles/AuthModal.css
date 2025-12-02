@@ -1,0 +1,225 @@
+/* พื้นหลังมืดๆ (Backdrop) */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* สีเทาเข้มโปร่งแสงตามรูป */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* กล่อง Modal สีขาว */
+.modal-box {
+  background: white;
+  width: 450px;
+  border-radius: 12px;
+  padding: 30px;
+  position: relative;
+  font-family: 'FC Iconic', sans-serif;
+}
+
+/* ปุ่มปิด (X) */
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.modal-header {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500; /* Medium */
+  margin-bottom: 25px;
+}
+
+.modal-error {
+  color: #ff3333;
+  background-color: #ffe4e4;
+  border: 1px solid #ffaaaa;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 15px;
+  display: none;
+}
+
+.modal-error.active {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'FC Iconic', sans-serif;
+  font-size: 14px;
+  background: #fafafa;
+}
+
+.form-input-icon {
+  position: relative;
+}
+
+.form-input-icon .form-input {
+  padding-right: 50px;
+}
+
+.form-select,
+.form-date {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'FC Iconic', sans-serif;
+  font-size: 14px;
+  background-color: #fafafa;
+  color: #555;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.form-date:invalid,
+.form-select:invalid {
+  color: #999;
+}
+
+.form-help-text {
+  color: #ff3333; 
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 6px;
+  padding-left: 5px;
+  height: 16px;
+}
+
+.form-input.is-invalid {
+  border-color: #ff3333;
+  background-color: #fff8f8;
+}
+
+.modal-back-btn {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #aaa;
+  padding: 5px;
+  line-height: 1;
+}
+
+.modal-back-btn:hover {
+  color: #000;
+}
+
+.input-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.input-icon-btn {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.input-icon-btn:hover {
+  color: #333;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 50px;
+  background: var(--header-bg);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'FC Iconic', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 50px;
+  background: white;
+  color: var(--text-dark);
+  border: 1px solid var(--text-dark);
+  border-radius: 8px;
+  font-family: 'FC Iconic', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.modal-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+.modal-switch span {
+  color: var(--header-bg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.terms-text {
+  font-size: 10px;
+  color: #888;
+  text-align: center;
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.terms-text a {
+  color: var(--header-bg);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

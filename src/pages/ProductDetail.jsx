@@ -1,160 +1,86 @@
-import React, { useState, useRef, useEffect } from "react";
-import "../pages/styles/ProductDetail.css";
-import ProductCard from "../components/ProductCard";
-import { mockProducts } from "../components/ProductList";
+import React, { useState, useRef, useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import ProductCard from '../components/ProductCard';
+import { Link, useParams } from 'react-router-dom';
+import '../styles/ProductDetail.css';
+import '../styles/App.css';
+import { mockProducts } from '../data/mockData';
 
-function ProductDetail({ product, onGoBack, onAddToCart, onProductSelect }) {
-  if (!product) {
-    console.error("--- DETAIL: Product prop is null or undefined! ---");
-     return (
-       <div className="product-detail-container error-container">
-         <p>กำลังโหลดข้อมูลสินค้า หรือ ไม่พบข้อมูล...</p>
-       </div>
-     );
-  }
-  const {
-    id, images = [product.imageUrl].filter(Boolean), brand,
-    name = 'สินค้า', price, isOutOfStock, description = '...',
-    ingredients = '...', usage = ['...'], skinType = []
-  } = product;
+export default function ProductDetail() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const initialImage = images[0] || '';
-  const [currentImage, setCurrentImage] = useState(initialImage);
-  const thumbnailContainerRef = useRef(null);
+  const sliderRef = useRef(null);
+
   useEffect(() => {
-    const newInitialImage = product?.images?.[0] || product?.imageUrl || '';
-    setCurrentImage(newInitialImage);
-    setQuantity(1);
-    window.scrollTo(0, 0);
-  }, [product]);
-
-  const handleThumbnailClick = (imageUrl) => { setCurrentImage(imageUrl); };
-  const navigateImage = (direction) => {
-    if (!images || images.length <= 1) return;
-    const currentIndex = images.findIndex(img => img === currentImage);
-    let nextIndex;
-    if (direction === 'next') {
-      nextIndex = (currentIndex + 1) % images.length;
-    } else {
-      nextIndex = (currentIndex - 1 + images.length) % images.length;
+    const foundProduct = mockProducts.find(p => p.id === parseInt(id));
+    if (foundProduct) {
+      setProduct(foundProduct);
+      const initialImage = (foundProduct.images && foundProduct.images.length > 0) ? foundProduct.images[0] : foundProduct.image;
+      setMainImage(initialImage);
     }
-    setCurrentImage(images[nextIndex]);
-    const activeButton = thumbnailContainerRef.current?.children[nextIndex];
-    activeButton?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  };
-  const increaseQuantity = () => setQuantity(prev => prev + 1);
-  const decreaseQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
-  const handleAddToCart = () => {
-    console.log(`เพิ่ม ${name} จำนวน ${quantity} ชิ้น ลงตะกร้า`);
-    onAddToCart(name, quantity);
+    if (sliderRef.current) sliderRef.current.scrollLeft = 0;
+  }, [id]);
+
+  const slide = (direction) => {
+    if (sliderRef.current) {
+      const { current } = sliderRef;
+      if (direction === 'left') current.scrollLeft -= 100;
+      else current.scrollLeft += 100;
+    }
   };
 
-  const relatedProducts = mockProducts.filter(p => p.id !== id).slice(0, 4);
+  if (!product) return <div style={{textAlign:'center', marginTop: 50}}>Loading...</div>;
+
+  const imageList = (product.images && product.images.length > 0) ? product.images : [product.image];
+  const relatedProducts = mockProducts.filter(p => p.id !== product.id && p.type === product.type).slice(0, 4);
 
   return (
-    <div className="product-detail-container">
-      <div className="product-main-section">
-        <div className="product-gallery">
-          <div className="main-image-container">
-            <img src={currentImage} alt={name} className="main-image" />
-            {isOutOfStock && ( <div className="out-of-stock-overlay detail-overlay"><span>สินค้าหมด</span></div> )}
-          </div>
-          {images && images.length > 1 && (
-            <div className="thumbnail-gallery">
-              <button className="thumb-nav-arrow prev-arrow" onClick={() => navigateImage('prev')} aria-label="Previous image">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-              </button>
-              <div className="thumbnail-container" ref={thumbnailContainerRef}>
-                {images.map((imgUrl, index) => (
-                  <button key={index} className={`thumbnail-button ${imgUrl === currentImage ? 'active' : ''}`} onClick={() => handleThumbnailClick(imgUrl)}>
-                    <img src={imgUrl} alt={`${name} thumbnail ${index + 1}`} className="thumbnail-image" />
-                  </button>
-                ))}
+    <div>
+      <div className="breadcrumb"><Link to="/" className="breadcrumb-link">หน้าแรก</Link> <span className="breadcrumb-separator"> &gt; </span> <span>{product.name}</span></div>
+
+      <main className="detail-container">
+        <div className="product-top-section">
+          <div className="gallery-section">
+            <div className="main-image-box"><img src={mainImage} alt={product.name} className="main-image" /></div>
+            <div className="thumbnail-carousel-container">
+              <button className="arrow-btn" onClick={() => slide('left')}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+              <div className="thumbnail-wrapper" ref={sliderRef}>
+                <div className="thumbnail-list">
+                  {imageList.map((imgSrc, index) => (
+                    <img key={index} src={imgSrc} className={`thumbnail ${mainImage === imgSrc ? 'active' : ''}`} onClick={() => setMainImage(imgSrc)} alt="" />
+                  ))}
+                </div>
               </div>
-              <button className="thumb-nav-arrow next-arrow" onClick={() => navigateImage('next')} aria-label="Next image">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="product-info-section">
-          <p className="product-brand-detail">{brand}</p>
-          <h1 className="product-name-detail">{name}</h1>
-          {skinType && skinType.length > 0 && (
-            <div className="skin-type-tags">
-              {Array.isArray(skinType) ? (
-                skinType.map((type, index) => (
-                  <span key={index} className="skin-type-tag">{type}</span>
-                ))
-              ) : (
-                <span className="skin-type-tag">{skinType}</span>
-              )}
-            </div>
-          )}
-          <p className="price-current">฿{price}</p>
-          <div className="quantity-selector">
-            <label>จำนวน</label>
-            <div className="quantity-controls">
-              <button onClick={decreaseQuantity} disabled={isOutOfStock} aria-label="ลดจำนวน">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
-              </svg>
-            </button>
-              <span>{quantity}</span>
-              <button onClick={increaseQuantity} disabled={isOutOfStock} aria-label="เพิ่มจำนวน">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-              </svg>
-            </button>
+              <button className="arrow-btn" onClick={() => slide('right')}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
           </div>
-          {/* ปุ่มเพิ่มลงตะกร้า */}
-          <button className="add-to-cart-button" onClick={handleAddToCart} disabled={isOutOfStock}>
-          {isOutOfStock ? 'สินค้าหมด' : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-              </svg>
-              <span>เพิ่มในถุงช้อปปิ้ง</span>
-            </>
-          )}
-        </button>
-          {/* รายละเอียด */}
-          <div className="product-description section">
-            <h4>คำอธิบาย</h4>
-            <p>{description}</p>
-          </div>
-          {/* ส่วนประกอบ */}
-          <div className="product-ingredients section">
-            <h4>ส่วนประกอบ</h4>
-            <p>{ingredients}</p>
-          </div>
-          {/* วิธีใช้ */}
-          <div className="product-usage section">
-            <h4>วิธีใช้</h4>
-            <ol>
-              {Array.isArray(usage) ? usage.map((step, index) => <li key={index}>{step}</li>) : <li>{usage}</li>}
-            </ol>
+
+          <div className="info-section">
+            <div className="brand-title">{product.brand}</div>
+            <h1 className="product-title">{product.name}</h1>
+            <div className="tag-container">{product.skinType && product.skinType.map((type, i) => <span key={i} className="skin-type-tag">{type}</span>)}</div>
+            <div className="product-price">{product.price.toLocaleString()} Baht</div>
+            <div className="action-row">
+               <span className="qty-label">จำนวน</span>
+               <div className="qty-selector">
+                  <button className="qty-btn" onClick={()=> setQuantity(q => Math.max(1, q-1))}>−</button>
+                  <span className="qty-number">{quantity}</span>
+                  <button className="qty-btn" onClick={()=> setQuantity(q => q+1)}>+</button>
+               </div>
+               <button className="add-to-cart-btn">เพิ่มในถุงช้อปปิ้ง</button>
+            </div>
+            <div className="detail-text-group">
+              <div className="detail-heading">คำอธิบาย</div>
+              <p className="detail-desc" style={{whiteSpace: 'pre-line'}}>{product.description}</p>
+            </div>
           </div>
         </div>
-      </div>
-      {/* --- สินค้าที่เกี่ยวข้อง --- */}
-      {relatedProducts.length > 0 && (
-        <div className="related-products-section">
-          <h2>สินค้าที่มีส่วนผสมคล้ายคลึงกัน</h2>
-          <div className="product-grid">
-            {relatedProducts.map(relatedProduct => (
-              <ProductCard
-                key={relatedProduct.id}
-                product={relatedProduct}
-                onSelect={onProductSelect}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        <h2 className="section-header">สินค้าที่คล้ายกัน</h2>
+        <div className="product-grid">{relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}</div>
+      </main>
+      <footer className="footer" style={{textAlign: 'center', padding: '40px', background: '#fff0e8'}}>Footer Content</footer>
     </div>
   );
 }
-
-export default ProductDetail;

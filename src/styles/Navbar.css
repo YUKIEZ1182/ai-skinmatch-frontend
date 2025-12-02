@@ -1,0 +1,11 @@
+.navbar { background-color: var(--header-bg, #2e1a1a); padding: 15px 60px; display: flex; justify-content: space-between; align-items: center; color: white; height: 70px; }
+.logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; }
+.logo-area:visited { color: white; }
+.logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+.brand-text { font-size: 24px; font-weight: 500; }
+.nav-actions { display: flex; gap: 25px; }
+.action-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: white; text-decoration: none; }
+.action-item:hover { opacity: 0.8; }
+.icon-wrapper { display: flex; align-items: center; justify-content: center; position: relative; width: 30px; height: 30px; }
+.cart-badge { background-color: #ff3333; color: white; font-size: 10px; font-weight: bold; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: -2px; right: -2px; border: 1px solid var(--header-bg, #2e1a1a); }
+@media (max-width: 768px) { .navbar { padding: 15px 20px; } .brand-text { display: none; } .nav-label { display: none; } .nav-actions { gap: 15px; } }

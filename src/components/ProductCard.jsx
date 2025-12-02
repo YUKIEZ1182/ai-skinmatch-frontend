@@ -1,34 +1,29 @@
-import React from "react";
-import "../components/styles/ProductCard.css";
-import './ProductList.jsx';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import '../styles/ProductCard.css';
 
-function ProductCard({ product, onSelect }) {
-  const { id, imageUrl, brand, name, price, isOutOfStock } = product;
-  const cardClasses = `product-card ${isOutOfStock ? 'is-out-of-stock' : ''}`;
-  const handleClick = () => {
-    console.log('--- LOG: Card Clicked! ---', product);
-    onSelect(product);
-  };
-
+export default function ProductCard({ product }) {
   return (
-      <div className={cardClasses} onClick={handleClick} style={{ cursor: 'pointer' }}>
-        <div className="card-image-container">
-          <img src={imageUrl} alt={name} className="product-image" />
-          {isOutOfStock && (
-            <div className="out-of-stock-overlay">
-              <span>สินค้าหมด</span>
+    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <div className="product-card">
+        <div className="image-wrapper">
+          {product.stock === 0 && (
+            <div className="sold-out-overlay">
+              <div className="sold-out-text">สินค้าหมด</div>
+              <div className="sold-out-sub">Sold Out</div>
             </div>
           )}
+          <img src={product.image} alt={product.name} className="product-img" />
         </div>
-        <div className="card-info">
-          <div className="info-top-row">
-            <span className="product-brand">{brand}</span>
-            <span className="product-price">{price} Baht</span>
+
+        <div className="info-row">
+          <div>
+            <div className="brand">{product.brand}</div>
+            <div className="name">{product.name}</div>
           </div>
-          <p className="product-name">{name}</p>
+          <div className="price">{product.price.toLocaleString()} Baht</div>
         </div>
       </div>
+    </Link>
   );
 }
-
-export default ProductCard;

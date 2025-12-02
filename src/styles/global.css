@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'FC Iconic'; src: url('/fonts/FC Iconic Regular ver 1.10.ttf') format('truetype'); font-weight: 400; font-style: normal;
+}
+@font-face {
+  font-family: 'FC Iconic'; src: url('/fonts/FC Iconic Medium ver 1.10.ttf') format('truetype'); font-weight: 500; font-style: normal;
+}
+@font-face {
+  font-family: 'FC Iconic'; src: url('/fonts/FC Iconic SemiBold ver 1.10.ttf') format('truetype'); font-weight: 600; font-style: normal;
+}
+@font-face {
+  font-family: 'FC Iconic'; src: url('/fonts/FC Iconic Bold ver 1.10.ttf') format('truetype'); font-weight: 700; font-style: normal;
+}
+:root {
+  --header-bg: #2e1a1a; --footer-bg: #ffdccf; --red-badge: #ff3333; --text-dark: #1a1a1a; --text-gray: #666666; --border-color: #e5e5e5; --search-bg: #f0f0f0;
+}
+body { margin: 0; padding: 0; font-family: 'FC Iconic', sans-serif; background-color: #ffffff; color: var(--text-dark); -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
