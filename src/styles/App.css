@@ -1,3 +1,56 @@
+@font-face {
+  font-family: 'FC Iconic';
+  src: url('../assets/fonts/FC Iconic Regular ver 1.10.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* ช่วยให้ข้อความขึ้นเร็วขึ้น */
+}
+
+@font-face {
+  font-family: 'FC Iconic';
+  src: url('../assets/fonts/FC Iconic Medium ver 1.10.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FC Iconic';
+  src: url('../assets/fonts/FC Iconic SemiBold ver 1.10.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FC Iconic';
+  src: url('../assets/fonts/FC Iconic Bold ver 1.10.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+:root {
+  --font-main: 'FC Iconic', 'Prompt', sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased; 
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, button, input, textarea, select, h1, h2, h3, h4, h5, h6, span, div, p, a {
+  font-family: 'FC Iconic', sans-serif !important; /* บังคับเปลี่ยนฟอนต์ทุกตัว */
+}
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  overflow-x: hidden;
+}
 .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
 .breadcrumb { padding: 20px 40px; font-size: 16px; color: #444; max-width: 1200px; margin: 0 auto; }
 .breadcrumb-link { color: #888; text-decoration: none; cursor: pointer; }

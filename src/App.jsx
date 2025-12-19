@@ -1,52 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
+import "./styles/App.css";
 
-import "./theme.css";
-import "./App.css";
-
-// 🧩 Components
-import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import Breadcrumb from "./components/Breadcrumb";
-import Search from "./components/Search";
-import ProductList, { mockProducts } from "./components/ProductList";
+import AuthModal from "./components/AuthModal";
+import CategoryMenu from "./components/CategoryMenu";
 import Footer from "./components/Footer";
-import LoginModal from "./components/LoginModal";
-import AlertBanner from "./components/AlertBanner";
+import AlertBanner from "./components/AlertBanner"; // ✅ อย่าลืม import AlertBanner
 
-// 🛒 Pages
-import ProductDetail from "./pages/ProductDetail";
 import AccountPage from "./pages/AccountPage";
-import CartPage from "./pages/CartPage";
+import CartPage from "./pages/Cart";
+import ProductDetail from "./pages/ProductDetail";
+import Home from "./pages/Home";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { th } from "date-fns/locale";
+import { th } from "date-fns/locale"; 
 
-function HomePage({ isLoggedIn, hasSearched, filteredProducts, recommendedProducts, handleProductSelect }) {
-  return (
-    <>
-      <ProductList
-        title={hasSearched ? "ผลการค้นหา" : "สินค้าใหม่ที่น่าสนใจ"}
-        products={filteredProducts}
-        onProductSelect={handleProductSelect} 
-      />
+import { mockProducts } from "./data/mockData";
 
-      {isLoggedIn && !hasSearched && recommendedProducts.length > 0 && (
-        <ProductList
-          title="แนะนำสำหรับสภาพผิวของคุณ"
-          products={recommendedProducts}
-          onProductSelect={handleProductSelect}
-          style={{ marginTop: '40px' }}
-        />
-      )}
-    </>
-  );
-}
-function ProductDetailPageWrapper({ onGoBack, onAddToCart, onProductSelect }) { // 👈‼️ 1. ต้องรับ onAddToCart
+function ProductDetailPageWrapper({ onGoBack, onAddToCart, onProductSelect }) {
   const { productId } = useParams();
   const product = mockProducts.find(p => p.id.toString() === productId);
-
+  if (!product) return <div style={{padding:'2rem', textAlign:'center'}}>ไม่พบสินค้า</div>;
   return (
       <ProductDetail
         product={product}
@@ -56,64 +34,164 @@ function ProductDetailPageWrapper({ onGoBack, onAddToCart, onProductSelect }) { 
       />
   );
 }
+
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const closeModal = () => { setIsModalOpen(false); };
-  const [cartItemCount, setCartItemCount] = useState(2);
-  const [notification, setNotification] = useState(null);
-  const showNotification = (message, type = 'success', duration = 3000) => { /* ... */ };
-  const clearNotification = () => { /* ... */ };
-  const handleAddToCartApp = (productName, quantityToAdd) => { /* ... */ };
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const handleLoginSuccess = () => { /* ... */ };
-  const [hasSearched, setHasSearched] = useState(false);
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts.slice(0, 4));
-  const handleSearch = (term) => {
-    console.log("--- APP: Searching for:", term);
-    setHasSearched(true);
-    if (!term.trim()) {
-        setFilteredProducts(mockProducts.slice(0, 4));
-        setHasSearched(false);
-        return;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null); // ✅ State สำหรับ AlertBanner
+  
+  // โหลดสถานะ Login
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem("skinmatch_is_logged_in") === "true";
+  });
+
+  // บันทึกสถานะ Login
+  useEffect(() => {
+    localStorage.setItem("skinmatch_is_logged_in", isLoggedIn);
+  }, [isLoggedIn]);
+
+  // เปิดเว็บมาถ้ายังไม่ Login ให้เด้ง Modal (ปิดได้)
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setIsModalOpen(true);
     }
-    const lowerCaseTerm = term.toLowerCase();
-    const results = mockProducts.filter(/* ... */);
-    setFilteredProducts(results);
+  }, []); 
+
+  // ฟังก์ชันออกจากระบบ
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("skinmatch_is_logged_in");
+    setIsModalOpen(true); 
   };
-  const recommendedProducts = isLoggedIn && !hasSearched ? mockProducts.filter(/* ... */).slice(0, 4) : [];
+
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("skinmatch_cart");
+    if (savedCart) {
+      try { return JSON.parse(savedCart); } catch (e) { console.error(e); }
+    }
+    return []; // เริ่มต้นตะกร้าว่างเปล่า (หรือใส่ Mock Data ตามเดิมก็ได้)
+  });
+
+  const [activeCategory, setActiveCategory] = useState('new');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    localStorage.setItem("skinmatch_cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const totalItemsInCart = cartItems.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
+
   const handleProductSelect = (product) => {
-    console.log('--- APP: Navigating to product:', product.id);
     navigate(`/product/${product.id}`);
     window.scrollTo(0, 0);
   };
+
   const handleGoBack = () => {
-    console.log('--- APP: Navigating back to home ---');
     navigate('/');
     window.scrollTo(0, 0);
   };
-  let breadcrumbItems = [{ label: 'หน้าหลัก', onClick: handleGoBack, isLink: true }];
+
+  // ✅✅✅ แก้ไขตรงนี้: เช็ค Login ก่อนเพิ่มสินค้า
+  const handleAddToCartApp = (product, quantityToAdd) => {
+    // 1. เช็คว่า Login หรือยัง?
+    if (!isLoggedIn) {
+      setIsModalOpen(true); // ถ้ายัง ให้เด้ง Modal Login ขึ้นมา
+      return; // จบการทำงานทันที (ไม่เพิ่มของ)
+    }
+
+    // 2. ถ้า Login แล้ว ให้ทำงานต่อตามปกติ
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => String(item.id) === String(product.id));
+      if (existingItem) {
+        return prevItems.map(item => 
+          String(item.id) === String(product.id)
+            ? { ...item, quantity: (Number(item.quantity) || 0) + quantityToAdd } 
+            : item
+        );
+      } else {
+        return [...prevItems, { ...product, quantity: quantityToAdd }];
+      }
+    });
+
+    // แสดงแจ้งเตือน
+    setAlertMessage("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    setCartItems(prev => prev.filter(item => String(item.id) !== String(productId)));
+  };
+
+  const handleUpdateQuantity = (productId, delta) => {
+    setCartItems(prev => prev.map(item => {
+      if (String(item.id) === String(productId)) {
+        const currentQty = Number(item.quantity) || 1;
+        const newQty = currentQty + delta;
+        return { ...item, quantity: newQty > 0 ? newQty : 1 };
+      }
+      return item;
+    }));
+  };
+
+  const getBreadcrumbItems = () => {
+    const baseItem = { label: 'หน้าหลัก', onClick: handleGoBack, isLink: true };
+    const path = location.pathname;
+    if (path === '/cart') return [baseItem, { label: 'รายการสินค้า', isLink: false }];
+    if (path === '/account') return [baseItem, { label: 'บัญชีของฉัน', isLink: false }];
+    if (path.includes('/product/')) return [baseItem, { label: 'รายละเอียดสินค้า', isLink: false }];
+    if (path === '/') return [];
+    return [baseItem];
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
       <div className="app-container">
-        <AlertBanner  />
-        <LoginModal />
-        <Header cartItemCount={cartItemCount} />
-        <Breadcrumb items={breadcrumbItems} />
-        <Navbar />
-        <Search onSearch={handleSearch} />
+        
+        {/* Modal Login/Register */}
+        {isModalOpen && (
+            <AuthModal 
+                isOpen={true}
+                onLoginSuccess={() => { setIsLoggedIn(true); setIsModalOpen(false); }}
+                onClose={() => setIsModalOpen(false)} 
+            />
+        )}
+
+        {/* Navbar */}
+        <Navbar 
+            isAuthenticated={isLoggedIn} 
+            onLoginClick={() => setIsModalOpen(true)}
+            onLogout={handleLogout}
+            cartItemCount={isLoggedIn ? totalItemsInCart : 0}
+        />
+
+        {/* Alert Banner (เด้งเตือนเมื่อเพิ่มสินค้าสำเร็จ) */}
+        {alertMessage && (
+           <div className="alert-banner-wrapper">
+             <AlertBanner 
+               message={alertMessage} 
+               onClose={() => setAlertMessage(null)} 
+             />
+           </div>
+        )}
+
+        {location.pathname !== '/' && (
+           <Breadcrumb items={getBreadcrumbItems()} />
+        )}
+
+        <CategoryMenu 
+            activeCategory={activeCategory} 
+            onCategorySelect={setActiveCategory} 
+        />
+
         <Routes>
           <Route path="/" element={
             <main>
-              <HomePage
-                isLoggedIn={isLoggedIn}
-                hasSearched={hasSearched}
-                filteredProducts={filteredProducts}
-                recommendedProducts={recommendedProducts}
+              <Home
+                activeCategory={activeCategory} 
                 handleProductSelect={handleProductSelect}
               />
             </main>
           } />
+          
           <Route path="/product/:productId" element={
             <main>
               <ProductDetailPageWrapper
@@ -123,12 +201,22 @@ function App() {
               />
             </main>
           } />
-          <Route path="/account" element={
+
+          <Route path="/account" element={<main><AccountPage /></main>} />
+          
+          <Route path="/cart" element={
             <main>
-              <AccountPage />
+               <CartPage 
+                  cartItems={cartItems} 
+                  onRemoveItem={handleRemoveFromCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onAddToCart={handleAddToCartApp} 
+               />
             </main>
           } />
+          <Route path="/checkout" element={<main><OrderConfirmation /></main>} />
         </Routes>
+
         <Footer />
       </div>
     </LocalizationProvider>

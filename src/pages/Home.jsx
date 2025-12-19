@@ -1,123 +1,187 @@
-import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
+import React, { useState, useMemo, useEffect } from 'react';
+import '../styles/Home.css';
+import '../styles/SearchPage.css';
 import ProductCard from '../components/ProductCard';
-import '../styles/App.css';
-import '../styles/global.css';
 import { mockProducts } from '../data/mockData';
 
-function Home() {
+const getCategoryTitle = (catId) => {
+  const titles = {
+    new: "สินค้าใหม่ที่น่าสนใจ",
+    makeup: "เมคอัพ",
+    skincare: "ผลิตภัณฑ์ดูแลผิวหน้า (Skincare)",
+    haircare: "ผลิตภัณฑ์ดูแลเส้นผม",
+    tools: "อุปกรณ์เสริมสวย",
+    body: "ผลิตภัณฑ์ดูแลผิวกาย",
+    perfume: "น้ำหอม",
+    queen: "ควีนบิวตี้",
+    gift: "ชุดของขวัญ",
+    brand: "แบรนด์ชั้นนำ",
+    sale: "สินค้าลดราคาพิเศษ"
+  };
+  return titles[catId] || "รายการสินค้า";
+};
+
+export default function Home({ handleProductSelect, activeCategory }) {
+  const [inputValue, setInputValue] = useState(""); 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredList, setFilteredList] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('home');
+
+  // เมื่อกดเปลี่ยนหมวดหมู่ ให้ล้างคำค้นหาทิ้ง
+  useEffect(() => {
+    setSearchTerm("");
+    setInputValue("");
+  }, [activeCategory]); 
 
   const handleSearch = () => {
-    const term = searchTerm.toLowerCase().trim();
-    if (term === "") { setIsSearching(false); return; }
-    
-    const result = mockProducts.filter(item => 
-      item.name.toLowerCase().includes(term) || item.brand.toLowerCase().includes(term)
-    );
-    setFilteredList(result);
-    setIsSearching(true);
+    setSearchTerm(inputValue.trim());
   };
 
-  const handleKeyDown = (e) => { if (e.key === 'Enter') handleSearch(); };
-
-  const handleCategoryClick = (category) => {
-    setActiveCategory(category);
-    setSearchTerm("");
-    setIsSearching(false);
-  };
-
-  const getCategoryContent = () => {
-    if (activeCategory === 'home') {
-      const newProducts = mockProducts.filter(p => p.type === 'new');
-      const recProducts = mockProducts.filter(p => p.type === 'recommend');
-      return (
-        <>
-          <h2 className="section-header">สินค้าใหม่ที่น่าสนใจ</h2>
-          <div className="product-grid">
-            {newProducts.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
-          <h2 className="section-header">แนะนำสำหรับผิวของคุณ</h2>
-          <div className="product-grid">
-            {recProducts.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
-        </>
-      );
-    } else {
-      const categoryProducts = mockProducts.filter(p => p.type === activeCategory);
-      return (
-        <>
-          <h2 className="section-header">หมวดหมู่: {categoryNameMap[activeCategory]}</h2>
-          {categoryProducts.length > 0 ? (
-            <div className="product-grid">
-              {categoryProducts.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          ) : (
-            <div style={{textAlign: 'center', padding: '50px', color: '#888'}}><h3>ยังไม่มีสินค้าในหมวดหมู่นี้</h3></div>
-          )}
-        </>
-      );
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
-  const categoryNameMap = {
-    new: "สินค้าใหม่", makeup: "เมคอัพ", skincare: "สกินแคร์", haircare: "ดูแลเส้นผม",
-    tool: "อุปกรณ์เสริมสวย", bodycare: "ดูแลผิวกาย", perfume: "น้ำหอม",
-    queen: "ควีนบิวตี้", gift: "ของขวัญ", brand: "แบรนด์", discount: "สินค้าลดราคา"
-  };
+  const filteredProducts = useMemo(() => {
+    let products = mockProducts;
 
-  return (
-    <div>
-      <div className="breadcrumb" onClick={() => handleCategoryClick('home')} style={{cursor: 'pointer'}}>
-        หน้าแรก {activeCategory !== 'home' && ` > ${categoryNameMap[activeCategory]}`}
-      </div>
+    if (searchTerm) {
+      return products.filter(p => 
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        p.brand.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
-      <main className="container">
-        <div className="category-nav">
-          <div className={`nav-link red-badge-button ${activeCategory === 'new' ? 'active' : ''}`} onClick={() => handleCategoryClick('new')}>ใหม่!</div>
-          {[
-            { id: 'makeup', label: 'เมคอัพ' },
-            { id: 'skincare', label: 'สกินแคร์' },
-            { id: 'haircare', label: 'ดูแลเส้นผม' },
-            { id: 'tool', label: 'อุปกรณ์เสริมสวย' },
-            { id: 'bodycare', label: 'ดูแลผิวกาย' },
-            { id: 'perfume', label: 'น้ำหอม' },
-            { id: 'queen', label: 'ควีนบิวตี้' },
-            { id: 'gift', label: 'ของขวัญ' },
-            { id: 'brand', label: 'แบรนด์' },
-            { id: 'discount', label: 'สินค้าลดราคา' },
-          ].map((menu) => (
-            <div key={menu.id} className={`nav-link ${activeCategory === menu.id ? 'active' : ''}`} onClick={() => handleCategoryClick(menu.id)}>
-              {menu.label}
-            </div>
-          ))}
-        </div>
+    if (activeCategory) {
+      switch (activeCategory) {
+        case 'new': return products;
+        case 'skincare':
+          return products.filter(p => 
+            ['skincare', 'cleanser', 'moisturizer', 'suncare'].includes(p.type)
+          );
+        case 'tools': return products.filter(p => p.type === 'tool');
+        case 'body': return products.filter(p => p.type === 'bodycare');
+        case 'sale': return products.filter(p => p.type === 'discount');
+        default: return products.filter(p => p.type === activeCategory);
+      }
+    }
+    return products;
+  }, [activeCategory, searchTerm]);
 
+  // --- VIEW 1: หน้าหลัก (สินค้าใหม่ + แนะนำ) ---
+  // แสดงเมื่อไม่มีคำค้นหา และอยู่ที่หมวด 'new'
+  if (!searchTerm && activeCategory === 'new') {
+    const newArrivals = mockProducts.filter(p => p.type === 'new' || p.id <= 4).slice(0, 4);
+    const recommendItems = mockProducts.slice(4, 8);
+
+    return (
+      <div className="home-container">
         <div className="search-section">
-          <div className="search-bar">
-            <input type="text" placeholder="คุณกำลังมองหาอะไรอยู่?" className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} />
-            <button className="search-btn" onClick={handleSearch}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <div className="search-pill">
+            <input 
+              type="text" 
+              placeholder="คุณกำลังมองหาอะไรอยู่?" 
+              className="search-input"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button className="search-circle-btn" onClick={handleSearch}>
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
           </div>
         </div>
 
-        {isSearching ? (
-          <div className="search-results-container">
-            <h2 className="section-header">ผลลัพธ์การค้นหา "{searchTerm}" <span style={{fontSize: '16px', color: '#888', marginLeft: '10px'}}>(พบ {filteredList.length} รายการ)</span></h2>
+        <div className="home-content">
+          <section className="product-section">
+            <h2 className="section-title">สินค้าใหม่ที่น่าสนใจ</h2>
             <div className="product-grid">
-              {filteredList.map(p => <ProductCard key={p.id} product={p} />)}
+              {newArrivals.map(p => (
+                <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
+              ))}
             </div>
-          </div>
-        ) : getCategoryContent()}
-      </main>
+          </section>
+
+          <section className="product-section">
+            <h2 className="section-title">แนะนำสำหรับผิวของคุณ</h2>
+            <div className="product-grid">
+              {recommendItems.map(p => (
+                <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
+  // --- VIEW 2: หน้าแสดงผลการค้นหา หรือ หมวดหมู่สินค้าอื่นๆ ---
+  return (
+    <div className="home-container search-page-container">
       
-      <footer className="footer" style={{textAlign: 'center', padding: '40px', background: '#fff0e8'}}>Footer Content</footer>
+      <div className="search-section">
+        <div className="search-pill">
+          <input 
+            type="text" 
+            placeholder="คุณกำลังมองหาอะไรอยู่?" 
+            className="search-input"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button className="search-circle-btn" onClick={handleSearch}>
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="home-content">
+        
+        {/* กรณีไม่พบสินค้า */}
+        {filteredProducts.length === 0 ? (
+           <div className="search-empty-state">
+             <div className="empty-icon-wrapper">
+               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+               </svg>
+             </div>
+             
+             <h3 className="empty-title">
+               {searchTerm ? `ไม่พบสินค้า "${searchTerm}"` : "ยังไม่มีสินค้าในหมวดหมู่นี้"}
+             </h3>
+             <p className="empty-subtitle">
+               ลองตรวจสอบคำสะกด หรือใช้คำค้นหาที่กว้างขึ้น <br/>
+               เช่น "ลิปสติก", "ครีม", "Cerave"
+             </p>
+           </div>
+
+        ) : (
+           /* กรณีพบสินค้า */
+           <div className="product-section">
+             
+             <div className="search-header-result">
+                <h2 className="search-title">
+                  {searchTerm ? (
+                    <>ผลลัพธ์การค้นหา <span className="search-highlight">"{searchTerm}"</span></>
+                  ) : (
+                    getCategoryTitle(activeCategory)
+                  )}
+                </h2>
+                <p className="search-count">
+                  พบสินค้าทั้งหมด {filteredProducts.length} รายการ
+                </p>
+             </div>
+
+             <div className="product-grid">
+               {filteredProducts.map(p => (
+                 <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
+               ))}
+             </div>
+           </div>
+        )}
+
+      </div>
     </div>
   );
 }
-
-export default Home;

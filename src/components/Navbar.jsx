@@ -1,39 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
-export default function Navbar({ isAuthenticated, onLoginClick }) { 
+export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartItemCount }) {
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownRef]);
 
   const handleAccountClick = () => {
     if (isAuthenticated) {
-      alert('พาไปหน้า "บัญชีของฉัน"');
+      setIsDropdownOpen(!isDropdownOpen);
     } else {
       onLoginClick();
     }
   };
 
+  const handleLogoutClick = () => {
+    setIsDropdownOpen(false);
+    onLogout();
+  };
+
+  // ✅ ฟังก์ชันใหม่สำหรับจัดการการกดถุงช้อปปิ้ง
+  const handleCartClick = (e) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      navigate('/cart'); // ถ้าล็อกอินแล้ว ไปหน้าตะกร้า
+    } else {
+      onLoginClick(); // ถ้ายังไม่ล็อกอิน ให้เปิด Modal
+    }
+  };
+
   return (
-    <nav className="navbar">
-      <Link to="/" className="logo-area">
-        <img src="/favicon.png" alt="Logo" className="logo-img" />
-        <span className="brand-text">ai_skinmatch</span>
-      </Link>
-      
-      <div className="nav-actions">
-        <Link to="/cart" className="action-item">
-          <div className="icon-wrapper">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-            <span className="cart-badge">2</span>
+    <nav className="navbar-container">
+      <div className="navbar-content">
+        <Link to="/" className="navbar-logo">
+          <div className="logo-circle">
+            <img 
+              src="/favicon.png" 
+              alt="WAY Logo" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} 
+            />
           </div>
-          <span className="nav-label">ถุงช้อปปิ้ง</span>
+          <span className="logo-text">ai_skinmatch</span>
         </Link>
-        
-        <div className="action-item" onClick={handleAccountClick}> 
-          <div className="icon-wrapper">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div className="navbar-actions">
+          
+          {/* ✅ เปลี่ยน Link เป็น div และใส่ onClick */}
+          <div className="nav-action-item" onClick={handleCartClick} style={{ cursor: 'pointer' }}>
+            <div className="cart-icon-wrapper">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              {/* แสดงตัวเลขเฉพาะเมื่อมีสินค้าและ > 0 (ซึ่ง App.js จะส่ง 0 มาถ้ายังไม่ล็อกอิน) */}
+              {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
+            </div>
+            <span className="nav-label">ถุงช้อปปิ้ง</span>
           </div>
-          <span className="nav-label">บัญชีของฉัน</span>
+
+          <div className="nav-action-item account-dropdown-container" ref={dropdownRef}>
+            <div className="account-trigger" onClick={handleAccountClick}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span className="nav-label">บัญชีของฉัน</span>
+            </div>
+            {isAuthenticated && isDropdownOpen && (
+              <div className="nav-dropdown-menu">
+                <div className="dropdown-arrow"></div>
+                <Link to="/account" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:8}}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  ตั้งค่าบัญชี
+                </Link>
+                <div className="dropdown-divider"></div>
+                <button className="dropdown-item text-red" onClick={handleLogoutClick}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:8}}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  ออกจากระบบ
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

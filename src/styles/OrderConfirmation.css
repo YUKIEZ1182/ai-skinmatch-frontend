@@ -1,0 +1,160 @@
+.order-page-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'FC Iconic', sans-serif;
+  color: #333;
+}
+
+/* --- ส่วนหัว (แก้ไขสีให้เป็นเหลือง/ส้ม) --- */
+.status-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* วงกลมพื้นหลัง */
+.status-icon-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
+
+/* ✅ ธีมสีเหลือง (Pending) */
+.status-icon-circle.pending-theme {
+  background-color: #FFFBEB; /* สีเหลืองอ่อนมากๆ */
+  color: #F59E0B; /* สีเหลืองทอง/ส้ม */
+}
+
+/* ✅ ข้อความหัวข้อสีเหลือง */
+.status-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.status-title.pending-text {
+  color: #F59E0B; /* สีเดียวกับไอคอน */
+}
+
+.status-subtitle {
+  color: #9CA3AF; /* สีเทาจางๆ */
+  font-size: 16px;
+}
+
+/* --- Layout --- */
+.order-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.order-details-section {
+  flex: 1;
+}
+
+.order-summary-sidebar {
+  width: 350px;
+  flex-shrink: 0;
+}
+
+/* Card Styling */
+.section-card, .sidebar-card {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); /* เงาบางๆ */
+}
+
+.section-header, .sidebar-header {
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+/* List Items */
+.order-item-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #F9FAFB;
+}
+.item-img-wrapper {
+  width: 80px;
+  height: 80px;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 15px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.item-info { flex: 1; }
+.item-brand { font-size: 12px; color: #9CA3AF; text-transform: uppercase; }
+.item-name { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 4px; }
+.item-qty { font-size: 13px; color: #6B7280; }
+.item-price { font-size: 16px; font-weight: 600; color: #111; }
+
+/* Cost Summary */
+.order-cost-summary { margin-top: 20px; padding-top: 10px; }
+.cost-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; color: #4B5563; }
+.cost-divider { height: 1px; background-color: #E5E7EB; margin: 15px 0; }
+.cost-row.total { color: #000; font-size: 20px; font-weight: 700; }
+
+/* Sidebar details */
+.sidebar-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; }
+.sidebar-row .label { color: #6B7280; }
+.sidebar-row .value { color: #111; font-weight: 500; text-align: right; }
+
+.status-tag.pending {
+  background-color: #FFFBEB;
+  color: #F59E0B;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn-pay-now {
+  width: 100%;
+  background-color: #1F2937; /* สีดำเกือบสนิท */
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+.btn-pay-now:hover { background-color: #000; }
+
+.sidebar-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.btn-back-outline {
+  width: 100%; padding: 12px; background: #fff; border: 1px solid #D1D5DB; border-radius: 8px; color: #374151; font-weight: 500; cursor: pointer; display: flex; justify-content: center; align-items: center;
+}
+.btn-shopping-black {
+  width: 100%; padding: 12px; background-color: #1F2937; color: #fff; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+}
+
+/* ✅ Mobile Responsive */
+@media (max-width: 900px) {
+  .order-layout { flex-direction: column; }
+  .order-details-section, .order-summary-sidebar { width: 100%; }
+}

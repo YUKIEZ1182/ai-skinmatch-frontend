@@ -1,29 +1,317 @@
-.detail-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; font-family: 'FC Iconic', sans-serif; color: #333; }
-.product-top-section { display: flex; gap: 60px; margin-bottom: 80px; align-items: flex-start; }
-.gallery-section { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.main-image-box { width: 100%; height: 500px; background-color: #f8f8f8; border-radius: 15px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; overflow: hidden; border: 1px solid #eee; }
-.main-image { width: 100%; height: 100%; object-fit: contain; }
-.thumbnail-carousel-container { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 450px; gap: 10px; }
-.arrow-btn { background: #ffffff; border: 1px solid #ddd; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; z-index: 2; color: #555; }
-.arrow-btn:hover { border-color: #000; color: #000; background-color: #f9f9f9; }
-.thumbnail-wrapper { width: 100%; overflow-x: auto; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
-.thumbnail-wrapper::-webkit-scrollbar { display: none; }
-.thumbnail-list { display: flex; gap: 12px; padding: 5px; width: max-content; }
-.thumbnail { width: 70px; height: 70px; border: 2px solid transparent; border-radius: 12px; cursor: pointer; object-fit: cover; background: #fff; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: border 0.2s; }
-.thumbnail.active { border-color: #000; border-width: 2px; }
-.info-section { flex: 1; }
-.brand-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-.product-title { font-size: 32px; font-weight: 500; margin-bottom: 15px; line-height: 1.2; }
-.tag-container { display: flex; gap: 10px; margin-bottom: 20px; }
-.skin-type-tag { background-color: #ffe4d6; color: #c05830; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; }
-.product-price { font-size: 28px; font-weight: 500; margin-bottom: 30px; }
-.action-row { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #eee; }
-.qty-label { font-weight: bold; }
-.qty-selector { display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; border-radius: 30px; padding: 5px 15px; }
-.qty-btn { width: 30px; height: 30px; border: none; background: none; font-size: 20px; cursor: pointer; }
-.qty-number { font-size: 18px; font-weight: 500; width: 30px; text-align: center; }
-.add-to-cart-btn { background-color: #1a1a1a; color: white; height: 50px; padding: 0 40px; border-radius: 30px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-.detail-text-group { margin-bottom: 25px; }
-.detail-heading { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-.detail-desc { font-size: 15px; color: #555; line-height: 1.6; }
-@media (max-width: 768px) { .product-top-section { flex-direction: column; } .main-image-box { height: 350px; } }
+/* --- Container หลัก --- */
+.product-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  font-family: 'FC Iconic', 'Prompt', sans-serif;
+  color: #333;
+}
+
+/* --- Layout แบ่งซ้าย-ขวา --- */
+.product-main-section {
+  display: flex;
+  gap: 60px;
+  align-items: flex-start;
+  margin-bottom: 80px;
+}
+
+/* =========================================
+   ฝั่งซ้าย: โซนรูปภาพ (Gallery)
+   ========================================= */
+.product-gallery-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+/* กรอบรูปใหญ่ */
+.main-image-wrapper {
+  width: 100%;
+  height: 500px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-main-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.detail-out-of-stock-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: #555;
+}
+
+.thumbnail-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 500px;
+}
+
+
+
+/* ปุ่มลูกศร (วงกลมดำ) */
+.nav-arrow {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.nav-arrow:hover {
+  background-color: #333;
+  transform: scale(1.1);
+}
+
+.thumbnail-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px;
+  width: 100%;
+  scroll-snap-type: x mandatory; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.thumbnail-list::-webkit-scrollbar {
+  display: none;
+}
+
+.thumbnail-item {
+  width: 80px; 
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s;
+  background-color: #fff;
+  scroll-snap-align: start; 
+}
+
+.thumbnail-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.thumbnail-item.active {
+  border: 2px solid #f77288;
+  opacity: 1;
+}
+
+.product-info-container {
+  flex: 1;
+  padding-top: 20px;
+}
+
+.detail-brand {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.detail-name {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 15px;
+  line-height: 1.3;
+  color: #000;
+}
+
+.tag-badge {
+  background-color: #FFEAE4;
+  color: #D66D5A;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail-price {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 25px 0;
+  color: #333;
+}
+
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-top: 30px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #eee;
+}
+
+.qty-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.qty-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
+
+.qty-control-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.qty-circle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #E0E0E0;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+}
+
+.qty-circle-btn:hover:not(:disabled) {
+  border-color: #000;
+  background-color: #FAFAFA;
+}
+
+.qty-circle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.qty-value-text {
+  font-size: 20px;
+  font-weight: 500;
+  min-width: 20px;
+  text-align: center;
+}
+
+.add-to-cart-pill {
+  flex: 1;
+  background-color: #1A0E0E; /* สีดำเข้ม */
+  color: white;
+  border: none;
+  height: 56px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  transition: opacity 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.add-to-cart-pill:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.add-to-cart-pill.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.detail-text-content {
+  margin-top: 30px;
+}
+
+.text-section {
+  margin-bottom: 25px;
+}
+
+.text-section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.text-section p, .usage-list li {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.usage-list {
+  padding-left: 20px;
+  margin: 0;
+}
+
+/* --- สินค้าแนะนำ --- */
+.related-products-section {
+  margin-top: 60px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-main-section {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .detail-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .qty-section {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

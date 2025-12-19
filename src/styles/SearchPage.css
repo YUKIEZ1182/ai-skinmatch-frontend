@@ -1,0 +1,98 @@
+.search-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 60vh;
+}
+.search-header-result {
+  margin-bottom: 30px;
+  text-align: left;
+  padding-left: 5px;
+  display: block;
+}
+.search-title {
+  font-size: 28px;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+.search-highlight {
+  color: #FF8B73;
+  font-weight: 700;
+}
+.search-count {
+  color: #888;
+  font-size: 16px;
+  margin-top: 8px;
+  font-weight: normal;
+}
+.search-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 16px;
+  margin-top: 20px;
+}
+.empty-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  background-color: #FFF5F3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  color: #FF8B73;
+}
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+.empty-subtitle {
+  color: #999;
+  font-size: 15px;
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.back-home-btn {
+  padding: 12px 30px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-home-btn:hover {
+  background-color: #FF8B73;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 139, 115, 0.4);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Grid สินค้า (กรณีเจอสินค้า) --- */
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}

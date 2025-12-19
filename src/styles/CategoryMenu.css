@@ -1,0 +1,68 @@
+.category-nav-container {
+  width: 100%;
+  background-color: white;
+  padding: 10px 0 20px 0;
+}
+
+.category-scroll {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666; /* ✅ สีเทาปกติ */
+  cursor: pointer;
+  padding: 5px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  font-family: 'FC Iconic', 'Prompt', sans-serif;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  color: #000;
+}
+
+.nav-item.active {
+  color: #4A2B29; /* ✅ สีน้ำตาลเข้มเมื่อเลือก */
+  font-weight: 600;
+  border-bottom-color: #4A2B29;
+}
+
+/* ปุ่ม "ใหม่!" (Highlight) */
+.nav-item.highlight {
+  background-color: #FF3B30; /* ✅ สีแดงสดตาม UI */
+  color: white;
+  padding: 6px 18px;
+  border-radius: 50px; /* ทรงแคปซูล */
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 10px rgba(255, 59, 48, 0.25); /* เงาสีแดงจางๆ */
+}
+
+.nav-item.highlight:hover,
+.nav-item.highlight.active {
+  background-color: #D32F2F; /* แดงเข้มขึ้นตอนชี้ */
+  color: white;
+  border-bottom-color: transparent;
+  transform: translateY(-2px);
+}
+
+/* Responsive มือถือ */
+@media (max-width: 768px) {
+  .category-scroll {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    -webkit-overflow-scrolling: touch;
+  }
+}

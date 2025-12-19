@@ -1,0 +1,150 @@
+/* Container หลักของ Footer */
+.footer-container {
+  background-color: #FFDBCB; /* สีส้มพีชตามแบบ */
+  color: #4A4A4A; /* สีตัวหนังสือเทาเข้มเกือบดำ */
+  padding: 60px 20px 40px;
+  font-family: 'FC Iconic', 'Prompt', sans-serif;
+  margin-top: auto; /* ดัน Footer ไปล่างสุดถเนื้อหาน้อย */
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* --- ส่วนที่ 1: โลโก้และแบรนด์ --- */
+.footer-brand {
+  flex: 1;
+  min-width: 250px;
+}
+
+.brand-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.footer-logo-circle {
+  width: 50px;
+  height: 50px;
+  background-color: #F08080;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.footer-brand-name {
+  font-size: 28px;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.social-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.social-icon:hover {
+  opacity: 1;
+}
+
+.footer-links {
+  flex: 0.5;
+  min-width: 150px;
+}
+
+.footer-heading {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1A1A1A;
+}
+
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-list li {
+  margin-bottom: 12px;
+}
+
+.footer-list a {
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.footer-list a:hover {
+  color: #000;
+}
+
+.footer-newsletter {
+  flex: 1.2;
+  min-width: 300px;
+}
+
+.newsletter-text {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+}
+
+.newsletter-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.4); /* พื้นหลังโปร่งแสงนิดๆ ตามรูป */
+  font-family: inherit;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+}
+
+.newsletter-input::placeholder {
+  color: #888;
+}
+
+.subscribe-btn {
+  padding: 10px 20px;
+  border: 1px solid #d4a59a;
+  background-color: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.subscribe-btn:hover {
+  background-color: #fff;
+}
+
+/* Responsive มือถือ */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 30px;
+  }
+}

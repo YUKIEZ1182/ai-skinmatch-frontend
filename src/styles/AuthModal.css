@@ -1,225 +1,144 @@
-/* พื้นหลังมืดๆ (Backdrop) */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* สีเทาเข้มโปร่งแสงตามรูป */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+/* --- Overlay & Modal --- */
+.auth-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;
+  z-index: 10000; backdrop-filter: blur(4px);
 }
 
-/* กล่อง Modal สีขาว */
-.modal-box {
-  background: white;
-  width: 450px;
-  border-radius: 12px;
-  padding: 30px;
-  position: relative;
-  font-family: 'FC Iconic', sans-serif;
+.auth-modal-content {
+  background-color: #fff; 
+  padding: 45px 40px; /* ✅ เพิ่ม Padding ให้เนื้อหาดูไม่อึดอัด */
+  border-radius: 24px; 
+  width: 90%; 
+  max-width: 520px;   /* ✅ เพิ่มความกว้างจากเดิม (420px -> 520px) */
+  position: relative; 
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
+  font-family: 'FC Iconic', 'Prompt', sans-serif;
+  animation: slideUp 0.3s ease-out;
 }
 
-/* ปุ่มปิด (X) */
-.modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #aaa;
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.modal-header {
-  text-align: center;
-  font-size: 15px;
-  font-weight: 500; /* Medium */
-  margin-bottom: 25px;
+.modal-close-icon, .modal-back-icon {
+  position: absolute; top: 25px; background: none; border: none; font-size: 26px; cursor: pointer; color: #333; transition: transform 0.2s;
+}
+.modal-close-icon:hover, .modal-back-icon:hover { transform: scale(1.1); }
+.modal-close-icon { right: 25px; }
+.modal-back-icon { left: 25px; }
+
+/* Titles */
+.auth-title {
+  font-size: 22px; /* เพิ่มขนาดตัวอักษรหัวข้อ */
+  font-weight: 700; text-align: center; margin-bottom: 30px; color: #1a1a1a;
+  line-height: 1.4;
 }
 
-.modal-error {
-  color: #ff3333;
-  background-color: #ffe4e4;
-  border: 1px solid #ffaaaa;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  text-align: center;
-  margin-bottom: 15px;
-  display: none;
-}
-
-.modal-error.active {
-  display: block;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
+/* Form Elements */
+.form-group { margin-bottom: 22px; }
 .form-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
+  display: block; font-size: 15px; color: #444; margin-bottom: 8px; font-weight: 500; text-align: left;
 }
 
-.form-input {
-  width: 100%;
-  height: 50px;
-  padding: 0 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-family: 'FC Iconic', sans-serif;
-  font-size: 14px;
-  background: #fafafa;
+/* Inputs & Selects */
+.auth-input, .auth-select, .auth-input-date {
+  width: 100%; padding: 15px 18px; border: 1px solid transparent; border-radius: 14px;
+  font-size: 15px; color: #333; background-color: #F5F7FA; font-family: inherit;
+  box-sizing: border-box; transition: all 0.2s; outline: none;
+}
+.auth-input:focus, .auth-select:focus, .auth-input-date:focus {
+  background-color: #fff; border-color: #1a1a1a; box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+.auth-input::placeholder { color: #aaa; }
+
+/* Password Wrapper */
+.password-wrapper { position: relative; }
+.password-toggle-icon {
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+  cursor: pointer; display: flex; align-items: center; color: #888;
+}
+.password-toggle-icon:hover { color: #333; }
+
+/* Date Input Hacks */
+.date-input-wrapper { position: relative; width: 100%; }
+.auth-input-date { padding-right: 50px; -webkit-appearance: none; cursor: pointer; }
+.auth-input-date::-webkit-calendar-picker-indicator {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+}
+.auth-input-date:invalid::-webkit-datetime-edit { color: transparent; }
+.auth-input-date:invalid::before { content: attr(placeholder); color: #aaa; position: absolute; }
+.calendar-icon-overlay {
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: #666;
 }
 
-.form-input-icon {
-  position: relative;
+/* Select Styling */
+.select-wrapper { position: relative; }
+.auth-select { appearance: none; cursor: pointer; }
+.auth-select:invalid { color: #aaa; }
+.select-chevron {
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #888;
 }
 
-.form-input-icon .form-input {
-  padding-right: 50px;
+/* Buttons */
+.auth-submit-btn {
+  width: 100%; padding: 16px; background-color: #1a1a1a; color: #fff; border: 1px solid #1a1a1a;
+  border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 15px;
+  transition: all 0.2s;
+}
+.auth-submit-btn:hover { background-color: #333; border-color: #333; transform: translateY(-1px); }
+
+.auth-outline-btn {
+  width: 100%; padding: 16px; background-color: #fff; color: #1a1a1a; border: 1px solid #e0e0e0;
+  border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 15px;
+  transition: all 0.2s;
+}
+.auth-outline-btn:hover { background-color: #f9f9f9; border-color: #ccc; }
+
+/* Links */
+.forgot-password-link {
+  font-size: 13px; color: #2563EB; cursor: pointer; font-weight: 500;
+}
+.forgot-password-link:hover { text-decoration: underline; }
+
+.auth-footer {
+  text-align: center; margin-top: 25px; font-size: 15px; color: #666;
+}
+.auth-link {
+  color: #2563EB; text-decoration: none; font-weight: 600; cursor: pointer; margin-left: 5px;
 }
 
-.form-select,
-.form-date {
-  width: 100%;
-  height: 50px;
-  padding: 0 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-family: 'FC Iconic', sans-serif;
-  font-size: 14px;
-  background-color: #fafafa;
-  color: #555;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 15px center;
-  background-size: 16px;
+.auth-legal-text {
+  text-align: center; font-size: 12px; color: #999; margin-top: 30px; line-height: 1.5;
 }
 
-.form-date:invalid,
-.form-select:invalid {
-  color: #999;
-}
-
-.form-help-text {
-  color: #ff3333; 
-  font-size: 13px;
-  font-weight: 500;
-  margin-top: 6px;
-  padding-left: 5px;
-  height: 16px;
-}
-
-.form-input.is-invalid {
-  border-color: #ff3333;
-  background-color: #fff8f8;
-}
-
-.modal-back-btn {
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #aaa;
-  padding: 5px;
-  line-height: 1;
-}
-
-.modal-back-btn:hover {
-  color: #000;
-}
-
-.input-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-}
-
-.input-icon-btn {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #aaa;
-  cursor: pointer;
-}
-
-.input-icon-btn:hover {
-  color: #333;
-}
-
-.btn-primary {
-  width: 100%;
-  height: 50px;
-  background: var(--header-bg);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: 'FC Iconic', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.btn-secondary {
-  width: 100%;
-  height: 50px;
-  background: white;
-  color: var(--text-dark);
-  border: 1px solid var(--text-dark);
-  border-radius: 8px;
-  font-family: 'FC Iconic', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.modal-switch {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 13px;
-}
-
-.modal-switch span {
-  color: var(--header-bg);
+/* ✅ สไตล์สำหรับลิงก์เงื่อนไข/นโยบาย */
+.legal-link {
+  color: #2563EB; /* สีฟ้า */
+  text-decoration: none;
   font-weight: 600;
   cursor: pointer;
+  transition: color 0.2s;
 }
-
-.terms-text {
-  font-size: 10px;
-  color: #888;
-  text-align: center;
-  margin-top: 20px;
-  padding: 0 10px;
-}
-
-.terms-text a {
-  color: var(--header-bg);
-  font-weight: 600;
+.legal-link:hover {
   text-decoration: underline;
-  cursor: pointer;
+  color: #1d4ed8;
+}
+
+.error-text {
+  color: #ef4444; /* สีแดง */
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* เปลี่ยนสีขอบ Input เป็นสีแดงถ้ามี Error */
+.auth-input.input-error,
+.password-wrapper.input-error .auth-input {
+  border-color: #ef4444 !important;
+  background-color: #FEF2F2; /* พื้นหลังแดงจางๆ */
 }

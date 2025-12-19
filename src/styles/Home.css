@@ -1,0 +1,115 @@
+.home-container {
+  padding-top: 10px;
+  min-height: 100vh;
+  background-color: #fff;
+}
+.home-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px 60px 20px;
+}
+.search-section {
+  background-color: #fff;
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  /* เพิ่มเงาบางๆ ให้ดูแยกส่วนกับเนื้อหาเวลาเลื่อน */
+  box-shadow: 0 1px 10px rgba(0,0,0,0.03); 
+}
+.search-pill {
+  position: relative;
+  width: 90%;
+  max-width: 700px;
+  margin: 0 auto; /* จัดกึ่งกลางแนวนอน */
+  display: flex;
+  align-items: center;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 55px 12px 20px;
+  border-radius: 50px;
+  border: none;
+  background-color: #F3F4F6;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+}
+.search-input::placeholder {
+  color: #999;
+  font-size: 14px; 
+}
+.search-input:focus {
+  background-color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+.search-circle-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  background-color: #000;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+}
+.search-circle-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+  background-color: #333;
+}
+.search-circle-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+}
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #333;
+  text-align: left; /* 👈 ชิดซ้าย */
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    justify-content: center;
+    justify-items: center;
+}
+.product-grid > div {
+    width: 100%;
+    max-width: 280px; /* คุมความกว้างการ์ดไม่ให้ยืดจนน่าเกลียด */
+}
+.no-result {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+@media (max-width: 1024px) {
+  .product-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .home-container { 
+    padding: 15px 20px;
+  }
+  .product-grid { 
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px; 
+  }
+  .section-title {
+    font-size: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .product-grid { 
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}

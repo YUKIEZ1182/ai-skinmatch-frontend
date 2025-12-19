@@ -1,29 +1,30 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import '../styles/ProductCard.css';
 
-export default function ProductCard({ product }) {
-  return (
-    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <div className="product-card">
-        <div className="image-wrapper">
-          {product.stock === 0 && (
-            <div className="sold-out-overlay">
-              <div className="sold-out-text">สินค้าหมด</div>
-              <div className="sold-out-sub">Sold Out</div>
-            </div>
-          )}
-          <img src={product.image} alt={product.name} className="product-img" />
-        </div>
+export default function ProductCard({ product, onClick }) {
+  const isOutOfStock = product.status === 'out_of_stock';
 
-        <div className="info-row">
-          <div>
-            <div className="brand">{product.brand}</div>
-            <div className="name">{product.name}</div>
+  return (
+    <div className="product-card" onClick={onClick}>
+      <div className="product-image-container">
+        <img src={product.image} alt={product.name} className="product-image" />
+        {isOutOfStock && (
+          <div className="out-of-stock-overlay">
+            <span>สินค้าหมด</span>
           </div>
-          <div className="price">{product.price.toLocaleString()} Baht</div>
+        )}
+      </div>
+      <div className="product-info">
+        <div className="product-header-row">
+          <span className="product-brand">{product.brand}</span>
+          <span className="product-price">
+            {product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Baht
+          </span>
+        </div>
+        <div className="product-name-row">
+          <span className="product-name">{product.name}</span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
