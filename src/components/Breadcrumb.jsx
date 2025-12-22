@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Breadcrumb.css'; // เรียกใช้ CSS
+import '../styles/Breadcrumb.css';
 
 const Breadcrumb = ({ items }) => {
   // ถ้าไม่มีข้อมูล ไม่ต้องแสดงอะไร
@@ -15,7 +15,7 @@ const Breadcrumb = ({ items }) => {
               {item.label}
             </span>
           ) : (
-            // ถ้าเป็นหน้าปัจจุบัน (ตัวหนังสือธรรมดา)
+            // ถ้าเป็นหน้าปัจจุบัน
             <span className="breadcrumb-current">
               {item.label}
             </span>

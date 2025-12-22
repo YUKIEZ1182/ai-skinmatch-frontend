@@ -20,37 +20,29 @@ const getCategoryTitle = (catId) => {
   };
   return titles[catId] || "รายการสินค้า";
 };
-
 export default function Home({ handleProductSelect, activeCategory }) {
   const [inputValue, setInputValue] = useState(""); 
   const [searchTerm, setSearchTerm] = useState("");
-
-  // เมื่อกดเปลี่ยนหมวดหมู่ ให้ล้างคำค้นหาทิ้ง
   useEffect(() => {
     setSearchTerm("");
     setInputValue("");
   }, [activeCategory]); 
-
   const handleSearch = () => {
     setSearchTerm(inputValue.trim());
   };
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
-
   const filteredProducts = useMemo(() => {
     let products = mockProducts;
-
     if (searchTerm) {
       return products.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         p.brand.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     if (activeCategory) {
       switch (activeCategory) {
         case 'new': return products;
@@ -66,31 +58,20 @@ export default function Home({ handleProductSelect, activeCategory }) {
     }
     return products;
   }, [activeCategory, searchTerm]);
-
-  // --- VIEW 1: หน้าหลัก (สินค้าใหม่ + แนะนำ) ---
-  // แสดงเมื่อไม่มีคำค้นหา และอยู่ที่หมวด 'new'
+  // หน้าหลัก (สินค้าใหม่ + แนะนำ
   if (!searchTerm && activeCategory === 'new') {
     const newArrivals = mockProducts.filter(p => p.type === 'new' || p.id <= 4).slice(0, 4);
     const recommendItems = mockProducts.slice(4, 8);
-
     return (
       <div className="home-container">
         <div className="search-section">
           <div className="search-pill">
-            <input 
-              type="text" 
-              placeholder="คุณกำลังมองหาอะไรอยู่?" 
-              className="search-input"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
+            <input type="text" placeholder="คุณกำลังมองหาอะไรอยู่?" className="search-input" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown}/>
             <button className="search-circle-btn" onClick={handleSearch}>
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
           </div>
         </div>
-
         <div className="home-content">
           <section className="product-section">
             <h2 className="section-title">สินค้าใหม่ที่น่าสนใจ</h2>
@@ -100,7 +81,6 @@ export default function Home({ handleProductSelect, activeCategory }) {
               ))}
             </div>
           </section>
-
           <section className="product-section">
             <h2 className="section-title">แนะนำสำหรับผิวของคุณ</h2>
             <div className="product-grid">

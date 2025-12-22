@@ -15,11 +15,9 @@ const categories = [
   { id: 'brand', label: 'แบรนด์' },
   { id: 'sale', label: 'สินค้าลดราคา' },
 ];
-
 export default function CategoryMenu({ activeCategory, onCategorySelect }) {
   const navigate = useNavigate();
   const location = useLocation();
-
   const handleClick = (catId) => {
     if (location.pathname !== '/') {
       navigate('/');
@@ -28,16 +26,11 @@ export default function CategoryMenu({ activeCategory, onCategorySelect }) {
       onCategorySelect(catId);
     }
   };
-
   return (
     <nav className="category-nav-container">
       <div className="category-scroll">
         {categories.map((cat) => (
-          <button
-            key={cat.id}
-            className={`nav-item ${cat.isHighlight ? 'highlight' : ''} ${activeCategory === cat.id ? 'active' : ''}`}
-            onClick={() => handleClick(cat.id)}
-          >
+          <button key={cat.id} className={`nav-item ${cat.isHighlight ? 'highlight' : ''} ${activeCategory === cat.id ? 'active' : ''}`} onClick={() => handleClick(cat.id)}>
             {cat.label}
           </button>
         ))}

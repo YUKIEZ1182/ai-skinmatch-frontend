@@ -3,7 +3,6 @@ import '../styles/ProductCard.css';
 
 export default function ProductCard({ product, onClick }) {
   const isOutOfStock = product.status === 'out_of_stock';
-
   return (
     <div className="product-card" onClick={onClick}>
       <div className="product-image-container">

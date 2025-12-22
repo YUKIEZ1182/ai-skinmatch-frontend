@@ -10,12 +10,8 @@ const AccountPage = () => {
     gender: 'female',
     skinType: 'oily'
   });
-
   const [isEditing, setIsEditing] = useState(false);
-
-  const handleInputChange = (field, value) => {
-    setUserInfo(prev => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = (field, value) => {setUserInfo(prev => ({ ...prev, [field]: value }));};
   return (
     <div className="account-page-wrapper">
       <div className="account-header">
@@ -30,54 +26,31 @@ const AccountPage = () => {
           </button>
         )}
       </div>
-
       <div className="account-form">
         <div className="form-row">
           <label className="form-label">อีเมล</label>
           <div className="input-wrapper">
-             <input 
-               type="text" 
-               value={userInfo.email} 
-               disabled={true} 
-               className="gray-input"
-             />
+             <input type="text" value={userInfo.email} disabled={true} className="gray-input"/>
           </div>
         </div>
         <div className="form-row">
           <label className="form-label">รหัสผ่าน</label>
           <div className="input-wrapper">
-             <input 
-               type="password" 
-               value={userInfo.password}
-               disabled={!isEditing} 
-               onChange={(e) => handleInputChange('password', e.target.value)}
-               className="gray-input"
-             />
+             <input type="password" value={userInfo.password} disabled={!isEditing} onChange={(e) => handleInputChange('password', e.target.value)} className="gray-input"/>
           </div>
         </div>
         {isEditing && (
           <div className="form-row">
             <label className="form-label">ยืนยันรหัสผ่าน</label>
             <div className="input-wrapper">
-               <input 
-                 type="password" 
-                 value={userInfo.confirmPassword}
-                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                 className="gray-input" 
-               />
+               <input type="password" value={userInfo.confirmPassword} onChange={(e) => handleInputChange('confirmPassword', e.target.value)} className="gray-input" />
             </div>
           </div>
         )}
         <div className="form-row">
           <label className="form-label">วันเกิด</label>
           <div className="input-wrapper">
-             <input 
-               type="date" 
-               value={userInfo.birthdate}
-               onChange={(e) => handleInputChange('birthdate', e.target.value)}
-               disabled={!isEditing}
-               className="gray-input"
-             />
+             <input type="date" value={userInfo.birthdate} onChange={(e) => handleInputChange('birthdate', e.target.value)} disabled={!isEditing} className="gray-input"/>
              <div className="icon-overlay">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -91,15 +64,9 @@ const AccountPage = () => {
         <div className="form-row">
           <label className="form-label">เพศ</label>
           <div className="input-wrapper">
-             <select 
-                value={userInfo.gender} 
-                disabled={!isEditing}
-                className="gray-input gray-select"
-                onChange={(e) => handleInputChange('gender', e.target.value)}
-             >
+             <select value={userInfo.gender} disabled={!isEditing} className="gray-input gray-select" onChange={(e) => handleInputChange('gender', e.target.value)}>
                 <option value="female">เพศหญิง</option>
                 <option value="male">เพศชาย</option>
-                <option value="other">อื่นๆ</option>
              </select>
              <div className="icon-overlay">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -111,12 +78,7 @@ const AccountPage = () => {
         <div className="form-row">
           <label className="form-label">ประเภทผิว</label>
           <div className="input-wrapper">
-             <select 
-                value={userInfo.skinType} 
-                disabled={!isEditing}
-                className="gray-input gray-select"
-                onChange={(e) => handleInputChange('skinType', e.target.value)}
-             >
+             <select value={userInfo.skinType} disabled={!isEditing} className="gray-input gray-select" onChange={(e) => handleInputChange('skinType', e.target.value)}>
                 <option value="oily">ผิวมัน</option>
                 <option value="dry">ผิวแห้ง</option>
                 <option value="combination">ผิวผสม</option>
@@ -131,15 +93,11 @@ const AccountPage = () => {
         </div>
         {isEditing && (
           <div className="form-actions">
-             <button className="btn-save-black" onClick={() => setIsEditing(false)}>
-               บันทึกการเปลี่ยนแปลง
-             </button>
+             <button className="btn-save-black" onClick={() => setIsEditing(false)}>บันทึกการเปลี่ยนแปลง</button>
           </div>
         )}
-
       </div>
     </div>
   );
 };
-
 export default AccountPage;
