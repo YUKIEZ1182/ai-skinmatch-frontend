@@ -5,6 +5,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/CustomDatePicker.css";
 
+const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
+const MEMBER_ROLE_ID = import.meta.env.VITE_MEMBER_ROLE_ID; 
+
 const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
   <div className="date-input-wrapper" onClick={onClick} ref={ref} style={{cursor: 'pointer'}}>
     <input 
@@ -20,7 +23,6 @@ const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) 
   </div>
 ));
 
-// ไอคอนตาเปิด-ปิด
 const EyeOpenIcon = () => ( <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> );
 const EyeClosedIcon = () => ( <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg> );
 
@@ -28,26 +30,27 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [mode, setMode] = useState('login'); 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [email, setEmail] = useState(''); //เก็บค่า input เพื่อเอาไปตรวจสอบ
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [birthDate, setBirthDate] = useState(null);   //ข้อมูลส่วนตัว (Step 2)
+  const [birthDate, setBirthDate] = useState(null);
   const [gender, setGender] = useState('');
   const [skinType, setSkinType] = useState('');
-  const [errors, setErrors] = useState({});  //เก็บ Error Message
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
   const togglePassword = () => setShowPassword(!showPassword);
   const toggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
+
   const handleGoToRegister = () => {
     setErrors({});
     setMode('register_step1');
   };
-  //ฟังก์ชันตรวจสอบความถูกต้อง
+
   const validateRegisterStep1 = () => {
     let newErrors = {};
     let isValid = true;
-    //ตรวจอีเมล
     if (!email.trim()) {
       newErrors.email = "กรุณากรอกอีเมล";
       isValid = false;
@@ -55,7 +58,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       newErrors.email = "รูปแบบอีเมลไม่ถูกต้อง (ตัวอย่าง: name@example.com)";
       isValid = false;
     }
-    //ตรวจรหัสผ่าน
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!password) {
       newErrors.password = "กรุณากรอกรหัสผ่าน";
@@ -64,7 +66,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 8 ตัว, พิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข และอักขระพิเศษ";
       isValid = false;
     }
-    //ตรวจยืนยันรหัสผ่าน
     if (!confirmPassword) {
       newErrors.confirmPassword = "กรุณายืนยันรหัสผ่าน";
       isValid = false;
@@ -75,30 +76,105 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     setErrors(newErrors);
     return isValid;
   };
-  // ปุ่มถัดไป
+
   const handleNextStep = (e) => {
     e.preventDefault();
-    if (validateRegisterStep1()) {     // ถ้าผ่านการตรวจสอบ ให้ไปต่อ
+    if (validateRegisterStep1()) {
        setErrors({});
        setMode('register_step2');
     }
   };
-  const handleFinalSubmit = (e) => {
+
+  const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    //เช็คค่าว่าง
-    if (mode === 'login' && (!email || !password)) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
+    setIsLoading(true);
+
+    try {
+        if (mode === 'login') {
+            if (!email || !password) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+                setIsLoading(false);
+                return;
+            }
+
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                const accessToken = data.data.access_token;
+                
+                const meResponse = await fetch(`${API_URL}/users/me?fields=role`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const meData = await meResponse.json();
+
+                if (MEMBER_ROLE_ID && meData.data.role !== MEMBER_ROLE_ID) {
+                    alert("บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานในส่วนนี้ (Role ไม่ถูกต้อง)");
+                    setIsLoading(false);
+                    return; 
+                }
+
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', data.data.refresh_token);
+                onLoginSuccess();
+                onClose();
+            } else {
+                alert(`เข้าสู่ระบบไม่สำเร็จ: ${data.errors?.[0]?.message || 'ข้อมูลไม่ถูกต้อง'}`);
+            }
+        } 
+
+        else if (mode === 'register_step2') {
+            if (!birthDate || !gender || !skinType) {
+                alert("กรุณากรอกข้อมูลส่วนตัวให้ครบถ้วน");
+                setIsLoading(false);
+                return;
+            }
+            const formattedDate = birthDate.toISOString().split('T')[0];
+
+            const registerPayload = {
+                email: email,
+                password: password,
+                date_of_birth: formattedDate,
+                gender: gender,     
+                skin_type: skinType,
+                role: MEMBER_ROLE_ID
+            };
+
+            const response = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(registerPayload),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
+                setMode('login');
+            } else {
+                console.error("Register Error:", data);
+                if (data.errors?.[0]?.message?.includes("forbidden")) {
+                     alert("เกิดข้อผิดพลาด: ระบบยังไม่อนุญาตให้สร้าง User ด้วย Role นี้ (กรุณาเช็ค Permissions ใน Directus)");
+                } else {
+                     alert(`สมัครสมาชิกไม่สำเร็จ: ${data.errors?.[0]?.message || 'เกิดข้อผิดพลาด'}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Network Error:", error);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    } finally {
+        setIsLoading(false);
     }
-    if (mode === 'register_step2' && (!birthDate || !gender || !skinType)) {
-        alert("กรุณากรอกข้อมูลส่วนตัวให้ครบถ้วน");
-        return;
-    }
-    onLoginSuccess(); 
   };
+
   const genderOptions = [ { value: 'male', label: 'ชาย' }, { value: 'female', label: 'หญิง' } ];
   const skinTypeOptions = [ { value: 'oily', label: 'ผิวมัน' }, { value: 'combination', label: 'ผิวผสม' }, { value: 'dry', label: 'ผิวแห้ง' }, { value: 'sensitive', label: 'ผิวแพ้ง่าย' } ];
   const eyeButtonStyle = { position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: '#666' };
+  
   return (
     <div className="auth-modal-overlay">
       <div className="auth-modal-content">
@@ -107,9 +183,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
         )}
-        <button className="modal-close-icon" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
+
         {/*Login*/}
         {mode === 'login' && (
           <>
@@ -137,7 +211,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                     <span className="forgot-password-link">ลืมรหัสผ่าน</span>
                 </div>
               </div>
-              <button type="submit" className="auth-submit-btn">เข้าสู่ระบบ</button>
+              <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+                {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              </button>
               <button type="button" className="auth-outline-btn" onClick={handleGoToRegister}>สมัครสมาชิก</button>
             </form>
           </>
@@ -195,7 +271,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             </form>
           </>
         )}
-        {/* ข้อมูลส่วนบุคคล */}
         {mode === 'register_step2' && (
           <>
             <h2 className="auth-title">ข้อมูลส่วนบุคคลสำหรับระบบแนะนำ</h2>
@@ -221,7 +296,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 <label className="form-label">ประเภทผิว</label>
                 <CustomSelect options={skinTypeOptions} placeholder="กรุณาเลือกประเภทผิวของคุณ" value={skinType} onChange={setSkinType} />
               </div>
-              <button type="submit" className="auth-submit-btn">สมัครสมาชิก</button>
+              <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+                 {isLoading ? 'กำลังลงทะเบียน...' : 'สมัครสมาชิก'}
+              </button>
             </form>
           </>
         )}
