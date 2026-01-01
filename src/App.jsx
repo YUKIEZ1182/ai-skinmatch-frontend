@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./styles/App.css";
 
 import Navbar from "./components/Navbar";
@@ -7,7 +7,7 @@ import Breadcrumb from "./components/Breadcrumb";
 import AuthModal from "./components/AuthModal";
 import CategoryMenu from "./components/CategoryMenu";
 import Footer from "./components/Footer";
-import AlertBanner from "./components/AlertBanner"; // ✅ อย่าลืม import AlertBanner
+import AlertBanner from "./components/AlertBanner";
 
 import AccountPage from "./pages/AccountPage";
 import CartPage from "./pages/Cart";
@@ -19,25 +19,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { th } from "date-fns/locale"; 
 
-import { mockProducts } from "./data/mockData";
-
-function ProductDetailPageWrapper({ onGoBack, onAddToCart, onProductSelect }) {
-  const { productId } = useParams();
-  const product = mockProducts.find(p => p.id.toString() === productId);
-  if (!product) return <div style={{padding:'2rem', textAlign:'center'}}>ไม่พบสินค้า</div>;
-  return (
-      <ProductDetail
-        product={product}
-        onGoBack={onGoBack}
-        onAddToCart={onAddToCart}
-        onProductSelect={onProductSelect}
-      />
-  );
-}
-
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState(null); // ✅ State สำหรับ AlertBanner
+  const [alertMessage, setAlertMessage] = useState(null);
   
   // โหลดสถานะ Login
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -68,7 +52,7 @@ function App() {
     if (savedCart) {
       try { return JSON.parse(savedCart); } catch (e) { console.error(e); }
     }
-    return []; // เริ่มต้นตะกร้าว่างเปล่า (หรือใส่ Mock Data ตามเดิมก็ได้)
+    return [];
   });
 
   const [activeCategory, setActiveCategory] = useState('new');
@@ -91,12 +75,12 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  // ✅✅✅ แก้ไขตรงนี้: เช็ค Login ก่อนเพิ่มสินค้า
+  // ✅ เช็ค Login ก่อนเพิ่มสินค้า
   const handleAddToCartApp = (product, quantityToAdd) => {
     // 1. เช็คว่า Login หรือยัง?
     if (!isLoggedIn) {
       setIsModalOpen(true); // ถ้ายัง ให้เด้ง Modal Login ขึ้นมา
-      return; // จบการทำงานทันที (ไม่เพิ่มของ)
+      return; 
     }
 
     // 2. ถ้า Login แล้ว ให้ทำงานต่อตามปกติ
@@ -163,7 +147,7 @@ function App() {
             cartItemCount={isLoggedIn ? totalItemsInCart : 0}
         />
 
-        {/* Alert Banner (เด้งเตือนเมื่อเพิ่มสินค้าสำเร็จ) */}
+        {/* Alert Banner */}
         {alertMessage && (
            <div className="alert-banner-wrapper">
              <AlertBanner 
@@ -192,12 +176,11 @@ function App() {
             </main>
           } />
           
-          <Route path="/product/:productId" element={
+          {/* ✅ แก้ไขตรงนี้: เรียก ProductDetail โดยตรง และใช้ parameter :id */}
+          <Route path="/product/:id" element={
             <main>
-              <ProductDetailPageWrapper
-                onGoBack={handleGoBack}
+              <ProductDetail 
                 onAddToCart={handleAddToCartApp}
-                onProductSelect={handleProductSelect}
               />
             </main>
           } />
