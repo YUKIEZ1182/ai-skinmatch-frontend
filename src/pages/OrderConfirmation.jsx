@@ -9,7 +9,18 @@ export default function OrderConfirmation() {
   const shippingCost = 60; 
   const grandTotal = totalPrice + shippingCost;
   const orderDate = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric'});
+  // สร้าง Order ID แบบสุ่มเพื่อให้ดูสมจริง
   const orderId = "AI-SK-" + Math.floor(100000 + Math.random() * 900000);
+
+  // --- ฟังก์ชันกดชำระเงิน ---
+  const handlePayment = () => {
+    // 1. แจ้งเตือนว่าสำเร็จ (คุณสามารถเปลี่ยนเป็น Modal สวยๆ ได้ถ้ามี Library เช่น SweetAlert)
+    alert("ชำระเงินสำเร็จ! ขอบคุณสำหรับการสั่งซื้อ");
+    
+    // 2. ย้ายกลับไปหน้าแรก
+    navigate('/');
+  };
+
   return (
     <div className="order-page-wrapper">
       <div className="status-header">
@@ -30,7 +41,12 @@ export default function OrderConfirmation() {
               {selectedItems.map((item) => (
                 <div key={item.id} className="order-item-row">
                   <div className="item-img-wrapper">
-                    <img src={item.image} alt={item.name} />
+                    {/* ใส่ onError เพื่อป้องกันรูปไม่ขึ้น */}
+                    <img 
+                      src={item.image || 'https://via.placeholder.com/150'} 
+                      alt={item.name} 
+                      onError={(e) => e.target.src='https://via.placeholder.com/150'}
+                    />
                   </div>
                   <div className="item-info">
                     <div className="item-brand">{item.brand}</div>
@@ -77,7 +93,12 @@ export default function OrderConfirmation() {
                <span className="label">สถานะการชำระเงิน</span>
                <span className="status-tag pending">รอชำระเงิน</span>
              </div>
-             <button className="btn-pay-now">ชำระเงิน</button>
+             
+             {/* --- ปุ่มชำระเงินที่เพิ่มฟังก์ชันแล้ว --- */}
+             <button className="btn-pay-now" onClick={handlePayment}>
+               ชำระเงิน
+             </button>
+
            </div>
            <div className="sidebar-actions">
               <button className="btn-back-outline" onClick={() => navigate(-1)}>
