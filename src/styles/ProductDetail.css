@@ -4,7 +4,7 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 40px 20px;
-  font-family: 'Inter', sans-serif; /* หรือ Font ที่คุณใช้ */
+  font-family: 'FC Iconic', sans-serif;
   color: #333;
 }
 
@@ -27,10 +27,9 @@
   min-width: 350px;
 }
 
-/* --- Gallery Section --- */
 .main-image-frame {
   width: 100%;
-  aspect-ratio: 1 / 1; /* บังคับสี่เหลี่ยมจัตุรัส */
+  aspect-ratio: 1 / 1;
   background-color: #f9f9f9;
   border-radius: 12px;
   overflow: hidden;
@@ -38,12 +37,11 @@
   margin-bottom: 20px;
   border: 1px solid #eee;
 }
-
 .main-img-display {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* รูปไม่โดนตัด แต่มีขอบขาวถ้าสัดส่วนไม่ตรง */
-  mix-blend-mode: multiply; /* ถ้าพื้นหลังรูปเป็นขาว จะช่วยให้กลืนไปกับพื้นหลัง */
+  object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
 .out-of-stock-badge {
@@ -58,7 +56,6 @@
   border-radius: 4px;
 }
 
-/* Thumbnails */
 .thumbnails-container {
   display: flex;
   align-items: center;
@@ -72,11 +69,11 @@
   gap: 10px;
   overflow-x: auto;
   scroll-behavior: smooth;
-  scrollbar-width: none; /* ซ่อน scrollbar Firefox */
+  scrollbar-width: none;
   padding: 5px 2px;
 }
 .thumbnail-scroll-area::-webkit-scrollbar {
-  display: none; /* ซ่อน scrollbar Chrome/Safari */
+  display: none;
 }
 
 .thumb-card {
@@ -92,7 +89,7 @@
 }
 
 .thumb-card.active {
-  border-color: #000;
+  border-color: #ff9f9f;
   opacity: 1;
   transform: scale(1.05);
 }
@@ -104,17 +101,17 @@
 }
 
 .nav-arrow {
-  background: none;
+  background: #000;
   border: none;
   cursor: pointer;
   padding: 8px;
-  color: #888;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .nav-arrow:hover {
-  color: #000;
+  color: #424242;
   background-color: #f5f5f5;
   border-radius: 50%;
 }
@@ -137,7 +134,6 @@
   color: #111;
 }
 
-/* Tags / Pills */
 .product-tags-row {
   display: flex;
   gap: 10px;
@@ -145,8 +141,8 @@
 }
 
 .tag-pill {
-  background-color: #e3f2fd; /* สีฟ้าอ่อน */
-  color: #1565c0;
+  background-color: #FFD6C9;
+  color: #670B00;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -160,7 +156,6 @@
   margin-bottom: 30px;
 }
 
-/* Actions (Quantity + Add to Cart) */
 .actions-wrapper {
   display: flex;
   gap: 20px;
@@ -180,9 +175,27 @@
   font-weight: 500;
 }
 
-.qty-buttons { display: flex; align-items: center; gap: 15px;}
-.qty-buttons button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 20px; cursor: pointer; color: #333;}
-.qty-buttons .qty-number { font-size: 20px; font-weight: 600; min-width: 30px; text-align: center;}
+.qty-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.qty-buttons button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+.qty-buttons .qty-number {
+  font-size: 20px;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
+}
 
 .add-to-cart-btn-black {
   flex: 1;
@@ -215,7 +228,6 @@
   margin: 30px 0;
 }
 
-/* --- Description & WYSIWYG Styling --- */
 .description-blocks {
   display: flex;
   flex-direction: column;
@@ -228,15 +240,13 @@
   color: #000;
 }
 
-/* จัดการเนื้อหาจาก WYSIWYG (สำคัญมาก!) */
-.wysiwyg-content, 
+.wysiwyg-content,
 .desc-item p {
   font-size: 1rem;
   line-height: 1.7;
   color: #555;
 }
 
-/* ป้องกันรูปในคำอธิบายล้นจอ */
 .wysiwyg-content img {
   max-width: 100%;
   height: auto;
@@ -244,7 +254,7 @@
   margin: 15px 0;
 }
 
-.wysiwyg-content ul, 
+.wysiwyg-content ul,
 .wysiwyg-content ol {
   padding-left: 20px;
   margin-bottom: 15px;
@@ -254,7 +264,6 @@
   margin-bottom: 5px;
 }
 
-/* --- Related Products --- */
 .related-section {
   margin-top: 60px;
   border-top: 1px solid #eee;
@@ -265,7 +274,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 30px;
-  text-align: center;
+  text-align: start;
 }
 
 .related-grid {
@@ -274,7 +283,6 @@
   gap: 30px;
 }
 
-/* --- Loading State --- */
 .loading-state {
   display: flex;
   justify-content: center;
@@ -290,7 +298,7 @@
     flex-direction: column;
     gap: 30px;
   }
-  
+
   .product-name-title {
     font-size: 1.8rem;
   }
@@ -302,11 +310,11 @@
     width: 100%;
     background: #fff;
     padding: 15px 20px;
-    box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
     margin: 0;
     z-index: 100;
   }
-  
+
   .product-detail-page {
     padding-bottom: 100px; /* เว้นที่ให้ปุ่ม Fixed ด้านล่าง */
   }
