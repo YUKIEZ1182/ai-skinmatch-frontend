@@ -2,7 +2,8 @@ import React from 'react';
 import '../styles/ProductCard.css';
 
 export default function ProductCard({ product, onClick }) {
-  const isOutOfStock = product.status === 'out_of_stock';
+  const isOutOfStock = product.stock <= 0;
+
   return (
     <div className="product-card" onClick={onClick}>
       <div className="product-image-container">

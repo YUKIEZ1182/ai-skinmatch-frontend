@@ -24,7 +24,6 @@ export default function Home({ handleProductSelect, activeCategory }) {
 
       const filterObj = { _and: [] };
 
-      // เงื่อนไข Search: Name OR Brand (Contains)
       if (searchTerm) {
         filterObj._and.push({
           _or: [
@@ -34,7 +33,6 @@ export default function Home({ handleProductSelect, activeCategory }) {
         });
       }
 
-      // เงื่อนไข Category: ถ้าไม่ใช่ 'new' ให้กรองตาม ID
       if (categoryId && categoryId !== 'new') {
         filterObj._and.push({
           categories: { category_id: { id: { _eq: categoryId } } }
@@ -45,8 +43,9 @@ export default function Home({ handleProductSelect, activeCategory }) {
 
       const filterParam = JSON.stringify(filterObj);
 
+      // 1. เพิ่ม status ใน fields เพื่อเช็คสต็อก
       const response = await fetch(
-        `${API_URL}/items/product?fields=id,name,price,thumbnail,brand_name,categories.category_id.name,categories.category_id.id,date_created,date_updated&sort=-date_updated&filter=${encodeURIComponent(filterParam)}`, 
+        `${API_URL}/items/product?fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,categories.category_id.id,date_created,date_updated&sort=-date_updated&filter=${encodeURIComponent(filterParam)}`, 
         { method: 'GET', headers: headers }
       );
 
@@ -61,11 +60,14 @@ export default function Home({ handleProductSelect, activeCategory }) {
 
       if (json.data) {
         const mappedProducts = json.data.map((item) => ({
+          // Map ข้อมูลให้ตรงกับ Class Diagram
           id: item.id,
           name: item.name,
           price: Number(item.price), 
           image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : 'https://placehold.co/400x400?text=No+Image', 
           brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'General', 
+          category: item.categories?.[0]?.category_id?.name || 'General', // เพิ่ม category
+          stock: item.status === 'published' ? 10 : 0, // เพิ่ม stock (จำลอง logic จาก status)
           date_created: item.date_created,
           date_updated: item.date_updated
         }));
@@ -82,14 +84,10 @@ export default function Home({ handleProductSelect, activeCategory }) {
   };
 
   useEffect(() => {
-    // Reset การค้นหา
     setInputValue("");
     setExecutedSearchTerm("");
-    
-    // ดึงข้อมูลตาม Category ใหม่
     fetchProducts("", activeCategory);
 
-    // Update หัวข้อ
     const updateTitle = async () => {
       if (!activeCategory || activeCategory === 'new') return;
       try {
@@ -126,7 +124,6 @@ export default function Home({ handleProductSelect, activeCategory }) {
     );
   }
 
-  // --- VIEW 1: หน้าหลัก (สินค้าใหม่ & ไม่ได้ค้นหา) ---
   if (!executedSearchTerm && activeCategory === 'new') {
     const newArrivals = products.slice(0, 4);
     const recommendItems = products.slice(4, 8);
@@ -143,14 +140,12 @@ export default function Home({ handleProductSelect, activeCategory }) {
               onChange={(e) => setInputValue(e.target.value)} 
               onKeyDown={handleKeyDown}
             />
-            {/* ... ปุ่มค้นหา ... */}
             <button className="search-circle-btn" onClick={handleSearch}>
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
           </div>
         </div>
         <div className="home-content">
-           {/* ... เนื้อหาเหมือนเดิม ... */}
            <section className="product-section">
             <h2 className="section-title">สินค้าใหม่ที่น่าสนใจ</h2>
             <div className="product-grid">
@@ -175,7 +170,6 @@ export default function Home({ handleProductSelect, activeCategory }) {
     );
   }
 
-  // --- VIEW 2: ผลลัพธ์การค้นหา หรือ หน้า Category อื่นๆ ---
   return (
     <div className="home-container search-page-container">
       <div className="search-section">
@@ -208,8 +202,8 @@ export default function Home({ handleProductSelect, activeCategory }) {
                {executedSearchTerm ? `ไม่พบสินค้า "${executedSearchTerm}"` : "ยังไม่มีสินค้าในหมวดหมู่นี้"}
              </h3>
              <p className="empty-subtitle">
-               ลองตรวจสอบคำสะกด หรือใช้คำค้นหาที่กว้างขึ้น <br/>
-               เช่น "ลิปสติก", "ครีม", "Cerave"
+               ไม่พบผลลัพธ์การค้นหา ลองใช้คำค้นหาที่กว้างขึ้น<br/>
+               เช่น ชื่อแบรนด์ผลิตภัณฑ์ (CeraVe, Vichy) 
              </p>
            </div>
         ) : (
