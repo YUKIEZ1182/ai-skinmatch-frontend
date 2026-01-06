@@ -113,3 +113,33 @@
     gap: 10px;
   }
 }
+
+.home-container {
+  padding-top: 10px;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+.horizontal-product-list {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  padding-left: 5px;
+  
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-product-list::-webkit-scrollbar {
+  height: 6px;
+}
+.horizontal-product-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.horizontal-product-list > div {
+  flex: 0 0 240px;
+  min-width: 240px;
+}

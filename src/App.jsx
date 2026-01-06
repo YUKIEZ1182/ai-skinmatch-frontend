@@ -172,11 +172,11 @@ function App() {
               <Home
                 activeCategory={activeCategory} 
                 handleProductSelect={handleProductSelect}
+                isLoggedIn={isLoggedIn}
               />
             </main>
           } />
           
-          {/* ✅ แก้ไขตรงนี้: เรียก ProductDetail โดยตรง และใช้ parameter :id */}
           <Route path="/product/:id" element={
             <main>
               <ProductDetail 
