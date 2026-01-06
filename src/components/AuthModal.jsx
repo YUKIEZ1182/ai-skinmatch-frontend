@@ -240,7 +240,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 <div className={`password-wrapper ${errors.password ? 'input-error' : ''}`} style={{position: 'relative'}}>
                   <input 
                     type={showPassword ? "text" : "password"} 
-                    placeholder="กรุณากรอกรหัสผ่าน" 
+                    placeholder="........" 
                     className="auth-input" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
