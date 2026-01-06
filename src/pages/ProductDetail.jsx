@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
+import { apiFetch } from '../utils/api'; 
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -31,14 +32,12 @@ export default function ProductDetail({ onAddToCart }) {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('access_token');
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const response = await fetch(
-          `${API_URL}/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,illustration.directus_files_id,ingredients.ingredient_id.name`,
-          { headers }
+        const response = await apiFetch(
+          `/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,illustration.directus_files_id,ingredients.ingredient_id.name`
         );
+        
+        if (!response.ok) throw new Error('Failed to fetch product');
+
         const json = await response.json();
 
         if (json.data) {
@@ -69,9 +68,6 @@ export default function ProductDetail({ onAddToCart }) {
             ...item,
             price: Number(item.price),
             ingredientsDisplay: ingredientList,
-            skinTypeLabel:
-              skinTypeOptions[item.suitable_skin_type] ||
-              item.suitable_skin_type,
           });
           setGalleryImages(images);
           setCurrentIndex(0);
@@ -89,25 +85,27 @@ export default function ProductDetail({ onAddToCart }) {
     }
   }, [id]);
 
-  // --- 2. Fetch Related Products ---
   useEffect(() => {
     const fetchRelated = async () => {
       try {
-        const response = await fetch(
-          `${API_URL}/items/product?limit=4&filter[id][_neq]=${id}&fields=id,name,price,thumbnail,categories.category_id.name`
+        const response = await apiFetch(
+          `/recommend/similar-product?product_id=${id}`
         );
-        const json = await response.json();
-        if (json.data) {
-          const mappedRelated = json.data.map((p) => ({
-            id: p.id,
-            name: p.name,
-            price: Number(p.price),
-            image: p.thumbnail
-              ? `${API_URL}/assets/${p.thumbnail}`
-              : 'https://via.placeholder.com/300x300?text=No+Image',
-            brand: p.categories?.[0]?.category_id?.name || 'General',
-          }));
-          setRelatedProducts(mappedRelated);
+
+        if (response.ok) {
+          const json = await response.json();
+          if (json.data) {
+            const mappedRelated = json.data.map((p) => ({
+              id: p.id,
+              name: p.name,
+              price: Number(p.price),
+              image: p.thumbnail
+                ? `${API_URL}/assets/${p.thumbnail}`
+                : 'https://via.placeholder.com/300x300?text=No+Image',
+              brand: p.brand_name || 'General', 
+            }));
+            setRelatedProducts(mappedRelated);
+          }
         }
       } catch (error) {
         console.error('Error fetching related:', error);
@@ -220,10 +218,12 @@ export default function ProductDetail({ onAddToCart }) {
           <h1 className="product-name-title">{product.name}</h1>
 
           <div className="product-tags-row">
-            {product.skinTypeLabel && (
-              <span className="tag-pill">{product.skinTypeLabel}</span>
-            )}
-            {/* ❌ ลบส่วนแสดง Quantity ออกแล้วตามที่ขอครับ */}
+            {Array.isArray(product.suitable_skin_type) &&
+              product.suitable_skin_type.map((skinType, index) => (
+                <span key={index} className="tag-pill">
+                  {skinTypeOptions[skinType] || skinType}
+                </span>
+              ))}
           </div>
 
           <div className="product-price-display">
