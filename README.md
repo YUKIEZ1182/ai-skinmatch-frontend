@@ -1,16 +1,42 @@
-# React + Vite
+# AI SkinMatch (Skincare E-commerce Platform) 🧴✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI SkinMatch** คือเว็บแอปพลิเคชัน E-commerce สำหรับจำหน่ายผลิตภัณฑ์สกินแคร์และเครื่องสำอาง โดยมีจุดเด่นคือการนำ AI มาช่วยวิเคราะห์และจับคู่ผลิตภัณฑ์ที่เหมาะสมกับสภาพผิวของผู้ใช้งาน
 
-Currently, two official plugins are available:
+> โปรเจกต์นี้เป็นส่วนหนึ่งของการฝึกงานตำแหน่ง UX/UI Designer
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 ฟีเจอร์หลัก (Key Features)
 
-## React Compiler
+- **Product Matching:** ระบบแนะนำสินค้าตามสภาพผิว (Personalized Recommendation)
+- **Responsive UI:** รองรับการใช้งานทั้งบนมือถือและเดสก์ท็อป (Mobile & Desktop)
+- **Smart Search & Filter:** ค้นหาและกรองสินค้าตามหมวดหมู่, ราคา, และแบรนด์
+- **User-Friendly Interface:** ออกแบบโดยคำนึงถึงประสบการณ์ผู้ใช้ (UX) เป็นหลัก
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-## Expanding the ESLint configuration
+- **Frontend Framework:** React (Vite)
+- **Language:** JavaScript (ES6+)
+- **Styling:** CSS3 / CSS Modules
+- **Version Control:** Git & GitHub
+- **Design Tool:** Figma
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📸 ภาพตัวอย่าง (Screenshots)
+
+<img width="1440" height="1989" alt="Product details" src="https://github.com/user-attachments/assets/d305fdfc-09c8-47e1-9a82-09d5d3765931" />
+
+*(หมายเหตุ: ภาพตัวอย่าง UI อยู่ระหว่างการพัฒนา)*
+
+## 🚀 การติดตั้งและรันโปรเจกต์ (Installation)
+
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/YUKIEZ1182/ai-skinmatch-frontend
+2. **ติดตั้ง dependencies**
+   ```bash
+   cd ai_skinmatch
+   npm install
+3. **รันโปรเจกต์ (Development Mode)**
+   ```bash
+   npm run dev
+เปิด Browser ไปที่: http://frontend-ai-skin-match.final-project-northbkk.com/
+
+จัดทำโดย: นางสาวเกศสุดา นาคแก้ว (ยูกิ) ตำแหน่ง: UX/UI Designer And Front-end Developer
