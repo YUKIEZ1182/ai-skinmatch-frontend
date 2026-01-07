@@ -1,24 +1,62 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/OrderConfirmation.css';
+import { apiFetch } from '../utils/api';
 
 export default function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedItems = [], totalPrice = 0 } = location.state || {};
+
+  const { 
+    selectedItems = [], 
+    totalPrice = 0, 
+    order_no, 
+    order_id 
+  } = location.state || {};
+
   const shippingCost = 60; 
   const grandTotal = totalPrice + shippingCost;
-  const orderDate = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric'});
-  // สร้าง Order ID แบบสุ่มเพื่อให้ดูสมจริง
-  const orderId = "AI-SK-" + Math.floor(100000 + Math.random() * 900000);
+  const orderDate = new Date().toLocaleDateString('th-TH', { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric'
+  });
 
-  // --- ฟังก์ชันกดชำระเงิน ---
-  const handlePayment = () => {
-    // 1. แจ้งเตือนว่าสำเร็จ (คุณสามารถเปลี่ยนเป็น Modal สวยๆ ได้ถ้ามี Library เช่น SweetAlert)
-    alert("ชำระเงินสำเร็จ! ขอบคุณสำหรับการสั่งซื้อ");
-    
-    // 2. ย้ายกลับไปหน้าแรก
-    navigate('/');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePayment = async () => {
+    if (isProcessing) return;
+
+    if (!order_id) {
+      alert("ไม่พบข้อมูลคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+
+      const response = await apiFetch('/shop/payment-webhook', {
+        method: 'POST',
+        body: JSON.stringify({
+          order_id: order_id,
+          payment_status: 'success'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "การยืนยันชำระเงินล้มเหลว");
+      }
+
+      alert(`ชำระเงินสำเร็จ! ขอบคุณสำหรับการสั่งซื้อ หมายเลขคำสั่งซื้อของคุณคือ: ${order_no}`);
+      navigate('/');
+      
+    } catch (error) {
+      console.error("Payment Error:", error);
+      alert("เกิดข้อผิดพลาด: " + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -41,7 +79,6 @@ export default function OrderConfirmation() {
               {selectedItems.map((item) => (
                 <div key={item.id} className="order-item-row">
                   <div className="item-img-wrapper">
-                    {/* ใส่ onError เพื่อป้องกันรูปไม่ขึ้น */}
                     <img 
                       src={item.image || 'https://via.placeholder.com/150'} 
                       alt={item.name} 
@@ -53,7 +90,9 @@ export default function OrderConfirmation() {
                     <div className="item-name">{item.name}</div>
                     <div className="item-qty">จำนวน: {item.quantity} ชิ้น</div>
                   </div>
-                  <div className="item-price">{(item.price * item.quantity).toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</div>
+                  <div className="item-price">
+                    {(item.price * item.quantity).toLocaleString('en-US', {minimumFractionDigits: 2})} Baht
+                  </div>
                 </div>
               ))}
             </div>
@@ -79,7 +118,7 @@ export default function OrderConfirmation() {
              <h3 className="sidebar-header">สรุปคำสั่งซื้อ</h3>
              <div className="sidebar-row">
                <span className="label">หมายเลขคำสั่งซื้อ</span>
-               <span className="value">{orderId}</span>
+               <span className="value">{order_no || 'สร้างข้อมูลไม่สำเร็จ'}</span>
              </div>
              <div className="sidebar-row">
                <span className="label">วันที่สั่งซื้อ</span>
@@ -94,21 +133,24 @@ export default function OrderConfirmation() {
                <span className="status-tag pending">รอชำระเงิน</span>
              </div>
              
-             {/* --- ปุ่มชำระเงินที่เพิ่มฟังก์ชันแล้ว --- */}
-             <button className="btn-pay-now" onClick={handlePayment}>
-               ชำระเงิน
+             <button 
+                className={`btn-pay-now ${isProcessing ? 'disabled' : ''}`} 
+                onClick={handlePayment}
+                disabled={isProcessing}
+             >
+               {isProcessing ? 'กำลังประมวลผล...' : 'ชำระเงิน'}
              </button>
 
            </div>
            <div className="sidebar-actions">
-              <button className="btn-back-outline" onClick={() => navigate(-1)}>
+              <button className="btn-back-outline" onClick={() => navigate(-1)} disabled={isProcessing}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 8}}>
                   <line x1="19" y1="12" x2="5" y2="12"></line>
                   <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
                 ย้อนกลับ
               </button>
-              <button className="btn-shopping-black" onClick={() => navigate('/')}>
+              <button className="btn-shopping-black" onClick={() => navigate('/')} disabled={isProcessing}>
                  กลับไปช้อปปิ้งต่อ
               </button>
            </div>

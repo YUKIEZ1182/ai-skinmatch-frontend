@@ -14,7 +14,7 @@ const skinTypeOptions = {
   all: 'ทุกสภาพผิว',
 };
 
-export default function ProductDetail({ onAddToCart }) {
+export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -26,6 +26,8 @@ export default function ProductDetail({ onAddToCart }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  
+  const [addingToCart, setAddingToCart] = useState(false);
 
   // --- 1. Fetch Product Detail ---
   useEffect(() => {
@@ -126,6 +128,51 @@ export default function ProductDetail({ onAddToCart }) {
       }
     }
   }, [currentIndex, galleryImages]);
+
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      const checkRes = await apiFetch(
+        `/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`
+      );
+      const checkData = await checkRes.json();
+
+      if (checkData.data && checkData.data.length > 0) {
+        const existingItem = checkData.data[0];
+        const newQty = existingItem.quantity + quantity;
+
+        await apiFetch(`/items/cart_detail/${existingItem.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ quantity: newQty })
+        });
+        
+        alert(`อัปเดตจำนวนสินค้าเป็น ${newQty} ชิ้น เรียบร้อยแล้ว`);
+
+      } else {
+        await apiFetch(`/items/cart_detail`, {
+          method: 'POST',
+          body: JSON.stringify({
+            product: product.id,
+            quantity: quantity
+          })
+        });
+
+        alert("เพิ่มสินค้าลงในถุงช้อปปิ้งเรียบร้อยแล้ว");
+      }
+
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   const handlePrev = () => {
     setCurrentIndex((prev) =>
@@ -248,12 +295,14 @@ export default function ProductDetail({ onAddToCart }) {
               </div>
             </div>
             <button
-              className={`add-to-cart-btn-black ${isOutOfStock ? 'disabled' : ''}`}
-              onClick={() => !isOutOfStock && onAddToCart(product, quantity)}
-              disabled={isOutOfStock}
+              className={`add-to-cart-btn-black ${isOutOfStock || addingToCart ? 'disabled' : ''}`}
+              onClick={() => !isOutOfStock && !addingToCart && handleAddToCart()} // เรียกใช้ฟังก์ชันใหม่
+              disabled={isOutOfStock || addingToCart}
             >
               {isOutOfStock ? (
                 'สินค้าหมด'
+              ) : addingToCart ? (
+                'กำลังเพิ่ม...'
               ) : (
                 <>
                   <svg
