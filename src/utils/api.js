@@ -51,3 +51,15 @@ export const apiFetch = async (endpoint, options = {}) => {
 
   return response;
 };
+
+export const deleteCartDetail = async (id) => {
+  const response = await apiFetch(`/items/cart_detail/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error('Delete failed');
+  }
+  
+  return response;
+};
