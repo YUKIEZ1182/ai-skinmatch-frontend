@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Cart.css';
-import { apiFetch } from '../utils/api';
+import { apiFetch, deleteCartDetail } from '../utils/api';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -89,14 +89,18 @@ export default function CartPage() {
   };
 
   const handleRemoveItem = async (cartId) => {
+    if (!cartId) return;
     if (!confirm("ต้องการลบสินค้าออกจากตะกร้า?")) return;
+
     try {
-      await apiFetch(`/items/cart_detail/${cartId}`, { method: 'DELETE' });
+      await deleteCartDetail(cartId);
+
       setCartItems(prev => prev.filter(item => item.id !== cartId));
       setSelectedIds(prev => prev.filter(id => id !== cartId));
+
     } catch (error) {
       console.error("Error removing item:", error);
-      fetchCart();
+      alert("เกิดข้อผิดพลาดในการลบสินค้า"); 
     }
   };
 

@@ -1,17 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/AccountPage.css';
+import { apiFetch } from '../utils/api';
 
 const AccountPage = () => {
   const [userInfo, setUserInfo] = useState({
-    email: 'guess@gmail.com',
-    password: 'password123',
-    confirmPassword: 'password123',
-    birthdate: '2003-09-01',
-    gender: 'female',
-    skinType: 'oily'
+    email: '',
+    password: '',
+    confirmPassword: '',
+    date_of_birth: '',
+    gender: '',
+    skin_type: ''
   });
+  
   const [isEditing, setIsEditing] = useState(false);
-  const handleInputChange = (field, value) => {setUserInfo(prev => ({ ...prev, [field]: value }));};
+  const [loading, setLoading] = useState(true);
+
+  // ฟังก์ชันดึงข้อมูลโปรไฟล์
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await apiFetch('/users/me');
+      if (!response.ok) throw new Error('Failed to fetch profile');
+      
+      const json = await response.json();
+      const user = json.data;
+
+      // อัปเดตข้อมูลผู้ใช้เข้าสู่ State
+      // เนื่องจาก date_of_birth เป็นประเภท Date (YYYY-MM-DD) อยู่แล้ว จึงดึงมาใช้ได้ตรงๆ
+      setUserInfo({
+        email: user.email || '',
+        password: '',
+        confirmPassword: '',
+        date_of_birth: user.date_of_birth || '', 
+        gender: user.gender || 'female',
+        skin_type: user.skin_type || 'oily'
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const handleInputChange = (field, value) => {
+    setUserInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    if (userInfo.password && userInfo.password !== userInfo.confirmPassword) {
+      alert("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน");
+      return;
+    }
+
+    try {
+      const updateData = {
+        date_of_birth: userInfo.date_of_birth,
+        gender: userInfo.gender,
+        skin_type: userInfo.skin_type,
+      };
+
+      if (userInfo.password) {
+        updateData.password = userInfo.password;
+      }
+
+      const response = await apiFetch('/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) throw new Error('Update failed');
+
+      alert("บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว");
+      setIsEditing(false);
+      // เคลียร์ค่ารหัสผ่านใน State หลังบันทึก
+      setUserInfo(prev => ({ ...prev, password: '', confirmPassword: '' }));
+      fetchProfile();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
+
+  if (loading) return <div className="account-page-wrapper">กำลังโหลดข้อมูล...</div>;
+
   return (
     <div className="account-page-wrapper">
       <div className="account-header">
@@ -30,27 +105,45 @@ const AccountPage = () => {
         <div className="form-row">
           <label className="form-label">อีเมล</label>
           <div className="input-wrapper">
-             <input type="text" value={userInfo.email} disabled={true} className="gray-input"/>
+             <input type="text" value={userInfo.email} disabled={true} className="gray-input readonly-field"/>
           </div>
         </div>
         <div className="form-row">
-          <label className="form-label">รหัสผ่าน</label>
+          <label className="form-label">รหัสผ่านใหม่</label>
           <div className="input-wrapper">
-             <input type="password" value={userInfo.password} disabled={!isEditing} onChange={(e) => handleInputChange('password', e.target.value)} className="gray-input"/>
+             <input 
+                type="password" 
+                placeholder={isEditing ? "กรอกรหัสผ่านใหม่หากต้องการเปลี่ยน" : "********"}
+                value={userInfo.password} 
+                disabled={!isEditing} 
+                onChange={(e) => handleInputChange('password', e.target.value)} 
+                className="gray-input"
+             />
           </div>
         </div>
         {isEditing && (
           <div className="form-row">
             <label className="form-label">ยืนยันรหัสผ่าน</label>
             <div className="input-wrapper">
-               <input type="password" value={userInfo.confirmPassword} onChange={(e) => handleInputChange('confirmPassword', e.target.value)} className="gray-input" />
+               <input 
+                  type="password" 
+                  value={userInfo.confirmPassword} 
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)} 
+                  className="gray-input" 
+               />
             </div>
           </div>
         )}
         <div className="form-row">
           <label className="form-label">วันเกิด</label>
           <div className="input-wrapper">
-             <input type="date" value={userInfo.birthdate} onChange={(e) => handleInputChange('birthdate', e.target.value)} disabled={!isEditing} className="gray-input"/>
+             <input 
+                type="date" 
+                value={userInfo.date_of_birth} 
+                onChange={(e) => handleInputChange('date_of_birth', e.target.value)} 
+                disabled={!isEditing} 
+                className="gray-input"
+             />
              <div className="icon-overlay">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -78,7 +171,7 @@ const AccountPage = () => {
         <div className="form-row">
           <label className="form-label">ประเภทผิว</label>
           <div className="input-wrapper">
-             <select value={userInfo.skinType} disabled={!isEditing} className="gray-input gray-select" onChange={(e) => handleInputChange('skinType', e.target.value)}>
+             <select value={userInfo.skin_type} disabled={!isEditing} className="gray-input gray-select" onChange={(e) => handleInputChange('skin_type', e.target.value)}>
                 <option value="oily">ผิวมัน</option>
                 <option value="dry">ผิวแห้ง</option>
                 <option value="combination">ผิวผสม</option>
@@ -92,12 +185,14 @@ const AccountPage = () => {
           </div>
         </div>
         {isEditing && (
-          <div className="form-actions">
-             <button className="btn-save-black" onClick={() => setIsEditing(false)}>บันทึกการเปลี่ยนแปลง</button>
+          <div className="form-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
+             <button className="btn-save-black" onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+             <button className="btn-save-black" onClick={() => {setIsEditing(false); fetchProfile();}}>ยกเลิก</button>
           </div>
         )}
       </div>
     </div>
   );
 };
+
 export default AccountPage;
