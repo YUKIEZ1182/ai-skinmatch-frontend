@@ -95,7 +95,7 @@ const AccountPage = () => {
         </div>
 
         <div className="form-row">
-          <label className="form-label">รหัสผ่าน</label>
+          <label className="form-label">รหัสผ่านใหม่</label>
           <div className="input-wrapper">
             <input type="password" value={userInfo.password} disabled={!isEditing} onChange={(e) => handleInputChange('password', e.target.value)} className="gray-input" />
           </div>

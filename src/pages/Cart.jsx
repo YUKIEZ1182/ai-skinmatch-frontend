@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Cart.css';
-import { mockProducts } from '../data/mockData'; 
+import { apiFetch, deleteCartDetail } from '../utils/api';
 
 // --- 🛠️ SVG ICONS (ชุดใหม่: ถังขยะ, บวก, ลบ) ---
 const IconTrash = () => (
@@ -26,6 +26,12 @@ const IconPlus = () => (
 
 export default function CartPage({ cartItems, onRemoveItem, onUpdateQuantity, onAddToCart }) {
   const navigate = useNavigate();
+  
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [recommendationsMap, setRecommendationsMap] = useState({});
+
   const [selectedIds, setSelectedIds] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -63,6 +69,16 @@ export default function CartPage({ cartItems, onRemoveItem, onUpdateQuantity, on
   };
 
   const selectedItems = cartItems.filter(item => selectedIds.includes(item.id));
+  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  const handleCheckout = async () => {
+    try {
+      const res = await apiFetch('/shop/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ item_ids: selectedIds })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
 
   const totalPrice = selectedItems.reduce((sum, item) => {
     const price = Number(item.price) || 0;
@@ -75,7 +91,6 @@ export default function CartPage({ cartItems, onRemoveItem, onUpdateQuantity, on
       alert("กรุณาเลือกสินค้าอย่างน้อย 1 ชิ้น");
       return;
     }
-    navigate('/checkout', { state: { selectedItems, totalPrice } });
   };
 
   const availableItemsCount = cartItems.filter(item => item.stock > 0).length;
@@ -100,7 +115,7 @@ export default function CartPage({ cartItems, onRemoveItem, onUpdateQuantity, on
         <div className="cart-list-container">
           <div className="cart-header-row">
             <div className="col-checkbox-header">
-              <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} className="custom-checkbox"/>
+              <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} className="custom-checkbox" />
               <span className="header-label">ทั้งหมด</span>
             </div>
             <div className="col-product">รายการสินค้า</div>
@@ -126,12 +141,12 @@ export default function CartPage({ cartItems, onRemoveItem, onUpdateQuantity, on
                     </div>
                   </div>
                   <div className="col-info">
-                    <span className="cart-item-brand">{item.brand || "Brand"}</span>
+                    <span className="cart-item-brand">{item.brand}</span>
                     <span className="cart-item-name">{item.name}</span>
                   </div>
                   <div className="col-price">
                     <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                       <span className="item-price">{displayPrice.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                       <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
                        {isOutOfStock && <span className="stock-warning">สินค้าหมดชั่วคราว</span>}
                     </div>
                   </div>

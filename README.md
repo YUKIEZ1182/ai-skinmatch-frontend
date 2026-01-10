@@ -1,16 +1,59 @@
-# React + Vite
+# AI SkinMatch 🧴✨
+### Association and Clustering Analysis of Cosmetic Ingredients for Skincare Recommendation System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AI SkinMatch** คือแพลตฟอร์มอีคอมเมิร์ซสกินแคร์อัจฉริยะ ที่ไม่ได้ขายสินค้าเพียงอย่างเดียว แต่นำเทคนิค **Data Mining** มาช่วยวิเคราะห์ส่วนผสม (Ingredients) และจับคู่ผลิตภัณฑ์ให้เหมาะสมกับสภาพผิวของผู้ใช้แต่ละคนได้อย่างแม่นยำ
 
-Currently, two official plugins are available:
+> 🎓 โปรเจกต์นี้เป็นส่วนหนึ่งของรายวิชาโครงงานเทคโนโลยีสารสนเทศและนวัตกรรมดิจิทัล
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 ฟีเจอร์เด่น (Key Features)
 
-## React Compiler
+- **Skin Type Analysis (K-Means Clustering):** ระบบวิเคราะห์และจัดกลุ่มผู้ใช้งานตามสภาพผิว เพื่อแนะนำสินค้าที่ "ตรงใจ" และ "ตรงผิว" ที่สุด
+- **Smart Recommendation (Association Rule Mining):** ใช้กฎความสัมพันธ์ของข้อมูล เพื่อแนะนำสินค้าที่มีส่วนผสมใกล้เคียงกัน หรือสินค้าทดแทนในกรณีที่ของหมด (Out of Stock Substitution)
+- **Auto-Retraining Pipeline:** ระบบสามารถฝึกฝนโมเดลซ้ำ (Re-train) ได้อัตโนมัติเมื่อมีข้อมูลผลิตภัณฑ์ใหม่ เพื่อให้คำแนะนำทันสมัยอยู่เสมอ
+- **E-commerce Standard:** ระบบตะกร้าสินค้า, การค้นหา (Search), และการจัดการหมวดหมู่สินค้าที่ครบครัน
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-## Expanding the ESLint configuration
+### Frontend
+- **Framework:** React (Vite)
+- **Language:** JavaScript (ES6+)
+- **Styling:** CSS / Tailwind CSS (ถ้าใช้)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend & Data
+- **Database:** PostgreSQL
+- **Headless CMS:** Directus (Database Management)
+
+### Machine Learning & Data Mining
+- **Language:** Python
+- **Libraries:** Scikit-learn (Clustering), Mlxtend (Association Rules)
+
+## 📸 ภาพตัวอย่าง (Screenshots)
+
+<img width="1440" height="1989" alt="Product details" src="https://github.com/user-attachments/assets/d305fdfc-09c8-47e1-9a82-09d5d3765931" />
+
+<img width="1440" height="922" alt="Product List" src="https://github.com/user-attachments/assets/48e018b4-bb9a-4fd5-bedf-3fe3837dc5b9" />
+
+*(หมายเหตุ: ภาพตัวอย่าง UI อยู่ระหว่างการพัฒนา)*
+
+## 🚀 การติดตั้งและรันโปรเจกต์ (Installation)
+
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/YUKIEZ1182/ai-skinmatch-frontend.git
+2. **ติดตั้ง dependencies**
+   ```bash
+   cd ai_skinmatch
+   npm install
+3. **รันโปรเจกต์ (Development Mode)**
+   ```bash
+   npm run dev
+เปิด Browser ไปที่: http://frontend-ai-skin-match.final-project-northbkk.com/
+
+## 👥 คณะผู้จัดทำ (Development Team)
+
+1. นายธีรภัทร์ สิมสินธุ์ (651110561)
+2. นางสาวเกศสุดา นาคแก้ว (651116070)
+3. นางสาวเบญญาภา ชิมซี (651111478)
+
+**อาจารย์ที่ปรึกษา:** อาจารย์ปิติพัฒน์ เจิมบุญธนะพงศ์
+**สถาบัน:** คณะเทคโนโลยีสารสนเทศและนวัตกรรมดิจิทัล มหาวิทยาลัยนอร์ทกรุงเทพ

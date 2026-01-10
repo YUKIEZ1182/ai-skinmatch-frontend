@@ -222,6 +222,7 @@ export default function ProductDetail({ onAddToCart }) {
           </div>
 
           <div className="divider-line"></div>
+
           <div className="description-blocks">
             <div className="desc-item">
               <div className="wysiwyg-content" dangerouslySetInnerHTML={{ __html: product.description || '-' }} />

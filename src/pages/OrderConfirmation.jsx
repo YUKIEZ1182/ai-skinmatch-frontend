@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/OrderConfirmation.css';
+import { apiFetch } from '../utils/api';
 
 export default function OrderConfirmation() {
   const location = useLocation();
@@ -91,7 +92,7 @@ export default function OrderConfirmation() {
              <h3 className="sidebar-header">สรุปคำสั่งซื้อ</h3>
              <div className="sidebar-row">
                <span className="label">หมายเลขคำสั่งซื้อ</span>
-               <span className="value">{orderId}</span>
+               <span className="value">{order_no || 'สร้างข้อมูลไม่สำเร็จ'}</span>
              </div>
              <div className="sidebar-row">
                <span className="label">วันที่สั่งซื้อ</span>
@@ -114,7 +115,7 @@ export default function OrderConfirmation() {
            </div>
            
            <div className="sidebar-actions">
-              <button className="btn-back-outline" onClick={() => navigate(-1)}>
+              <button className="btn-back-outline" onClick={() => navigate(-1)} disabled={isProcessing}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 8}}>
                   <line x1="19" y1="12" x2="5" y2="12"></line>
                   <polyline points="12 19 5 12 12 5"></polyline>
