@@ -9,7 +9,7 @@ export const mockProducts = [
     type: "skincare",
     skinType: ["ผิวผสม"],
     stock: 10,
-    description:"เซรั่มลดการอุดตันและความมันส่วนเกิน ฟื้นฟูผิวให้เรียบเนียนกระจ่างใส",
+    description: "เซรั่มลดการอุดตันและความมันส่วนเกิน ฟื้นฟูผิวให้เรียบเนียนกระจ่างใส",
   },
   {
     id: 2,
@@ -81,7 +81,7 @@ export const mockProducts = [
     type: "suncare",
     skinType: ["ผิวมัน"],
     stock: 10,
-    description:"กันแดดเนื้อเอสเซนส์บางเบา ไม่เหนียวเหนอะหนะ ปกป้องผิวจากแสงแดดอย่างอ่อนโยน",
+    description: "กันแดดเนื้อเอสเซนส์บางเบา ไม่เหนียวเหนอะหนะ ปกป้องผิวจากแสงแดดอย่างอ่อนโยน",
   },
   {
     id: 8,
@@ -93,7 +93,7 @@ export const mockProducts = [
     type: "skincare",
     skinType: ["ผิวหมองคล้ำ"],
     stock: 10,
-    description:"เซรั่มสูตรไกลโคลิก ช่วยให้ผิวดูใสเรียบเนียนขึ้นอย่างอ่อนโยน",
+    description: "เซรั่มสูตรไกลโคลิก ช่วยให้ผิวดูใสเรียบเนียนขึ้นอย่างอ่อนโยน",
   },
   {
     id: 9,
@@ -212,7 +212,7 @@ export const mockProducts = [
     category: "แชมพู",
     type: "haircare",
     skinType: ["ทุกสภาพผม"],
-    stock: 10.00,
+    stock: 10,
     description: "แชมพูบำรุงให้ผมเรียบลื่นและเงางาม ลดผมชี้ฟู",
   },
   {
@@ -291,7 +291,7 @@ export const mockProducts = [
     id: 25,
     name: "Bleu de Chanel",
     brand: "Chanel",
-    price: 4800.000,
+    price: 4800.00,
     image: "/assets/sample-perfume2.webp",
     category: "น้ำหอมผู้ชาย",
     type: "perfume",
@@ -396,3 +396,12 @@ export const mockProducts = [
     description: "เจลบำรุงผิวชุ่มชื้น ราคาพิเศษประจำเดือนนี้",
   },
 ];
+export const mockUser = {
+  id: 1,
+  email: 'guess@gmail.com',
+  password: 'password123',
+  confirmPassword: 'password123',
+  birthdate: '2003-09-01',
+  gender: 'female',
+  skinType: 'oily'
+};

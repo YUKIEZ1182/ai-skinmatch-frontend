@@ -1,10 +1,10 @@
 .navbar-container { background-color: #231F20; padding: 15px 0; color: white;}
-.navbar-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;}
+.navbar-content { max-width: 1920px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 48px;}
 .navbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white;}
 .logo-circle { width: 36px; height: 36px; background-color: transparent; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;}
 .logo-text { font-size: 20px; font-weight: 600; font-family: 'Prompt', sans-serif; color: #FFD6C9; }
 .navbar-actions { display: flex; gap: 25px; align-items: center;}
-.nav-action-item { display: flex; align-items: center; gap: 8px; color: white; text-decoration: none; cursor: pointer; position: relative;}
+.nav-action-item { display: flex; align-item: center; gap: 8px; color: white; text-decoration: none; cursor: pointer; position: relative;}
 .nav-label { font-size: 14px; font-weight: 500; color: #FFD6C9; }
 .cart-icon-wrapper { position: relative; display: flex; color: #FFD6C9; }
 .cart-badge { position: absolute; top: -5px; right: -8px; background-color: #FF4D4F; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; min-width: 14px; text-align: center;}

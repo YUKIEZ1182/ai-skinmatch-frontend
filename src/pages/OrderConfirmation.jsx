@@ -5,11 +5,27 @@ import '../styles/OrderConfirmation.css';
 export default function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // รับข้อมูล items และราคาจากหน้า Cart
   const { selectedItems = [], totalPrice = 0 } = location.state || {};
+  
+  // ค่าจัดส่ง (สมมติ)
   const shippingCost = 60; 
   const grandTotal = totalPrice + shippingCost;
+  
+  // วันที่และเลข Order จำลอง
   const orderDate = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric'});
   const orderId = "AI-SK-" + Math.floor(100000 + Math.random() * 900000);
+
+  // --- ฟังก์ชันกดชำระเงิน ---
+  const handlePayment = () => {
+    // 1. แจ้งเตือนว่าสำเร็จ
+    alert("ชำระเงินสำเร็จ! ขอบคุณสำหรับการสั่งซื้อ");
+    
+    // 2. ย้ายกลับไปหน้าแรก
+    navigate('/');
+  };
+
   return (
     <div className="order-page-wrapper">
       <div className="status-header">
@@ -22,7 +38,9 @@ export default function OrderConfirmation() {
         <h2 className="status-title pending-text">รอดำเนินการชำระเงิน</h2>
         <p className="status-subtitle">โปรดยืนยันการชำระเงินตามรายละเอียดด้านล่าง</p>
       </div>
+      
       <div className="order-layout">
+        {/* --- ส่วนรายละเอียดสินค้า --- */}
         <div className="order-details-section">
           <div className="section-card">
             <h3 className="section-header">รายละเอียดสินค้า</h3>
@@ -30,17 +48,25 @@ export default function OrderConfirmation() {
               {selectedItems.map((item) => (
                 <div key={item.id} className="order-item-row">
                   <div className="item-img-wrapper">
-                    <img src={item.image} alt={item.name} />
+                    {/* ใช้ item.image ที่เรา map มาแล้ว */}
+                    <img 
+                      src={item.image || 'https://via.placeholder.com/150'} 
+                      alt={item.name} 
+                      onError={(e) => e.target.src='https://via.placeholder.com/150'}
+                    />
                   </div>
                   <div className="item-info">
                     <div className="item-brand">{item.brand}</div>
                     <div className="item-name">{item.name}</div>
                     <div className="item-qty">จำนวน: {item.quantity} ชิ้น</div>
                   </div>
-                  <div className="item-price">{(item.price * item.quantity).toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</div>
+                  <div className="item-price">
+                    {(item.price * item.quantity).toLocaleString('en-US', {minimumFractionDigits: 2})} Baht
+                  </div>
                 </div>
               ))}
             </div>
+            
             <div className="order-cost-summary">
                 <div className="cost-row">
                   <span>ยอดรวมสินค้า</span>
@@ -58,6 +84,8 @@ export default function OrderConfirmation() {
             </div>
           </div>
         </div>
+
+        {/* --- Sidebar สรุป --- */}
         <div className="order-summary-sidebar">
            <div className="sidebar-card">
              <h3 className="sidebar-header">สรุปคำสั่งซื้อ</h3>
@@ -77,8 +105,14 @@ export default function OrderConfirmation() {
                <span className="label">สถานะการชำระเงิน</span>
                <span className="status-tag pending">รอชำระเงิน</span>
              </div>
-             <button className="btn-pay-now">ชำระเงิน</button>
+             
+             {/* ปุ่มชำระเงิน */}
+             <button className="btn-pay-now" onClick={handlePayment}>
+               ยืนยันการชำระเงิน
+             </button>
+
            </div>
+           
            <div className="sidebar-actions">
               <button className="btn-back-outline" onClick={() => navigate(-1)}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 8}}>
@@ -88,7 +122,7 @@ export default function OrderConfirmation() {
                 ย้อนกลับ
               </button>
               <button className="btn-shopping-black" onClick={() => navigate('/')}>
-                 กลับไปช้อปปิ้งต่อ
+                  กลับไปช้อปปิ้งต่อ
               </button>
            </div>
         </div>

@@ -1,37 +1,60 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/CategoryMenu.css';
 
-const categories = [
-  { id: 'new', label: 'ใหม่!', isHighlight: true },
-  { id: 'makeup', label: 'เมคอัพ' },
-  { id: 'skincare', label: 'สกินแคร์' },
-  { id: 'haircare', label: 'ดูแลเส้นผม' },
-  { id: 'tools', label: 'อุปกรณ์เสริมสวย' },
-  { id: 'body', label: 'ดูแลผิวกาย' },
-  { id: 'perfume', label: 'น้ำหอม' },
-  { id: 'queen', label: 'ควีนบิวตี้' },
-  { id: 'gift', label: 'ของขวัญ' },
-  { id: 'brand', label: 'แบรนด์' },
-  { id: 'sale', label: 'สินค้าลดราคา' },
-];
-export default function CategoryMenu({ activeCategory, onCategorySelect }) {
+const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
+
+export default function CategoryMenu({ onCategorySelect }) {
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation();
-  const handleClick = (catId) => {
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
+  const [searchParams] = useSearchParams();
+
+  const currentCategory = searchParams.get('category') || 'new';
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        const response = await fetch(`${API_URL}/items/category?fields=id,name`, {
+          method: 'GET',
+          headers: headers
+        });
+        
+        const json = await response.json();
+        if (json.data) setCategories(json.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const menuItems = [
+    { id: 'new', name: 'ใหม่!', isHighlight: true },
+    ...categories 
+  ];
+
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/?category=${categoryId}`);
     if (onCategorySelect) {
-      onCategorySelect(catId);
+      onCategorySelect(categoryId);
     }
   };
+
   return (
     <nav className="category-nav-container">
       <div className="category-scroll">
-        {categories.map((cat) => (
-          <button key={cat.id} className={`nav-item ${cat.isHighlight ? 'highlight' : ''} ${activeCategory === cat.id ? 'active' : ''}`} onClick={() => handleClick(cat.id)}>
-            {cat.label}
+        {menuItems.map((item) => (
+          <button
+            key={item.id}
+            className={`nav-item ${item.isHighlight ? 'highlight' : ''} ${currentCategory === item.id.toString() ? 'active' : ''}`}
+            onClick={() => handleCategoryClick(item.id)}
+          >
+            {item.name}
           </button>
         ))}
       </div>
