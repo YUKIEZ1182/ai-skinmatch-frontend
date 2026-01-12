@@ -15,10 +15,6 @@ import ProductDetail from "./pages/ProductDetail";
 import Home from "./pages/Home";
 import OrderConfirmation from "./pages/OrderConfirmation";
 
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { th } from "date-fns/locale"; 
-
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -127,7 +123,6 @@ function App() {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
       <div className="app-container">
         
         {/* Modal Login/Register */}
@@ -202,7 +197,6 @@ function App() {
 
         <Footer />
       </div>
-    </LocalizationProvider>
   );
 }
 

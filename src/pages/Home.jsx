@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
 import '../styles/Home.css';
 import '../styles/SearchPage.css';
@@ -18,12 +17,19 @@ export default function Home({ handleProductSelect, activeCategory, isLoggedIn }
   const [executedSearchTerm, setExecutedSearchTerm] = useState("");
   const [categoryTitle, setCategoryTitle] = useState("รายการสินค้า");
 
+  // 🔹 CORE MAPPING: แปลงข้อมูลจาก DB ให้ตรงกับ Class Diagram
   const mapProductData = (item) => ({
     id: item.id,
     name: item.name,
     price: Number(item.price), 
+    // Map: thumbnail -> image
     image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : 'https://placehold.co/400x400?text=No+Image', 
+    // Map: brand_name -> brand
     brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'General', 
+    // Map: status -> stock (จำลองว่าถ้า published คือมีของ 10 ชิ้น)
+    stock: item.status === 'published' ? 10 : 0, 
+    description: item.description || '',
+    category: item.categories?.[0]?.category_id?.name || 'General',
     date_created: item.date_created,
     date_updated: item.date_updated
   });
@@ -31,7 +37,8 @@ export default function Home({ handleProductSelect, activeCategory, isLoggedIn }
   const fetchHomeData = async () => {
     try {
       setLoading(true);
-      const newRes = await fetch(`${API_URL}/items/product?sort=-date_updated&limit=4&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,date_updated`);
+      // ขอ field status และ brand_name มาด้วย
+      const newRes = await fetch(`${API_URL}/items/product?sort=-date_updated&limit=4&fields=id,name,price,thumbnail,brand_name,status,description,categories.category_id.name,date_updated`);
       const newData = await newRes.json();
       if (newData.data) {
         setNewArrivals(newData.data.map(mapProductData));
@@ -86,8 +93,9 @@ export default function Home({ handleProductSelect, activeCategory, isLoggedIn }
         if (filterObj._and.length === 0) delete filterObj._and;
   
         const filterParam = JSON.stringify(filterObj);
+        
         const response = await fetch(
-          `${API_URL}/items/product?fields=id,name,price,thumbnail,brand_name,categories.category_id.name,date_created,date_updated&sort=-date_updated&filter=${encodeURIComponent(filterParam)}`, 
+          `${API_URL}/items/product?fields=id,name,price,thumbnail,brand_name,status,description,categories.category_id.name,date_created,date_updated&sort=-date_updated&filter=${encodeURIComponent(filterParam)}`, 
           { method: 'GET', headers: headers }
         );
   
@@ -144,71 +152,18 @@ export default function Home({ handleProductSelect, activeCategory, isLoggedIn }
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px', color: '#666' }}>
-         <h3>กำลังโหลดสินค้า...</h3>
+         <h4>กำลังโหลดสินค้า...</h4>
       </div>
     );
   }
 
-  if (!executedSearchTerm && activeCategory === 'new') {
-    return (
-      <div className="home-container search-page-container"> 
-        <div className="search-section">
-          <div className="search-pill">
-            <input 
-              type="text" placeholder="คุณกำลังมองหาอะไรอยู่?" className="search-input" 
-              value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown}
-            />
-            <button className="search-circle-btn" onClick={handleSearch}>
-               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
-          </div>
-        </div>
-        
-        <div className="home-content">
-           <section className="product-section">
-            <h2 className="section-title">สินค้าใหม่ที่น่าสนใจ</h2>
-            <div className="horizontal-product-list">
-              {newArrivals.length > 0 ? (
-                newArrivals.map(p => (
-                  <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
-                ))
-              ) : (
-                <p style={{color: '#999'}}>ยังไม่มีสินค้าใหม่</p>
-              )}
-            </div>
-          </section>
-          
-          {recommended.length > 0 && (
-            <section className="product-section highlight-section">
-                <h2 className="section-title">แนะนำสำหรับผิวของคุณ</h2>
-                <div className="horizontal-product-list">
-                {recommended.map(p => (
-                    <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
-                ))}
-                </div>
-            </section>
-          )}
-
-           {recommended.length === 0 && (
-             <div style={{textAlign:'center', padding:'40px', color:'#ccc', marginTop:'20px'}}>
-               {isLoggedIn ? (
-                 <p>กำลังวิเคราะห์ผิว หรือไม่พบข้อมูลสินค้าที่ตรงกัน</p>
-               ) : (
-                 <p>เข้าสู่ระบบเพื่อรับคำแนะนำผลิตภัณฑ์ที่เหมาะกับผิวคุณ</p>
-               )}
-             </div>
-           )}
-        </div>
-      </div>
-    );
-  }
-
+  // ส่วนแสดงผล (View)
   return (
-    <div className="home-container search-page-container">
+    <div className="home-container search-page-container"> 
       <div className="search-section">
         <div className="search-pill">
           <input 
-            type="text" placeholder="คุณกำลังมองหาอะไรอยู่?" className="search-input"
+            type="text" placeholder="คุณกำลังมองหาอะไรอยู่?" className="search-input" 
             value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown}
           />
           <button className="search-circle-btn" onClick={handleSearch}>
@@ -216,40 +171,56 @@ export default function Home({ handleProductSelect, activeCategory, isLoggedIn }
           </button>
         </div>
       </div>
-
+      
       <div className="home-content">
-        {products.length === 0 ? (
-           <div className="search-empty-state">
-             <div className="empty-icon-wrapper">
-               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  <line x1="8" y1="11" x2="14" y2="11"></line>
-               </svg>
+         {!executedSearchTerm && activeCategory === 'new' ? (
+           <>
+             <section className="product-section">
+              <h2 className="section-title">สินค้าใหม่ที่น่าสนใจ</h2>
+              <div className="horizontal-product-list">
+                {newArrivals.length > 0 ? (
+                  newArrivals.map(p => (
+                    <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
+                  ))
+                ) : (
+                  <p style={{color: '#999'}}>ยังไม่มีสินค้าใหม่</p>
+                )}
+              </div>
+            </section>
+            
+            {recommended.length > 0 && (
+              <section className="product-section highlight-section">
+                  <h2 className="section-title">แนะนำสำหรับผิวของคุณ</h2>
+                  <div className="horizontal-product-list">
+                  {recommended.map(p => (
+                      <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
+                  ))}
+                  </div>
+              </section>
+            )}
+           </>
+         ) : (
+           // ส่วนแสดงผลลัพธ์การค้นหา
+           products.length === 0 ? (
+             <div className="search-empty-state">
+               {/* ... (SVG icon) ... */}
+               <h3 className="empty-title">ไม่พบสินค้า</h3>
              </div>
-             <h3 className="empty-title">
-               {executedSearchTerm ? `ไม่พบสินค้า "${executedSearchTerm}"` : "ยังไม่มีสินค้าในหมวดหมู่นี้"}
-             </h3>
-             <p className="empty-subtitle">
-               ลองตรวจสอบคำสะกด หรือใช้คำค้นหาที่กว้างขึ้น <br/>
-               เช่น "ลิปสติก", "ครีม", "Cerave"
-             </p>
-           </div>
-        ) : (
-           <div className="product-section">
-             <div className="search-header-result">
-                <h2 className="search-title">
-                  {executedSearchTerm ? <>ผลลัพธ์การค้นหา <span className="search-highlight">"{executedSearchTerm}"</span></> : categoryTitle}
-                </h2>
-                <p className="search-count">พบสินค้าทั้งหมด {products.length} รายการ</p>
+           ) : (
+             <div className="product-section">
+               <div className="search-header-result">
+                  <h2 className="search-title">
+                    {executedSearchTerm ? <>ผลลัพธ์ <span className="search-highlight">"{executedSearchTerm}"</span></> : categoryTitle}
+                  </h2>
+               </div>
+               <div className="product-grid">
+                {products.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+               </div>
              </div>
-             <div className="product-grid">
-               {products.map(p => (
-                 <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
-               ))}
-             </div>
-           </div>
-        )}
+           )
+         )}
       </div>
     </div>
   );

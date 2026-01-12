@@ -1,4 +1,3 @@
-/* --- ปรับแต่งตัวกล่องปฏิทิน --- */
 .react-datepicker {
   font-family: 'Prompt', sans-serif !important;
   border: none !important;
@@ -7,14 +6,12 @@
   overflow: hidden;
 }
 
-/* ส่วนหัว (Header) */
 .react-datepicker__header {
-  background-color: #fff !important; /* พื้นหลังหัวขาว */
+  background-color: #fff !important;
   border-bottom: 1px solid #f0f0f0 !important;
   padding-top: 15px !important;
 }
 
-/* ชื่อเดือน/ปี */
 .react-datepicker__current-month {
   color: #333 !important;
   font-weight: 600 !important;
@@ -22,29 +19,25 @@
   margin-bottom: 10px !important;
 }
 
-/* ชื่อวัน (จันทร์ อังคาร ...) */
 .react-datepicker__day-name {
   color: #999 !important;
   width: 2.5rem !important;
 }
 
-/* ตัวเลขวันที่ */
 .react-datepicker__day {
   width: 2.5rem !important;
   line-height: 2.5rem !important;
   margin: 0.1rem !important;
-  border-radius: 50% !important; /* ทำเป็นวงกลม */
+  border-radius: 50% !important;
   color: #444 !important;
   transition: all 0.2s;
 }
 
-/* วันที่เอาเมาส์ชี้ (Hover) */
 .react-datepicker__day:hover {
-  background-color: #FFF0F0 !important; /* สีชมพูอ่อนๆ */
+  background-color: #FFF0F0 !important;
   color: #FF8B73 !important;
 }
 
-/* วันที่ถูกเลือก (Selected) - ✅ สีธีม */
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
   background-color: #FF8B73 !important;
@@ -52,25 +45,23 @@
   font-weight: bold;
 }
 
-/* วันที่เป็น "วันนี้" (Today) */
 .react-datepicker__day--today {
   color: #FF8B73 !important;
   font-weight: 600;
   border: 1px solid #FF8B73;
   background-color: transparent;
 }
+
 .react-datepicker__day--today.react-datepicker__day--selected {
   background-color: #FF8B73 !important;
   color: white !important;
 }
 
-/* ลูกศรซ้ายขวา */
 .react-datepicker__navigation-icon::before {
   border-color: #666 !important;
   border-width: 2px 2px 0 0 !important;
 }
 
-/* --- ปรับช่อง Input ให้เหมือนอันอื่น --- */
 .custom-date-input {
   width: 100%;
   padding: 12px 15px;
@@ -82,18 +73,19 @@
   color: #333;
   cursor: pointer;
 }
+
 .custom-date-input:focus {
   outline: none;
   background-color: #fff;
   border-color: #FF8B73;
 }
+
 .react-datepicker-wrapper,
 .react-datepicker__input-container {
   display: block !important;
   width: 100% !important;
 }
 
-/* ปรับ Wrapper ของช่องกรอกเราให้เต็มด้วย */
 .date-input-wrapper {
   width: 100%;
   position: relative;
@@ -101,10 +93,9 @@
   align-items: center;
 }
 
-/* ปรับตัว Input ให้เหมือนกับ CustomSelect เป๊ะๆ */
 .auth-input-date {
   width: 100%;
-  padding: 14px 20px; /* เท่ากับ CustomSelect */
+  padding: 14px 20px;
   border-radius: 12px;
   border: 1px solid #E0E0E0;
   background-color: #fff;
@@ -112,24 +103,22 @@
   font-size: 15px;
   color: #333;
   cursor: pointer;
-  box-sizing: border-box; /* สำคัญ: ไม่ให้ Padding ดันกล่องล้น */
+  box-sizing: border-box;
   transition: all 0.3s ease;
 }
 
-/* ตอนกดเลือก (Focus) */
 .auth-input-date:focus {
   outline: none;
   border-color: #FF8B73;
   box-shadow: 0 0 0 3px rgba(255, 139, 115, 0.1);
 }
 
-/* ปรับตำแหน่งไอคอนปฏิทินให้อยู่ขวาสุด สวยๆ */
 .calendar-icon-overlay {
   position: absolute;
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none; /* ให้กดทะลุไปโดน input ได้ */
+  pointer-events: none;
   color: #999;
   display: flex;
   align-items: center;

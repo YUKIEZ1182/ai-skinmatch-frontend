@@ -39,12 +39,26 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ คำนวณวันเมื่อวาน (เพื่อใช้เป็น maxDate)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
   if (!isOpen) return null;
   const togglePassword = () => setShowPassword(!showPassword);
   const toggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
 
-  const handleGoToRegister = () => {
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setBirthDate(null);
+    setGender('');
+    setSkinType('');
     setErrors({});
+  };
+
+  const handleGoToRegister = () => {
+    resetForm();
     setMode('register_step1');
   };
 
@@ -133,7 +147,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 setIsLoading(false);
                 return;
             }
-            const formattedDate = birthDate.toISOString().split('T')[0];
+            
+            const year = birthDate.getFullYear();
+            const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+            const day = String(birthDate.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
 
             const registerPayload = {
                 email: email,
@@ -154,6 +172,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             if (response.ok) {
                 alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
                 setMode('login');
+                setPassword('');
             } else {
                 console.error("Register Error:", data);
                 if (data.errors?.[0]?.message?.includes("forbidden")) {
@@ -240,7 +259,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 <div className={`password-wrapper ${errors.password ? 'input-error' : ''}`} style={{position: 'relative'}}>
                   <input 
                     type={showPassword ? "text" : "password"} 
-                    placeholder="........" 
+                    placeholder="กรุณากรอกรหัสผ่าน" 
                     className="auth-input" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -286,6 +305,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
+                  maxDate={yesterday}
                 />
               </div>
               <div className="form-group">
