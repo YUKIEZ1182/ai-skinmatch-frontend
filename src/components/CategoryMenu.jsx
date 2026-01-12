@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/CategoryMenu.css';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
-export default function CategoryMenu({ onCategorySelect }) {
+export default function CategoryMenu({ activeCategory, onCategorySelect }) {
   const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  const currentCategory = searchParams.get('category') || 'new';
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem('access_token');
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
         
         const response = await fetch(`${API_URL}/items/category?fields=id,name`, {
           method: 'GET',
@@ -24,7 +25,9 @@ export default function CategoryMenu({ onCategorySelect }) {
         });
         
         const json = await response.json();
-        if (json.data) setCategories(json.data);
+        if (json.data) {
+          setCategories(json.data);
+        }
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -34,16 +37,9 @@ export default function CategoryMenu({ onCategorySelect }) {
   }, []);
 
   const menuItems = [
-    { id: 'new', name: 'ใหม่!', isHighlight: true },
+    { id: 'new', name: 'ใหม่!', isHighlight: true }, 
     ...categories 
   ];
-
-  const handleCategoryClick = (categoryId) => {
-    navigate(`/?category=${categoryId}`);
-    if (onCategorySelect) {
-      onCategorySelect(categoryId);
-    }
-  };
 
   return (
     <nav className="category-nav-container">
@@ -51,8 +47,8 @@ export default function CategoryMenu({ onCategorySelect }) {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            className={`nav-item ${item.isHighlight ? 'highlight' : ''} ${currentCategory === item.id.toString() ? 'active' : ''}`}
-            onClick={() => handleCategoryClick(item.id)}
+            className={`nav-item ${item.isHighlight ? 'highlight' : ''} ${activeCategory === item.id ? 'active' : ''}`}
+            onClick={() => onCategorySelect(item.id)}
           >
             {item.name}
           </button>

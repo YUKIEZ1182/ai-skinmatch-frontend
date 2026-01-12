@@ -1,5 +1,3 @@
-/* src/styles/AccountPage.css */
-
 .account-page-wrapper {
   max-width: 900px;
   margin: 0 auto;
@@ -20,7 +18,6 @@
   font-weight: 600;
   margin: 0;
 }
-
 .btn-edit-outline {
   display: flex;
   align-items: center;
@@ -34,7 +31,6 @@
   font-size: 14px;
   transition: all 0.2s;
 }
-
 .btn-edit-outline:hover {
   background-color: #f5f5f5;
 }
@@ -48,8 +44,8 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  align-items: center;
+  grid-template-columns: 200px 1fr; 
+  align-items: center; 
 }
 
 .form-label {
@@ -60,7 +56,7 @@
 
 .form-actions {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 200px 1fr; 
   width: 100%;
   margin-top: 40px;
 }
@@ -70,7 +66,6 @@
   width: 100%;
 }
 
-/* สไตล์ Input ปกติของคุณ */
 .gray-input {
   width: 100%;
   height: 48px;
@@ -87,7 +82,6 @@
   cursor: default;
 }
 
-/* สไตล์ตอนแก้ไขได้ (พื้นขาว ขอบเทา) */
 .gray-input:not(:disabled) {
   background-color: #FFFFFF;
   border: 1px solid #D1D1D1;
@@ -153,115 +147,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 100%;
     justify-self: stretch;
   }
-}
-
-/* ============================================================
-   👇 ส่วนที่เพิ่ม: Custom Select Styles 
-   (ปรับให้เข้ากับดีไซน์ .gray-input ของคุณเป๊ะๆ)
-   ============================================================ */
-.custom-select-container {
-  position: relative;
-  width: 100%;
-  font-family: inherit;
-}
-
-/* ปรับ Trigger ให้เหมือน .gray-input:not(:disabled) */
-.custom-select-trigger {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 48px; /* สูงเท่า Input ของคุณ */
-  padding: 0 16px;
-  background-color: #FFFFFF;
-  border: 1px solid #D1D1D1;
-  border-radius: 8px; /* ความมนเท่ากัน */
-  font-size: 16px;
-  color: #000;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-/* Effect ตอนกดเปิด */
-.custom-select-container.open .custom-select-trigger {
-  border-color: #000; /* เปลี่ยนขอบเข้มขึ้นตอนเลือก */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.select-placeholder {
-  color: #999;
-}
-
-.select-arrow {
-  display: flex;
-  align-items: center;
-  color: #777;
-  transition: transform 0.3s ease;
-}
-
-.custom-select-container.open .select-arrow {
-  transform: rotate(180deg);
-}
-
-/* ตัวเลือก Dropdown */
-.custom-select-options {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 100;
-}
-
-.custom-select-container.open .custom-select-options {
-  max-height: 300px;
-  opacity: 1;
-  transform: translateY(0);
-  overflow-y: auto;
-  padding: 8px;
-}
-
-/* แต่ละตัวเลือก */
-.custom-option {
-  padding: 10px 16px;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.custom-option:hover {
-  background-color: #f5f5f5;
-  color: #000;
-}
-
-.custom-option.selected {
-  background-color: #F9F9F9;
-  color: #000;
-  font-weight: 500;
-}
-
-.option-check-icon {
-  opacity: 0;
-  transform: scale(0.5);
-  transition: all 0.2s;
-  color: #000;
-}
-
-.custom-option.selected .option-check-icon {
-  opacity: 1;
-  transform: scale(1);
 }
