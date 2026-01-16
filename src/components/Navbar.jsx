@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
-export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartItemCount }) {
+// ✅ เพิ่ม 'user' ใน props
+export default function Navbar({ isAuthenticated, user, onLoginClick, onLogout, cartItemCount }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -15,6 +17,7 @@ export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartIt
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
+
   const handleAccountClick = () => {
     if (isAuthenticated) {
       setIsDropdownOpen(!isDropdownOpen);
@@ -22,15 +25,18 @@ export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartIt
       onLoginClick();
     }
   };
+
   const handleLogoutClick = () => { setIsDropdownOpen(false); onLogout();};
-  const handleCartClick = (e) => {   //ฟังก์ชันใหม่สำหรับจัดการการกดถุงช้อปปิ้ง
+
+  const handleCartClick = (e) => {
     e.preventDefault();
     if (isAuthenticated) {
-      navigate('/cart'); // ถ้าล็อกอินแล้ว ไปหน้าตะกร้า
+      navigate('/cart');
     } else {
-      onLoginClick(); // ถ้ายังไม่ล็อกอิน ให้เปิด Modal
+      onLoginClick();
     }
   };
+
   return (
     <nav className="navbar-container">
       <div className="navbar-content">
@@ -51,7 +57,12 @@ export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartIt
           <div className="nav-action-item account-dropdown-container" ref={dropdownRef}>
             <div className="account-trigger" onClick={handleAccountClick}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <span className="nav-label">บัญชีของฉัน</span>
+              
+              {/* ✅ แก้ไขตรงนี้: โชว์ชื่อ User ถ้ามี */}
+              <span className="nav-label">
+                {isAuthenticated && user?.first_name ? user.first_name : "บัญชีของฉัน"}
+              </span>
+
             </div>
             {isAuthenticated && isDropdownOpen && (
               <div className="nav-dropdown-menu">

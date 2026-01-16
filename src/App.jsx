@@ -19,6 +19,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { th } from "date-fns/locale"; 
 
+import { apiFetch } from './utils/api';
+
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -28,10 +30,62 @@ function App() {
     return localStorage.getItem("skinmatch_is_logged_in") === "true";
   });
 
-  // บันทึกสถานะ Login
+  // ข้อมูล User ปัจจุบัน
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // ข้อมูลตะกร้า (เอาไว้นับจำนวน Badge บน Navbar)
+  const [cartItems, setCartItems] = useState([]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ 1. ฟังก์ชันดึงข้อมูลตะกร้า (เอาไว้นับจำนวนอย่างเดียว)
+  const fetchCartData = async () => {
+    if (!isLoggedIn) return;
+    try {
+      // ดึงข้อมูล User (ถ้ายังไม่มี)
+      if (!currentUser) {
+        const userRes = await apiFetch('/users/me');
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setCurrentUser(userData.data);
+        }
+      }
+
+      // ดึงข้อมูลตะกร้าเพื่อเอามานับจำนวน
+      const cartRes = await apiFetch(`/items/cart_detail?fields=id,quantity&filter[owner][_eq]=$CURRENT_USER`);
+      if (cartRes.ok) {
+        const json = await cartRes.json();
+        setCartItems(json.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // ✅ 2. useEffect สำหรับรับสัญญาณ (Signal Receiver)
   useEffect(() => {
-    localStorage.setItem("skinmatch_is_logged_in", isLoggedIn);
-  }, [isLoggedIn]);
+    if (isLoggedIn) {
+      fetchCartData(); // ดึงครั้งแรกตอน Login
+    } else {
+      setCartItems([]);
+      setCurrentUser(null);
+    }
+
+    // สร้างฟังก์ชันรับสัญญาณ
+    const handleCartUpdateSignal = () => {
+      // พอได้ยินสัญญาณว่ามีคนเพิ่ม/ลบของ ให้ดึงข้อมูลใหม่ทันที
+      fetchCartData();
+    };
+
+    // เริ่มดักฟัง
+    window.addEventListener('cart-updated', handleCartUpdateSignal);
+
+    // เลิกดักฟังเมื่อ Component ถูกทำลาย (Cleanup)
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdateSignal);
+    };
+  }, [isLoggedIn]); // ทำงานใหม่เมื่อสถานะ Login เปลี่ยน
 
   // เปิดเว็บมาถ้ายังไม่ Login ให้เด้ง Modal (ปิดได้)
   useEffect(() => {
@@ -44,26 +98,17 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("skinmatch_is_logged_in");
+    setCurrentUser(null);
+    setCartItems([]);
     setIsModalOpen(true); 
+    navigate('/');
   };
 
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem("skinmatch_cart");
-    if (savedCart) {
-      try { return JSON.parse(savedCart); } catch (e) { console.error(e); }
-    }
-    return [];
-  });
-
   const [activeCategory, setActiveCategory] = useState('new');
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  useEffect(() => {
-    localStorage.setItem("skinmatch_cart", JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const totalItemsInCart = cartItems.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
+  // คำนวณจำนวนชิ้นรวม (หรือจะเปลี่ยนเป็น .length ก็นับตามรายการ)
+  // ถ้าอยากนับตามรายการให้ใช้: const totalItemsInCart = cartItems.length;
+  const totalItemsInCart = cartItems.length; 
 
   const handleProductSelect = (product) => {
     navigate(`/product/${product.id}`);
@@ -73,47 +118,6 @@ function App() {
   const handleGoBack = () => {
     navigate('/');
     window.scrollTo(0, 0);
-  };
-
-  // ✅ เช็ค Login ก่อนเพิ่มสินค้า
-  const handleAddToCartApp = (product, quantityToAdd) => {
-    // 1. เช็คว่า Login หรือยัง?
-    if (!isLoggedIn) {
-      setIsModalOpen(true); // ถ้ายัง ให้เด้ง Modal Login ขึ้นมา
-      return; 
-    }
-
-    // 2. ถ้า Login แล้ว ให้ทำงานต่อตามปกติ
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => String(item.id) === String(product.id));
-      if (existingItem) {
-        return prevItems.map(item => 
-          String(item.id) === String(product.id)
-            ? { ...item, quantity: (Number(item.quantity) || 0) + quantityToAdd } 
-            : item
-        );
-      } else {
-        return [...prevItems, { ...product, quantity: quantityToAdd }];
-      }
-    });
-
-    // แสดงแจ้งเตือน
-    setAlertMessage("เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว");
-  };
-
-  const handleRemoveFromCart = (productId) => {
-    setCartItems(prev => prev.filter(item => String(item.id) !== String(productId)));
-  };
-
-  const handleUpdateQuantity = (productId, delta) => {
-    setCartItems(prev => prev.map(item => {
-      if (String(item.id) === String(productId)) {
-        const currentQty = Number(item.quantity) || 1;
-        const newQty = currentQty + delta;
-        return { ...item, quantity: newQty > 0 ? newQty : 1 };
-      }
-      return item;
-    }));
   };
 
   const getBreadcrumbItems = () => {
@@ -141,7 +145,8 @@ function App() {
 
         {/* Navbar */}
         <Navbar 
-            isAuthenticated={isLoggedIn} 
+            isAuthenticated={isLoggedIn}
+            user={currentUser} 
             onLoginClick={() => setIsModalOpen(true)}
             onLogout={handleLogout}
             cartItemCount={isLoggedIn ? totalItemsInCart : 0}
@@ -173,15 +178,15 @@ function App() {
                 activeCategory={activeCategory} 
                 handleProductSelect={handleProductSelect}
                 isLoggedIn={isLoggedIn}
+                currentUser={currentUser}
               />
             </main>
           } />
           
           <Route path="/product/:id" element={
             <main>
-              <ProductDetail 
-                onAddToCart={handleAddToCartApp}
-              />
+              {/* ✅ ไม่ต้องส่ง onAddToCart แล้ว เพราะ ProductDetail จัดการเอง */}
+              <ProductDetail />
             </main>
           } />
 
@@ -189,12 +194,8 @@ function App() {
           
           <Route path="/cart" element={
             <main>
-               <CartPage 
-                  cartItems={cartItems} 
-                  onRemoveItem={handleRemoveFromCart}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  onAddToCart={handleAddToCartApp} 
-               />
+               {/* ✅ ไม่ต้องส่ง props จัดการตะกร้า เพราะ CartPage จัดการเอง */}
+               <CartPage />
             </main>
           } />
           <Route path="/checkout" element={<main><OrderConfirmation /></main>} />

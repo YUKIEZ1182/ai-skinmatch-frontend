@@ -98,6 +98,9 @@ export default function CartPage() {
       setCartItems(prev => prev.filter(item => item.id !== cartId));
       setSelectedIds(prev => prev.filter(id => id !== cartId));
 
+      // ✅ จุดที่ 1: ลบเสร็จ ส่งสัญญาณบอก Navbar ให้ลดตัวเลขทันที
+      window.dispatchEvent(new Event('cart-updated'));
+
     } catch (error) {
       console.error("Error removing item:", error);
       alert("เกิดข้อผิดพลาดในการลบสินค้า"); 
@@ -118,6 +121,8 @@ export default function CartPage() {
         method: 'PATCH',
         body: JSON.stringify({ quantity: newQty })
       });
+      // (Optional) ถ้าอยากให้อัปเดตตัวเลขรวม (กรณีเปลี่ยน Logic นับชิ้น) ก็ใส่ตรงนี้ได้
+      // window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
       console.error("Error updating quantity:", error);
       fetchCart();
@@ -143,6 +148,10 @@ export default function CartPage() {
       }
       alert(`เพิ่ม ${productRec.name} ลงตะกร้าแล้ว`);
       fetchCart();
+
+      // ✅ จุดที่ 2: เพิ่มของแนะนำเสร็จ ส่งสัญญาณบอก Navbar ให้อัปเดตตัวเลข
+      window.dispatchEvent(new Event('cart-updated'));
+
     } catch (error) {
       console.error("Error adding recommendation:", error);
     }
@@ -246,8 +255,8 @@ export default function CartPage() {
                   </div>
                   <div className="col-price">
                     <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                       <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
-                       {isOutOfStock && <span className="stock-warning">สินค้าหมดชั่วคราว</span>}
+                        <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                        {isOutOfStock && <span className="stock-warning">สินค้าหมดชั่วคราว</span>}
                     </div>
                   </div>
                   <div className="col-qty">

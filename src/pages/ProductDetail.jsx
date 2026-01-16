@@ -166,6 +166,9 @@ export default function ProductDetail() {
         alert("เพิ่มสินค้าลงในถุงช้อปปิ้งเรียบร้อยแล้ว");
       }
 
+      // ✅ เพิ่มบรรทัดนี้: ส่งสัญญาณบอก Navbar ให้อัปเดตตัวเลขทันที!
+      window.dispatchEvent(new Event('cart-updated'));
+
     } catch (error) {
       console.error("Add to cart error:", error);
       alert("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
