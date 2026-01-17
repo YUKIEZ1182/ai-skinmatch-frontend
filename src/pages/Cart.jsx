@@ -10,9 +10,7 @@ export default function CartPage() {
   
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  
   const [recommendationsMap, setRecommendationsMap] = useState({});
-
   const [selectedIds, setSelectedIds] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -94,10 +92,9 @@ export default function CartPage() {
 
     try {
       await deleteCartDetail(cartId);
-
       setCartItems(prev => prev.filter(item => item.id !== cartId));
       setSelectedIds(prev => prev.filter(id => id !== cartId));
-
+      window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
       console.error("Error removing item:", error);
       alert("เกิดข้อผิดพลาดในการลบสินค้า"); 
@@ -143,6 +140,7 @@ export default function CartPage() {
       }
       alert(`เพิ่ม ${productRec.name} ลงตะกร้าแล้ว`);
       fetchCart();
+      window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
       console.error("Error adding recommendation:", error);
     }
@@ -181,26 +179,20 @@ export default function CartPage() {
   const selectedItems = cartItems.filter(item => selectedIds.includes(item.id));
   const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
-  const handleCheckout = async () => {
-    try {
-      const res = await apiFetch('/shop/checkout', {
-        method: 'POST',
-        body: JSON.stringify({ item_ids: selectedIds })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      navigate('/checkout', { 
+  // 🔥🔥🔥 แก้ไขตรงนี้: เปลี่ยนเป็น Navigate ไปหน้า Checkout
+  const handleCheckout = () => {
+    if (selectedIds.length === 0) {
+        alert("กรุณาเลือกสินค้าอย่างน้อย 1 รายการ");
+        return;
+    }
+    
+    // ส่งข้อมูลสินค้าและราคารวมไปที่หน้า Checkout
+    navigate('/checkout', { 
         state: { 
           selectedItems, 
-          totalPrice, 
-          order_no: data.order_no, 
-          order_id: data.order_id 
+          totalPrice 
         } 
-      });
-    } catch (err) {
-      alert(err.message);
-    }
+    });
   };
 
   const availableItemsCount = cartItems.filter(item => item.status !== 'inactive').length;
@@ -246,8 +238,8 @@ export default function CartPage() {
                   </div>
                   <div className="col-price">
                     <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                       <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
-                       {isOutOfStock && <span className="stock-warning">สินค้าหมดชั่วคราว</span>}
+                        <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                        {isOutOfStock && <span className="stock-warning">สินค้าหมดชั่วคราว</span>}
                     </div>
                   </div>
                   <div className="col-qty">
@@ -315,7 +307,8 @@ export default function CartPage() {
                 <span className="tax-note">(ไม่รวมค่าจัดส่ง)</span>
               </div>
             </div>
-            <button className="checkout-btn" onClick={handleCheckout}>ตกลงสั่งซื้อ</button>
+            {/* ปุ่มกดไป Checkout */}
+            <button className="checkout-btn" onClick={handleCheckout}>ดำเนินการชำระเงิน</button>
           </div>
         </div>
       </div>

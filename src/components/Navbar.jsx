@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
-export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartItemCount }) {
+// ❌ ไม่ต้อง import AuthModal ที่นี่แล้ว!
+// ✅ รับ props onLoginClick มาจาก App.jsx แทน (เผื่อกดปุ่ม)
+export default function Navbar({ isAuthenticated, user, onLoginClick, onLogout, cartItemCount }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -15,44 +18,65 @@ export default function Navbar({ isAuthenticated, onLoginClick, onLogout, cartIt
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
+
   const handleAccountClick = () => {
     if (isAuthenticated) {
       setIsDropdownOpen(!isDropdownOpen);
     } else {
+      onLoginClick(); // เรียกใช้ฟังก์ชันที่ส่งมาจาก App.jsx
+    }
+  };
+
+  const handleLogoutClick = () => { 
+    setIsDropdownOpen(false); 
+    onLogout();
+  };
+
+  const handleCartClick = (e) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      navigate('/cart');
+    } else {
       onLoginClick();
     }
   };
-  const handleLogoutClick = () => { setIsDropdownOpen(false); onLogout();};
-  const handleCartClick = (e) => {   //ฟังก์ชันใหม่สำหรับจัดการการกดถุงช้อปปิ้ง
-    e.preventDefault();
-    if (isAuthenticated) {
-      navigate('/cart'); // ถ้าล็อกอินแล้ว ไปหน้าตะกร้า
-    } else {
-      onLoginClick(); // ถ้ายังไม่ล็อกอิน ให้เปิด Modal
-    }
+
+  const handleLogoClick = () => {
+    window.scrollTo(0, 0);
   };
+
   return (
     <nav className="navbar-container">
       <div className="navbar-content">
-        <Link to="/" className="navbar-logo">
+        <Link to="/" className="navbar-logo" onClick={handleLogoClick}>
           <div className="logo-circle">
-            <img src="/favicon.png" alt="WAY Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
+            <img 
+              src="/favicon.png" 
+              alt="WAY Logo" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} 
+            />
           </div>
           <span className="logo-text">ai_skinmatch</span>
         </Link>
+        
         <div className="navbar-actions">
           <div className="nav-action-item" onClick={handleCartClick} style={{ cursor: 'pointer' }}>
             <div className="cart-icon-wrapper">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
               {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
             </div>
-            <span className="nav-label">ถุงช้อปปิ้ง</span>
+            <span className="nav-label">ถุงชอปปิง</span>
           </div>
+
           <div className="nav-action-item account-dropdown-container" ref={dropdownRef}>
             <div className="account-trigger" onClick={handleAccountClick}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <span className="nav-label">บัญชีของฉัน</span>
+              
+              <span className="nav-label">
+                {isAuthenticated && user?.first_name ? user.first_name : "บัญชีของฉัน"}
+              </span>
             </div>
+
             {isAuthenticated && isDropdownOpen && (
               <div className="nav-dropdown-menu">
                 <div className="dropdown-arrow"></div>
