@@ -1,121 +1,95 @@
-/* --- Container หลัก --- */
-.custom-select-container {
+/* Container หลัก */
+.custom-select-wrapper {
   position: relative;
   width: 100%;
-  font-family: 'Prompt', sans-serif;
+  font-family: 'Prompt', sans-serif; /* หรือฟอนต์ที่คุณใช้ */
 }
 
-/* --- ตัวกดเปิด (Trigger Box) --- */
-.custom-select-trigger {
-  width: 100%;
-  padding: 14px 20px; /* เพิ่มพื้นที่ภายในให้ดูโปร่ง */
-  border-radius: 12px; /* มุมมนสวยงาม */
-  border: 1px solid #E0E0E0; /* ขอบสีเทาอ่อนๆ */
-  background-color: #fff; /* พื้นหลังขาวสะอาด */
-  font-size: 15px;
+/* ตัวกล่องกดเลือก (Control) */
+.custom-select-control {
+  background-color: #f3f4f6; /* สีเทาอ่อนเหมือน Input ทั่วไป */
+  border: 1px solid transparent;
+  border-radius: 12px; /* โค้งมน */
+  padding: 12px 16px;
+  font-size: 0.95rem;
   color: #333;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.3s ease; /* อนิเมชั่นนุ่มนวล */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03); /* เงาบางๆ ให้ดูลอยนิดๆ */
-  box-sizing: border-box;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-/* ตอนเอาเมาส์ชี้ */
-.custom-select-trigger:hover {
-  border-color: #FF8B73; /* เปลี่ยนขอบเป็นสีธีม */
-  box-shadow: 0 4px 12px rgba(255, 139, 115, 0.15); /* เงาสีพีชฟุ้งๆ */
+.custom-select-control:hover {
+  background-color: #e5e7eb;
 }
 
-/* ตอนเปิด Dropdown */
-.custom-select-container.open .custom-select-trigger {
-  border-color: #FF8B73;
-  box-shadow: 0 0 0 3px rgba(255, 139, 115, 0.1); /* มีวงแหวนแสงรอบๆ */
+.custom-select-control.is-open {
+  background-color: #fff;
+  border-color: #F1978C; /* สีธีม */
+  box-shadow: 0 0 0 4px rgba(241, 151, 140, 0.15); /* เงาสีชมพูจางๆ */
 }
 
-/* ข้อความ Placeholder (ถ้ายังไม่เลือก) */
-.select-placeholder {
-  color: #999;
-  font-weight: 400;
+.custom-select-control.is-placeholder .selected-text {
+  color: #9ca3af; /* สี Placeholder */
 }
 
 /* ไอคอนลูกศร */
-.select-arrow {
+.arrow-icon {
+  color: #6b7280;
   transition: transform 0.3s ease;
-  color: #999;
-  display: flex;
-  align-items: center;
-}
-/* หมุนลูกศรเมื่อเปิด */
-.custom-select-container.open .select-arrow {
-  transform: rotate(180deg);
-  color: #FF8B73; /* เปลี่ยนสีลูกศรด้วย */
 }
 
-/* --- ส่วนรายการที่เด้งออกมา (Dropdown Menu) --- */
-.custom-select-options {
+.custom-select-control.is-open .arrow-icon {
+  transform: rotate(180deg); /* หมุนลูกศร */
+  color: #F1978C;
+}
+
+/* รายการตัวเลือก (Menu) */
+.custom-select-menu {
   position: absolute;
-  top: calc(100% + 8px); /* เว้นระยะห่างจากตัวกล่องนิดนึง */
+  top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  background: #fff;
-  border-radius: 12px; /* มุมมนเข้ากับตัวกด */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12); /* เงาลึกดูมีมิติ */
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f3f4f6;
   z-index: 100;
   overflow: hidden;
-  border: 1px solid #f5f5f5;
-  padding: 8px 0; /* เว้นระยะบนล่างในลิสต์ */
-  
-  /* Animation เด้งออกมา */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-15px) scale(0.98);
-  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1); /* เด้งแบบมีน้ำหนัก */
+  animation: slideDown 0.2s ease-out;
 }
 
-.custom-select-container.open .custom-select-options {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0) scale(1);
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- ตัวเลือกแต่ละบรรทัด --- */
-.custom-option {
-  padding: 12px 20px;
-  font-size: 15px;
-  color: #444;
+/* ตัวเลือกแต่ละอัน (Option) */
+.custom-select-option {
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
+  color: #4b5563;
+  font-size: 0.95rem;
+  transition: background 0.15s;
   display: flex;
-  justify-content: space-between; /* จัดให้ข้อความอยู่ซ้าย ติ๊กถูกอยู่ขวา */
+  justify-content: space-between;
   align-items: center;
 }
 
-/* ตอนชี้ (Hover) - ใช้สีพีชอ่อนๆ */
-.custom-option:hover {
-  background-color: #FFF5F3; 
-  color: #FF8B73;
+.custom-select-option:hover {
+  background-color: #FFF5F4; /* สีพื้นหลังชมพูอ่อนมากตอน Hover */
+  color: #F1978C;
 }
 
-/* ตัวที่ถูกเลือก (Selected) */
-.custom-option.selected {
-  background-color: #FF8B73; /* สีธีมเมน */
-  color: white;
+.custom-select-option.is-selected {
+  background-color: #FFF0ED; /* สีตอนเลือกแล้ว */
+  color: #F1978C;
   font-weight: 600;
 }
 
-/* ไอคอนติ๊กถูกในรายการ */
-.option-check-icon {
-  opacity: 0;
-  transform: scale(0);
-  transition: all 0.2s ease;
-  color: white;
-}
-
-.custom-option.selected .option-check-icon {
-  opacity: 1;
-  transform: scale(1);
+/* ไอคอนติ๊กถูก */
+.check-icon {
+  color: #F1978C;
 }

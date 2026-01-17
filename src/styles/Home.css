@@ -1,3 +1,6 @@
+/* =========================================
+   1. MAIN LAYOUT & SEARCH BAR
+   ========================================= */
 .home-container {
   padding-top: 10px;
   min-height: 100vh;
@@ -7,14 +10,14 @@
 .home-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px 80px 20px;
+  padding: 10px 20px 80px 20px;
 }
 
+/* Search Bar */
 .search-section {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 10px 0;
   position: sticky;
-  
   top: 0;
   z-index: 100;
   backdrop-filter: blur(8px);
@@ -32,209 +35,284 @@
   padding: 14px 60px 14px 25px;
   border-radius: 50px;
   border: 1px solid transparent;
-  background-color: #D4D4D4;
+  background-color: #F0F0F0;
   font-size: 15px;
   outline: none;
   transition: all 0.3s ease;
 }
 
+.search-input:focus {
+  background-color: #fff;
+  border-color: #ddd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
 .search-circle-btn {
   position: absolute;
-  right: 0px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
-  width: 68px;
-  height: 50px;
+  width: 55px;
+  height: 44px;
   background-color: #281D1B;
   border: none;
-  border-radius: 99px;
+  border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.welcome-banner {
-  background: #FFF0EB;
-  border: 1px solid #F8CBB2;
-  border-radius: 24px;
-  padding: 40px;
-  margin-bottom: 50px;
+.search-circle-btn:hover { background-color: #000; }
+
+/* =========================================
+   2. WATSONS STYLE DASHBOARD (Fixed)
+   ========================================= */
+.watsons-dashboard {
+  background: #fff;
+  padding: 10px 0 20px 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-header { margin-bottom: 25px; }
+
+.sub-greet {
+  display: block;
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.dashboard-header h1 {
+  font-size: 1.6rem;
+  color: #333;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- Container --- */
+.dashboard-icons-scroll {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap; /* ปัดตกบรรทัด */
+  overflow: visible; /* ห้ามตัดเมนู */
+  padding-bottom: 10px;
+}
+
+/* --- Dashboard Card Item --- */
+.dashboard-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;        
+  min-width: 200px;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid #eef0f2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+  
+  /* 🔥 สั่งลบขีดเส้นใต้แบบบังคับ */
+  text-decoration: none !important; 
+  color: inherit;
+}
+
+.dashboard-item:hover, .dashboard-item:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(241, 151, 140, 0.2);
+  border-color: #F1978C;
+  z-index: 50;
+}
+
+.circle-icon {
+  width: 45px;  
+  height: 45px; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #FFF5F4;
+  border: 1px solid #FFEBE9;
+}
+
+.item-label {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(255, 138, 128, 0.05);
+  justify-content: center;
 }
 
-.welcome-banner::after {
-  content: '🧴';
-  position: absolute;
-  right: 5%;
-  bottom: -10px;
-  font-size: 150px;
-  opacity: 0.1;
-  transform: rotate(-15deg);
+.small-label {
+  font-size: 0.65rem;
+  color: #999;
+  margin-bottom: 3px;
 }
 
-.banner-content h1 {
-  font-size: 2.2rem;
-  color: #1a1a1a;
-  margin: 0 0 25px 0;
-  font-weight: 800;
-}
-
-.skin-selection-group {
+/* --- จัดข้อความ + ลูกศร --- */
+.main-label-row {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-  z-index: 2;
+  gap: 8px; /* ระยะห่าง */
 }
 
-.skin-label {
-  font-size: 1.1rem;
-  color: #5D4037;
-  font-weight: 700;
-}
-
-.skin-dropdown-premium {
-  appearance: none;
-  background-color: #ffffff;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D84315' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  padding: 12px 45px 12px 20px;
-  border-radius: 12px;
-  border: 2px solid #FFAB91;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #D84315;
-  cursor: pointer;
-  outline: none;
-  min-width: 180px;
-}
-
-.quiz-action-btn {
-  display: inline-flex;
-  align-items: center;
-  background-color: #8e44ad;
-  color: white;
-  padding: 12px 25px;
-  border-radius: 50px;
-  text-decoration: none;
-  font-weight: 700;
+.main-label {
   font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(142, 68, 173, 0.2);
+  font-weight: 800;
+  color: #333;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.quiz-action-btn:hover {
-  transform: translateY(-2px);
-  background-color: #732d91;
-  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
+.dropdown-icon {
+  width: 24px !important;
+  height: 24px !important;
+  display: block;
+  fill: #F1978C;
+  transition: transform 0.3s ease;
+  margin-top: 1px;
 }
 
-.banner-subtitle-text {
-  font-size: 1.1rem;
-  color: #444;
-  margin: 0;
-  font-weight: 600;
-  line-height: 1.6;
-  z-index: 2;
+.rotate-arrow {
+  transform: rotate(180deg);
 }
 
-/* --- สินค้าแนะนำ (ย้ายออกมาข้างนอก) --- */
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 160px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  border: 1px solid #fff0f0;
+  z-index: 100;
+  padding: 6px;
+  animation: slideDown 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-option {
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #555;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.1s;
+}
+
+.dropdown-option:hover {
+  background-color: #FFF5F4;
+  color: #F1978C;
+  font-weight: 700;
+}
+
+/* --- Animation --- */
+.wave-effect {
+  display: inline-block;
+  animation: wave-animation 2.5s infinite;
+  transform-origin: 70% 70%;
+}
+
+@keyframes wave-animation {
+  0% { transform: rotate( 0.0deg) }
+  10% { transform: rotate(14.0deg) }
+  20% { transform: rotate(-8.0deg) }
+  30% { transform: rotate(14.0deg) }
+  40% { transform: rotate(-4.0deg) }
+  50% { transform: rotate(10.0deg) }
+  60% { transform: rotate( 0.0deg) }
+  100% { transform: rotate( 0.0deg) }
+}
+
+.icon-3d-small {
+  font-size: 1.8rem;
+  margin-left: 5px;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+  vertical-align: middle;
+}
+
+/* =========================================
+   3. PRODUCT LIST & SECTIONS
+   ========================================= */
 .recommend-outside-area {
   width: 100%;
-  margin-bottom: 60px;
+  margin-bottom: 50px;
 }
 
-.recommend-header {
-  margin-bottom: 25px;
+.section-header-flex {
   display: flex;
   align-items: center;
-  border-left: 5px solid #FFAB91;
-  padding-left: 15px;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .section-title-custom {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  display: flex;
-  align-items: center;
   color: #1a1a1a;
   margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.skin-badge {
+  background: linear-gradient(90deg, #fa6956 , #F1978C);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(241, 151, 140, 0.3);
 }
 
 .horizontal-scroll-list {
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding-bottom: 20px;
+  padding: 5px 5px 20px 5px;
   scrollbar-width: none;
 }
-
-.horizontal-scroll-list::-webkit-scrollbar {
-  display: none;
+.horizontal-scroll-list::-webkit-scrollbar { display: none; }
+.horizontal-scroll-list > * {
+  flex: 0 0 220px !important;
+  width: 220px !important;
+  max-width: 220px !important;
 }
 
-.empty-state-card {
+.simple-empty-state {
   background: #fdfdfd;
-  border: 1px dashed #ddd;
   border-radius: 16px;
-  padding: 40px;
-  text-align: center;
-  color: #999;
-  width: 100%;
-}
-
-.empty-state-card-premium {
-  background: rgba(255, 255, 255, 0.4);
-  border: 2px dashed #FFAB91; /* เส้นประสีพีชตามสไตล์แบนเนอร์ */
-  border-radius: 20px;
   padding: 50px 20px;
   text-align: center;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  border: 2px dashed #eee;
+  color: #aaa;
 }
 
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
-  opacity: 0.6;
-}
+.search-empty-state { text-align: center; padding: 60px 20px; color: #666; }
+.empty-title { font-size: 1.2rem; font-weight: 500; }
 
-.empty-state-card-premium h3 {
-  color: #4E342E;
-  margin-bottom: 10px;
-  font-size: 1.3rem;
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  padding-bottom: 40px;
 }
-
-.empty-state-card-premium p {
-  color: #8D6E63;
-  margin-bottom: 25px;
-}
-
-.empty-state-action-btn {
-  background-color: #8e44ad;
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 50px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(142, 68, 173, 0.2);
-}
-
-.empty-state-action-btn:hover {
-  background-color: #732d91;
-  transform: translateY(-2px);
+@media (min-width: 768px) {
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }

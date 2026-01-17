@@ -2,17 +2,16 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 40px 20px;
-  font-family: 'FC Iconic', sans-serif;
+  font-family: 'Prompt', sans-serif;
   color: #333;
 }
 
-/* --- ส่วนหัว (แก้ไขสีให้เป็นเหลือง/ส้ม) --- */
+/* --- ส่วนหัว --- */
 .status-header {
   text-align: center;
   margin-bottom: 40px;
 }
 
-/* วงกลมพื้นหลัง */
 .status-icon-circle {
   width: 70px;
   height: 70px;
@@ -23,24 +22,29 @@
   margin: 0 auto 15px;
 }
 
-/* ✅ ธีมสีเหลือง (Pending) */
+/* 🟡 ธีมรอจ่าย (Yellow) */
 .status-icon-circle.pending-theme {
-  background-color: #FFFBEB; /* สีเหลืองอ่อนมากๆ */
-  color: #F59E0B; /* สีเหลืองทอง/ส้ม */
+  background-color: #FFFBEB;
+  color: #F59E0B;
 }
 
-/* ✅ ข้อความหัวข้อสีเหลือง */
+/* 🟢 ธีมสำเร็จ (Green) - เพิ่มอันนี้! */
+.status-icon-circle.success-theme {
+  background-color: #DEF7EC; /* เขียวอ่อน */
+  color: #03543F; /* เขียวเข้ม */
+}
+
 .status-title {
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 5px;
 }
-.status-title.pending-text {
-  color: #F59E0B; /* สีเดียวกับไอคอน */
-}
+
+.status-title.pending-text { color: #F59E0B; }
+.status-title.success-text { color: #046C4E; } /* สีข้อความเขียว */
 
 .status-subtitle {
-  color: #9CA3AF; /* สีเทาจางๆ */
+  color: #6B7280;
   font-size: 16px;
 }
 
@@ -51,14 +55,8 @@
   align-items: flex-start;
 }
 
-.order-details-section {
-  flex: 1;
-}
-
-.order-summary-sidebar {
-  width: 350px;
-  flex-shrink: 0;
-}
+.order-details-section { flex: 1; }
+.order-summary-sidebar { width: 350px; flex-shrink: 0; }
 
 /* Card Styling */
 .section-card, .sidebar-card {
@@ -66,7 +64,7 @@
   border: 1px solid #E5E7EB;
   border-radius: 12px;
   padding: 25px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); /* เงาบางๆ */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 .section-header, .sidebar-header {
@@ -97,11 +95,7 @@
   align-items: center;
   justify-content: center;
 }
-.item-img-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+.item-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 .item-info { flex: 1; }
 .item-brand { font-size: 12px; color: #9CA3AF; text-transform: uppercase; }
 .item-name { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 4px; }
@@ -114,46 +108,105 @@
 .cost-divider { height: 1px; background-color: #E5E7EB; margin: 15px 0; }
 .cost-row.total { color: #000; font-size: 20px; font-weight: 700; }
 
-/* Sidebar details */
+/* Sidebar Info */
 .sidebar-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; }
 .sidebar-row .label { color: #6B7280; }
 .sidebar-row .value { color: #111; font-weight: 500; text-align: right; }
 
-.status-tag.pending {
-  background-color: #FFFBEB;
-  color: #F59E0B;
+.status-tag {
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
 }
+.status-tag.pending { background-color: #FFFBEB; color: #F59E0B; }
+.status-tag.success { background-color: #DEF7EC; color: #03543F; } /* เขียว */
 
 /* Buttons */
-.btn-pay-now {
-  width: 100%;
-  background-color: #1F2937; /* สีดำเกือบสนิท */
-  color: #fff;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 15px;
-  font-size: 15px;
-  transition: background 0.2s;
-}
-.btn-pay-now:hover { background-color: #000; }
-
 .sidebar-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.btn-shopping-black {
+  width: 100%; padding: 12px; background-color: #1F2937; color: #fff; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.btn-shopping-black:hover { background-color: #000; }
 
 .btn-back-outline {
   width: 100%; padding: 12px; background: #fff; border: 1px solid #D1D5DB; border-radius: 8px; color: #374151; font-weight: 500; cursor: pointer; display: flex; justify-content: center; align-items: center;
 }
-.btn-shopping-black {
-  width: 100%; padding: 12px; background-color: #1F2937; color: #fff; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+.btn-back-outline:hover { background-color: #F9FAFB; }
+
+/* ... (CSS เดิมที่มีอยู่แล้ว) ... */
+
+/* =========================================
+   🟢 INFO MODAL STYLE
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* พื้นหลังดำจางๆ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s;
 }
 
-/* ✅ Mobile Responsive */
+.info-modal-content {
+    background: white;
+    width: 320px;
+    padding: 30px 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* เด้งดึ๋ง */
+}
+
+.info-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.info-modal-content h3 {
+    margin: 0 0 10px;
+    font-size: 1.4rem;
+    color: #281D1B;
+}
+
+.info-modal-content p {
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.btn-close-modal {
+    background-color: #281D1B;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.1s;
+    width: 100%;
+}
+
+.btn-close-modal:active {
+    transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 @media (max-width: 900px) {
   .order-layout { flex-direction: column; }
   .order-details-section, .order-summary-sidebar { width: 100%; }
