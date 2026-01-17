@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
-import { apiFetch } from '../utils/api'; 
-// 🔥 Import AlertBanner
 import AlertBanner from '../components/AlertBanner';
+import { apiFetch, getProductById, getSimilarProducts } from '../utils/api'; 
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -32,11 +31,9 @@ export default function ProductDetail() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-
-  // 🔥 State สำหรับ AlertBanner
   const [alertMessage, setAlertMessage] = useState(null);
 
-  // Helper
+  // Helper สำหรับแปลงข้อมูล
   const mapProductData = (item) => ({
     id: item.id,
     name: item.name,
@@ -47,19 +44,13 @@ export default function ProductDetail() {
     status: item.status
   });
 
-  // 1. Fetch Product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const response = await apiFetch(
-          `/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,illustration.directus_files_id,ingredients.ingredient_id.name`
-        );
-        if (!response.ok) throw new Error('Failed to fetch product');
-        const json = await response.json();
+        const item = await getProductById(id);
 
-        if (json.data) {
-          const item = json.data;
+        if (item) {
           let images = [];
           if (item.illustration && item.illustration.length > 0) {
             images = item.illustration.map((img) => img.directus_files_id ? `${API_URL}/assets/${img.directus_files_id}` : null).filter(Boolean);
@@ -87,21 +78,16 @@ export default function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
-  // 2. Fetch Related
   useEffect(() => {
     const fetchRelated = async () => {
       try {
-        const response = await apiFetch(`/recommend/similar-product?product_id=${id}`);
-        if (response.ok) {
-          const json = await response.json();
-          if (json.data) setRelatedProducts(json.data.map(mapProductData));
-        }
-      } catch (error) { console.error(error); }
+        const json = await getSimilarProducts(id);
+        if (json.data) setRelatedProducts(json.data.map(mapProductData));
+      } catch (error) { console.error("Error loading similar products:", error); }
     };
     if (id) fetchRelated();
   }, [id]);
 
-  // 3. Fetch Skin Recs
   useEffect(() => {
     const fetchSkinRecs = async () => {
       const token = localStorage.getItem('access_token');
@@ -128,69 +114,45 @@ export default function ProductDetail() {
     if (id) fetchSkinRecs();
   }, [id]);
 
-  // 4. Scroll Gallery
-  useEffect(() => {
-    if (scrollRef.current && galleryImages.length > 0) {
-      const activeThumb = scrollRef.current.children[currentIndex];
-      if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-  }, [currentIndex, galleryImages]);
-
-  // 🔥 ฟังก์ชัน Add to Cart (แบบบวกเพิ่ม Accumulate)
-  const handleAddToCart = async () => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setAlertMessage("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
-      return;
-    }
-
-    try {
-      setAddingToCart(true);
-      
-      // 1. เช็คว่ามีสินค้านี้ในตะกร้าหรือยัง
-      const checkRes = await apiFetch(
-        `/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`
-      );
-      const checkData = await checkRes.json();
-
-      if (checkData.data && checkData.data.length > 0) {
-        // ✅ มีอยู่แล้ว -> เอาของเดิม + ของใหม่ (Accumulate)
-        const existingItem = checkData.data[0];
-        const newQty = existingItem.quantity + quantity; // บวกทบ
-
-        await apiFetch(`/items/cart_detail/${existingItem.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ quantity: newQty })
-        });
-        
-        setAlertMessage(`เพิ่มสินค้าจำนวน ${quantity} ชิ้น เรียบร้อยแล้ว`);
-
-      } else {
-        // ยังไม่มี -> สร้างใหม่
-        await apiFetch(`/items/cart_detail`, {
-          method: 'POST',
-          body: JSON.stringify({
-            product: product.id,
-            quantity: quantity
-          })
-        });
-
-        setAlertMessage(`เพิ่มสินค้า ${quantity} ชิ้น ลงในตะกร้าเรียบร้อย`);
-      }
-      window.dispatchEvent(new Event('cart-updated'));
-
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      setAlertMessage("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
-    } finally {
-      setAddingToCart(false);
-    }
-  };
-
   const handlePrev = () => setCurrentIndex((prev) => prev === 0 ? galleryImages.length - 1 : prev - 1);
   const handleNext = () => setCurrentIndex((prev) => prev === galleryImages.length - 1 ? 0 : prev + 1);
   const handleQuantityChange = (delta) => setQuantity((prev) => (prev + delta < 1 ? 1 : prev + delta));
   const handleProductSelect = (p) => { navigate(`/product/${p.id}`); window.scrollTo(0, 0); };
+
+  const handleAddToCart = async () => {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setAlertMessage("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+        return;
+      }
+  
+      try {
+        setAddingToCart(true);
+        const checkRes = await apiFetch(`/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`);
+        const checkData = await checkRes.json();
+  
+        if (checkData.data && checkData.data.length > 0) {
+          const existingItem = checkData.data[0];
+          await apiFetch(`/items/cart_detail/${existingItem.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ quantity: existingItem.quantity + quantity })
+          });
+          setAlertMessage(`เพิ่มสินค้าจำนวน ${quantity} ชิ้น เรียบร้อยแล้ว`);
+        } else {
+          await apiFetch(`/items/cart_detail`, {
+            method: 'POST',
+            body: JSON.stringify({ product: product.id, quantity: quantity })
+          });
+          setAlertMessage(`เพิ่มสินค้า ${quantity} ชิ้น ลงในตะกร้าเรียบร้อย`);
+        }
+        window.dispatchEvent(new Event('cart-updated'));
+      } catch (error) {
+        console.error("Add to cart error:", error);
+        setAlertMessage("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
+      } finally {
+        setAddingToCart(false);
+      }
+  };
 
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (!product) return null;
@@ -199,8 +161,7 @@ export default function ProductDetail() {
   const mainImage = galleryImages[currentIndex];
 
   return (
-    <div className="product-detail-page">
-      {/* 🔥 แสดง AlertBanner เมื่อมีข้อความ */}
+     <div className="product-detail-page">
       {alertMessage && (
         <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
           <AlertBanner message={alertMessage} onClose={() => setAlertMessage(null)} />
@@ -208,8 +169,6 @@ export default function ProductDetail() {
       )}
 
       <div className="product-main-layout">
-        
-        {/* Left: Gallery */}
         <div className="left-column-gallery">
           <div className="main-image-frame">
             <img src={mainImage} alt={product.name} className="main-img-display" onError={(e) => { e.target.src = 'https://via.placeholder.com/500?text=Image+Error'; }} />
@@ -230,7 +189,6 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* Right: Info */}
         <div className="right-column-info">
           <div className="brand-name">{product.brand_name || '-'}</div>
           <h1 className="product-name-title">{product.name}</h1>
@@ -271,7 +229,6 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Recommendations */}
       {skinRecommendations.length > 0 && (
         <div className="related-section" style={{marginBottom: '40px', background: '#FFF5F4', padding: '30px', borderRadius: '16px'}}>
           <div className="section-header-flex" style={{marginBottom: '20px'}}>

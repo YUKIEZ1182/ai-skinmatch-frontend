@@ -10,13 +10,10 @@
   pointer-events: none;
 }
 
-/* ตัวกล่อง Alert Banner */
 .alert-banner-card {
   pointer-events: auto;
   min-width: 320px;
   max-width: 450px;
-  background-color: #ECFDF5; /* พื้นหลังสีเขียวอ่อน */
-  border: 1px solid #A7F3D0; /* ขอบสีเขียวจาง */
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -26,15 +23,59 @@
   animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   font-family: 'Prompt', sans-serif;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 
-/* Animation ขาเข้า */
+.alert-success {
+  background-color: #ECFDF5;
+  border-color: #A7F3D0;
+}
+.alert-success .alert-icon-box,
+.alert-success .alert-close-btn {
+  color: #059669;
+}
+.alert-success .alert-title {
+  color: #064E3B;
+}
+.alert-success .alert-message {
+  color: #065F46;
+}
+
+.alert-warning {
+  background-color: #FFFBEB;
+  border-color: #FDE68A;
+}
+.alert-warning .alert-icon-box,
+.alert-warning .alert-close-btn {
+  color: #D97706;
+}
+.alert-warning .alert-title {
+  color: #92400E;
+}
+.alert-warning .alert-message {
+  color: #B45309;
+}
+
+.alert-error {
+  background-color: #FEF2F2;
+  border-color: #FECACA;
+}
+.alert-error .alert-icon-box,
+.alert-error .alert-close-btn {
+  color: #DC2626;
+}
+.alert-error .alert-title {
+  color: #991B1B;
+}
+.alert-error .alert-message {
+  color: #B91C1C;
+}
+
 @keyframes slideInRight {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Animation ขาออก */
 .alert-banner-card.closing {
   animation: fadeOut 0.3s ease-in forwards;
 }
@@ -42,28 +83,23 @@
   to { opacity: 0; transform: translateY(-10px); }
 }
 
-/* ไอคอน */
 .alert-icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #059669; /* เขียวเข้ม */
   margin-top: 2px;
 }
 
-/* เนื้อหา */
 .alert-content { flex: 1; }
 
 .alert-title {
   font-size: 14px;
   font-weight: 700;
-  color: #064E3B;
   margin-bottom: 4px;
 }
 
 .alert-message {
   font-size: 13px;
-  color: #065F46;
   line-height: 1.4;
 }
 
@@ -72,7 +108,6 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #059669;
   opacity: 0.5;
   padding: 0;
   transition: opacity 0.2s;
