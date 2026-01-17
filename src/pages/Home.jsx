@@ -6,7 +6,8 @@ import { apiFetch } from '../utils/api';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
-export default function Home({ activeCategory, handleProductSelect, isLoggedIn, currentUser, onLoginClick }) {  const [newArrivals, setNewArrivals] = useState([]);
+export default function Home({ activeCategory, handleProductSelect, isLoggedIn, currentUser }) {
+  const [newArrivals, setNewArrivals] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [products, setProducts] = useState([]); 
   const [currentSkinType, setCurrentSkinType] = useState("");
@@ -35,10 +36,7 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     price: Number(item.price), 
     image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : 'https://placehold.co/400x400?text=No+Image', 
     brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'General', 
-    
-    // 🔥 เพิ่ม field นี้ (เช็คว่าเป็น array หรือ string แล้วแปลงให้เป็น array)
     suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : []),
-
     date_created: item.date_created,
     date_updated: item.date_updated
   });
@@ -53,14 +51,12 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     }
   };
 
-  // 🔥 1. ฟังก์ชันโหลด Header (แก้ fields ให้ดึง suitable_skin_type มาด้วย)
   const fetchHeaderData = useCallback(async (manualSkinType = null) => {
     try {
       setLoading(true);
 
-      // 1.1 สินค้าใหม่ (หน้า Home)
+      // 1.1 สินค้าใหม่ (Limit 8)
       if (activeCategory === 'home') {
-        // เพิ่ม field suitable_skin_type
         const newRes = await apiFetch('/items/product?sort=-date_updated&limit=8&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,date_updated&filter[status][_eq]=active');
         const newData = await newRes.json();
         if (newData.data) setNewArrivals(newData.data.map(mapProductData));
@@ -78,7 +74,6 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
              filterString += `&filter[categories][category_id][id][_eq]=${activeCategory}`;
         }
         
-        // เพิ่ม field suitable_skin_type
         const filterUrl = `/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type&${filterString}`;
         
         const recRes = await apiFetch(filterUrl);
@@ -111,7 +106,6 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     } catch { console.error("Update skin failed"); }
   };
 
-  // 🔥 2. ฟังก์ชันโหลด Grid (แก้ fields เช่นกัน)
   const fetchProducts = useCallback(async (searchTerm, categoryId) => {
     try {
         setLoading(true);
@@ -121,18 +115,13 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
           filterObj._and.push({ _or: [{ name: { _icontains: searchTerm } }, { brand_name: { _icontains: searchTerm } }] });
         }
 
-        if (categoryId && categoryId !== 'home') {
-            if (categoryId === 'new') {
-                // New category
-            } else {
-                filterObj._and.push({ categories: { category_id: { id: { _eq: categoryId } } } });
-            }
+        if (categoryId && categoryId !== 'home' && categoryId !== 'new') {
+            filterObj._and.push({ categories: { category_id: { id: { _eq: categoryId } } } });
         }
 
         const filterParam = JSON.stringify(filterObj);
         const sortParam = '-date_updated';
 
-        // เพิ่ม field suitable_skin_type
         const response = await apiFetch(`/items/product?fields=id,name,price,thumbnail,brand_name,categories.category_id.name,suitable_skin_type,date_created,date_updated&sort=${sortParam}&filter=${encodeURIComponent(filterParam)}`);
         const json = await response.json();
         
@@ -277,26 +266,11 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
                   </div>
                 </>
               ) : (
-                /* Banner Guest (Home Only) */
+                /* ✅ Banner Guest (Home Only) - ลบปุ่มออกไปแล้วครับ เหลือแต่ข้อความเชิญชวน */
                 activeCategory === 'home' && (
                     <div style={{ background: 'linear-gradient(135deg, #FFF5F4 0%, #ffffff 100%)', borderRadius: '16px', padding: '30px 20px', marginBottom: '40px', textAlign: 'center', border: '1px solid #FFEBE9', boxShadow: '0 4px 15px rgba(241, 151, 140, 0.1)' }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#333', marginBottom: '8px' }}>ค้นหาสกินแคร์ที่ใช่สำหรับผิวคุณ ✨</h2>
                     <p style={{ color: '#666', marginBottom: '20px', fontSize: '0.95rem' }}>เข้าสู่ระบบเพื่อรับคำแนะนำสินค้าที่เหมาะกับคุณโดยเฉพาะ</p>
-                      <button 
-                          onClick={onLoginClick} 
-                          style={{ 
-                              background: '#281D1B', 
-                              color: 'white', 
-                              border: 'none', 
-                              padding: '10px 24px', 
-                              borderRadius: '50px', 
-                              fontSize: '0.9rem', 
-                              fontWeight: '600', 
-                              cursor: 'pointer' 
-                          }}
-                      >
-                          เข้าสู่ระบบ
-                      </button>                    
                     </div>
                 )
               )}
@@ -306,16 +280,16 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
         {/* Product Grid */}
         {!executedSearchTerm && activeCategory === 'home' ? (
            <section className="product-section" style={{ textAlign: 'left', marginTop: '10px' }}>
-                <h2 className="section-title-custom" style={{fontSize: '1.5rem', fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center'}}>
-                    สินค้าใหม่ล่าสุด <span className="icon-3d-small">🆕</span>
-                </h2>
-                <div className="product-grid">
-                  {newArrivals.length > 0 ? (
-                    newArrivals.map(p => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))
-                  ) : (
-                    <p style={{color: '#999'}}>ยังไม่มีสินค้าใหม่</p>
-                  )}
-                </div>
+               <h2 className="section-title-custom" style={{fontSize: '1.5rem', fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center'}}>
+                   สินค้าใหม่ล่าสุด <span className="icon-3d-small">🆕</span>
+               </h2>
+               <div className="product-grid">
+                 {newArrivals.length > 0 ? (
+                   newArrivals.map(p => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))
+                 ) : (
+                   <p style={{color: '#999'}}>ยังไม่มีสินค้าใหม่</p>
+                 )}
+               </div>
            </section>
         ) : (
            products.length === 0 ? (

@@ -23,16 +23,18 @@ import { th } from "date-fns/locale";
 import { apiFetch } from './utils/api';
 
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 🔥 FIX: เช็คจาก Token จริงๆ (access_token)
+  // ถ้ามี Token -> ถือว่า Login แล้ว (ค่าเริ่มต้นเป็น true) -> Modal ปิด (false)
+  // ถ้าไม่มี Token -> Login เป็น false -> Modal เปิด (true)
+  const hasToken = !!localStorage.getItem('access_token');
+
+  const [isLoggedIn, setIsLoggedIn] = useState(hasToken);
+  const [isModalOpen, setIsModalOpen] = useState(!hasToken); // เปิด Modal ทันทีถ้าไม่มี Token
+  
   const [alertMessage, setAlertMessage] = useState(null);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem("skinmatch_is_logged_in") === "true";
-  });
-
   const [currentUser, setCurrentUser] = useState(null);
   const [cartItems, setCartItems] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('home'); // State หมวดหมู่
+  const [activeCategory, setActiveCategory] = useState('home'); 
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,20 +79,29 @@ function App() {
     };
   }, [isLoggedIn]);
 
+  // ✅ เช็ค Token ตลอด ถ้าอยู่ๆ Token หาย (Logout หรือหมดอายุ) ให้เด้ง Modal
   useEffect(() => {
-    if (!isLoggedIn) {
-      // ถ้ายังไม่ Login ไม่ต้องบังคับเปิด Modal ทันทีก็ได้ หรือจะเปิดก็ได้ตาม flow เดิม
-      // setIsModalOpen(true); 
+    const token = localStorage.getItem('access_token');
+    if (!token && isLoggedIn) {
+       setIsLoggedIn(false);
+       setIsModalOpen(true);
     }
-  }, []);
+  }, [location.pathname]); 
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    // ลบ Token ทั้งหมด
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("skinmatch_is_logged_in");
+    
     setCurrentUser(null);
     setCartItems([]);
+    
+    // สั่งเปิด Modal ทันทีที่ Logout
     setIsModalOpen(true);
-    setActiveCategory('home'); // รีเซ็ตหมวดหมู่ตอนออก
+    
+    setActiveCategory('home'); 
     navigate('/');
   };
 
@@ -114,15 +125,10 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  // 🔥 ฟังก์ชันจัดการเมื่อ Login สำเร็จ (รวมทุกอย่างที่นี่)
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
-    
-    // 1. รีเซ็ตหมวดหมู่กลับมาเป็น Home (เพื่อให้ Dashboard ขึ้น)
     setActiveCategory('home'); 
-    
-    // 2. สั่งย้ายหน้าไปที่ '/' ทันที
     navigate('/'); 
     window.scrollTo(0, 0);
   };
@@ -141,12 +147,15 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
       <div className="app-container">
 
+        {/* Modal ควบคุมที่นี่จุดเดียว */}
         {isModalOpen && (
           <AuthModal
             isOpen={true}
-            // 🔥 เรียกใช้ฟังก์ชันใหม่ที่นี่
             onLoginSuccess={handleLoginSuccess}
-            onClose={() => setIsModalOpen(false)}
+            // ปิด Modal ได้เฉพาะตอนที่ล็อกอินแล้วเท่านั้น (ป้องกันกดปิดหนี)
+            onClose={() => {
+               if (isLoggedIn) setIsModalOpen(false);
+            }}
           />
         )}
 
@@ -184,25 +193,14 @@ function App() {
                 handleProductSelect={handleProductSelect}
                 isLoggedIn={isLoggedIn}
                 currentUser={currentUser}
-                // 🔥 เพิ่มบรรทัดนี้ครับ! ส่งฟังก์ชันเปิด Modal ไปให้ Home
                 onLoginClick={() => setIsModalOpen(true)}
               />
             </main>
           } />
 
-          <Route path="/product/:id" element={
-            <main>
-              <ProductDetail />
-            </main>
-          } />
-
+          <Route path="/product/:id" element={<main><ProductDetail /></main>} />
           <Route path="/account" element={<main><AccountPage /></main>} />
-
-          <Route path="/cart" element={
-            <main>
-              <CartPage />
-            </main>
-          } />
+          <Route path="/cart" element={<main><CartPage /></main>} />
           <Route path="/checkout" element={<main><CheckoutPage /></main>} />
           <Route path="/order-confirmation" element={<main><OrderConfirmation /></main>} />
         </Routes>

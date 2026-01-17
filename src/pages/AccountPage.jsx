@@ -196,15 +196,12 @@ const AccountPage = () => {
                         onChange={(e) => handleInputChange('currentPassword', e.target.value)} 
                         className="gray-input"
                     />
-                    <div style={{fontSize: '0.75rem', color: '#888', marginTop: 4}}>
-                        (จำเป็นต้องกรอกหากต้องการเปลี่ยนรหัสผ่าน)
-                    </div>
                 </div>
             </div>
         )}
 
         <div className="form-row">
-          <label className="form-label">รหัสผ่านใหม่</label>
+          <label className="form-label">รหัสผ่าน</label>
           <div className="input-wrapper">
              <input 
                 type="password" 

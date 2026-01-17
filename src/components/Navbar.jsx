@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
+// ❌ ไม่ต้อง import AuthModal ที่นี่แล้ว!
+// ✅ รับ props onLoginClick มาจาก App.jsx แทน (เผื่อกดปุ่ม)
 export default function Navbar({ isAuthenticated, user, onLoginClick, onLogout, cartItemCount }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,7 +23,7 @@ export default function Navbar({ isAuthenticated, user, onLoginClick, onLogout, 
     if (isAuthenticated) {
       setIsDropdownOpen(!isDropdownOpen);
     } else {
-      onLoginClick();
+      onLoginClick(); // เรียกใช้ฟังก์ชันที่ส่งมาจาก App.jsx
     }
   };
 
