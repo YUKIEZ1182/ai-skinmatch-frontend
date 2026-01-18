@@ -289,9 +289,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         {/* โหมด Register Step 1 */}
         {mode === 'register_step1' && (
           <>
-            <h2 className="auth-title">สร้างบัญชีใหม่</h2>
+            <h2 className="auth-title">สมัครสมาชิก</h2>
             <form onSubmit={handleNextStep}>
-              <div className="form-group"><label className="form-label">อีเมล</label><input type="text" className={`auth-input ${errors.email ? 'input-error' : ''}`} placeholder="name@example.com" value={email} onChange={handleEmailChange} /><div style={{fontSize: '0.75rem', color: '#888', marginTop: '4px', marginLeft: '2px'}}>เราจะใช้สำหรับการเข้าสู่ระบบและแจ้งเตือน</div>{errors.email && <span className="error-text">{errors.email}</span>}</div>
+              <div className="form-group"><label className="form-label">อีเมล</label><input type="text" className={`auth-input ${errors.email ? 'input-error' : ''}`} placeholder="name@example.com" value={email} onChange={handleEmailChange} />{errors.email && <span className="error-text">{errors.email}</span>}</div>
               <div className="form-group"><label className="form-label">รหัสผ่าน</label>
                 <div className={`password-wrapper ${errors.password ? 'input-error' : ''}`} style={{position: 'relative'}}>
                   <input type={showPassword ? "text" : "password"} placeholder="กรุณากรอกรหัสผ่าน" className="auth-input" value={password} onChange={handlePasswordChange} />
