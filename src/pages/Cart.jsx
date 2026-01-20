@@ -278,7 +278,7 @@ export default function CartPage() {
 
                   <div className="col-price">
                     <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                        <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                        <span className="item-price">฿{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                         {isOutOfStock && <span className="stock-warning">สินค้าหมด</span>}
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export default function CartPage() {
                               <span className="rec-name">{rec.name}</span>
                            </div>
                            <div className="rec-price-col">
-                              <span className="rec-price">{rec.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                              <span className="rec-price">฿{rec.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                            </div>
                            <button 
                                 className="rec-add-btn-black" 
@@ -359,7 +359,7 @@ export default function CartPage() {
             <div className="summary-row total-row">
               <span>ยอดรวม</span>
               <div className="total-group">
-                <span className="total-price">{totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                <span className="total-price">฿{totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                 <span className="tax-note">(ไม่รวมค่าจัดส่ง)</span>
               </div>
             </div>

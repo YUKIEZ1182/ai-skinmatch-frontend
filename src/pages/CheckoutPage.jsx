@@ -277,13 +277,13 @@ export default function CheckoutPage() {
                     {selectedItems.map(item => (
                         <div key={item.id} className="mini-item">
                             <span>{item.name} <small>x{item.quantity}</small></span>
-                            <span>{(item.price * item.quantity).toLocaleString()} ฿</span>
+                            <span>฿{(item.price * item.quantity).toLocaleString()}</span>
                         </div>
                     ))}
                 </div>
                 <div className="summary-divider"></div>
-                <div className="summary-row"><span>ค่าจัดส่ง</span><span>{shippingCost} ฿</span></div>
-                <div className="summary-row total"><span>ยอดสุทธิ</span><span>{grandTotal.toLocaleString()} ฿</span></div>
+                <div className="summary-row"><span>ค่าจัดส่ง</span><span>฿{shippingCost}</span></div>
+                <div className="summary-row total"><span>ยอดสุทธิ</span><span>฿{grandTotal.toLocaleString()}</span></div>
                 
                 <button 
                     className="btn-place-order" 
