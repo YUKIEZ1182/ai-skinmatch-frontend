@@ -42,6 +42,7 @@ export const apiFetch = async (endpoint, options = {}) => {
           throw new Error('Session expired');
         }
       } catch (error) {
+        console.log('error while fetch token:', error)
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         window.location.reload();
@@ -62,4 +63,46 @@ export const deleteCartDetail = async (id) => {
   }
   
   return response;
+};
+
+export const getProductById = async (id) => {
+  const response = await apiFetch(
+    `/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,illustration.directus_files_id,ingredients.ingredient_id.name`
+  );
+  if (!response.ok) throw new Error('Failed to fetch product');
+  const json = await response.json();
+  return json.data;
+};
+
+export const getRecommendedProducts = async (skinType, categoryId = null) => {
+  
+  const params = { skin_type: skinType };
+  
+  if (categoryId && categoryId !== 'home' && categoryId !== 'new') {
+    params.category = categoryId;
+  }
+
+  const queryParams = new URLSearchParams(params).toString();
+  
+  const response = await apiFetch(`/recommend/product-for-skin-type?${queryParams}`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch recommended products');
+  }
+
+  return await response.json();
+};
+
+export const getSimilarProducts = async (productId) => {
+  const response = await apiFetch(`/recommend/similar-product?product_id=${productId}`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch similar products');
+  }
+
+  return await response.json();
 };

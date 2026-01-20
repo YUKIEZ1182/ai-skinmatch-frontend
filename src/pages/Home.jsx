@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/Home.css';
 import '../styles/SearchPage.css';
 import ProductCard from '../components/ProductCard';
-import { apiFetch } from '../utils/api'; 
+import { apiFetch, getRecommendedProducts } from '../utils/api'; 
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -13,6 +13,9 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
   const [currentSkinType, setCurrentSkinType] = useState("");
   
   const [isSkinDropdownOpen, setIsSkinDropdownOpen] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingSkinType, setPendingSkinType] = useState(null);
+
   const dropdownRef = useRef(null);
 
   const [loading, setLoading] = useState(true); 
@@ -55,55 +58,71 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     try {
       setLoading(true);
 
-      // 1.1 สินค้าใหม่ (Limit 8)
       if (activeCategory === 'home') {
-        const newRes = await apiFetch('/items/product?sort=-date_updated&limit=8&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,date_updated&filter[status][_eq]=active');
+        const newRes = await apiFetch('/items/product?sort=-date_updated&limit=10&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,date_updated&filter[status][_eq]=active');
         const newData = await newRes.json();
         if (newData.data) setNewArrivals(newData.data.map(mapProductData));
       }
 
-      // 1.2 สินค้าแนะนำ
       const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
       
       if (isLoggedIn && skinToUse) {
         setCurrentSkinType(skinToUse);
-        
-        let filterString = `filter[status][_eq]=active&filter[_or][0][suitable_skin_type][_icontains]=${skinToUse}&filter[_or][1][suitable_skin_type][_icontains]=${getThaiSkinType(skinToUse)}`;
-
-        if (activeCategory && activeCategory !== 'home' && activeCategory !== 'new') {
-             filterString += `&filter[categories][category_id][id][_eq]=${activeCategory}`;
-        }
-        
-        const filterUrl = `/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type&${filterString}`;
-        
-        const recRes = await apiFetch(filterUrl);
-        if (recRes.ok) {
-          const recData = await recRes.json();
-          if (recData.data) setRecommended(recData.data.map(mapProductData));
-          else setRecommended([]);
+        try {
+          const recData = await getRecommendedProducts(skinToUse, activeCategory);
+          const items = Array.isArray(recData) ? recData : (recData.data || []);
+          setRecommended(items.map(mapProductData));
+        } catch (error) {
+           console.error("Error fetching recommendations:", error);
+           setRecommended([]);
         }
       } else {
         setRecommended([]);
       }
-    } catch { 
-      console.error("Error fetching header data");
+
+    } catch (err) { 
+      console.error("Error fetching header data", err);
     } finally {
         setLoading(false);
     }
   }, [isLoggedIn, currentUser, currentSkinType, activeCategory]);
 
-  const handleSkinChangeForRec = async (skinValue) => {
-    setCurrentSkinType(skinValue);
-    setIsSkinDropdownOpen(false); 
+  const handleSkinOptionClick = (skinValue) => {
+    if (skinValue === currentSkinType) {
+        setIsSkinDropdownOpen(false);
+        return;
+    }
+    setPendingSkinType(skinValue);
+    setIsSkinDropdownOpen(false);
+    setShowConfirmModal(true);
+  };
+
+  const confirmChangeSkin = async () => {
+    if (!pendingSkinType) return;
+
+    setCurrentSkinType(pendingSkinType);
+    setShowConfirmModal(false);
+
     try {
       if (isLoggedIn) {
         await apiFetch('/users/me', {
           method: 'PATCH',
-          body: JSON.stringify({ skin_type: skinValue })
+          body: JSON.stringify({ skin_type: pendingSkinType })
         });
       }
-      fetchHeaderData(skinValue); 
-    } catch { console.error("Update skin failed"); }
+
+      fetchHeaderData(pendingSkinType); 
+    } catch { 
+        console.error("Update skin failed"); 
+        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } finally {
+        setPendingSkinType(null);
+    }
+  };
+
+  const cancelChangeSkin = () => {
+    setShowConfirmModal(false);
+    setPendingSkinType(null);
   };
 
   const fetchProducts = useCallback(async (searchTerm, categoryId) => {
@@ -120,7 +139,7 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
         }
 
         const filterParam = JSON.stringify(filterObj);
-        const sortParam = '-date_updated';
+        const sortParam = '-date_created';
 
         const response = await apiFetch(`/items/product?fields=id,name,price,thumbnail,brand_name,categories.category_id.name,suitable_skin_type,date_created,date_updated&sort=${sortParam}&filter=${encodeURIComponent(filterParam)}`);
         const json = await response.json();
@@ -220,10 +239,11 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
                             </div>
                             {isSkinDropdownOpen && (
                             <div className="custom-dropdown-menu">
-                                <div className={`dropdown-option ${currentSkinType === 'oily' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinChangeForRec('oily'); }}>🌸 ผิวมัน</div>
-                                <div className={`dropdown-option ${currentSkinType === 'dry' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinChangeForRec('dry'); }}>🌵 ผิวแห้ง</div>
-                                <div className={`dropdown-option ${currentSkinType === 'combination' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinChangeForRec('combination'); }}>🌓 ผิวผสม</div>
-                                <div className={`dropdown-option ${currentSkinType === 'sensitive' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinChangeForRec('sensitive'); }}>🛡️ ผิวแพ้ง่าย</div>
+                                {/* ✅ เรียก handleSkinOptionClick แทนการ save โดยตรง */}
+                                <div className={`dropdown-option ${currentSkinType === 'oily' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinOptionClick('oily'); }}>🌸 ผิวมัน</div>
+                                <div className={`dropdown-option ${currentSkinType === 'dry' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinOptionClick('dry'); }}>🌵 ผิวแห้ง</div>
+                                <div className={`dropdown-option ${currentSkinType === 'combination' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinOptionClick('combination'); }}>🌓 ผิวผสม</div>
+                                <div className={`dropdown-option ${currentSkinType === 'sensitive' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); handleSkinOptionClick('sensitive'); }}>🛡️ ผิวแพ้ง่าย</div>
                             </div>
                             )}
                         </div>
@@ -266,7 +286,6 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
                   </div>
                 </>
               ) : (
-                /* ✅ Banner Guest (Home Only) - ลบปุ่มออกไปแล้วครับ เหลือแต่ข้อความเชิญชวน */
                 activeCategory === 'home' && (
                     <div style={{ background: 'linear-gradient(135deg, #FFF5F4 0%, #ffffff 100%)', borderRadius: '16px', padding: '30px 20px', marginBottom: '40px', textAlign: 'center', border: '1px solid #FFEBE9', boxShadow: '0 4px 15px rgba(241, 151, 140, 0.1)' }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#333', marginBottom: '8px' }}>ค้นหาสกินแคร์ที่ใช่สำหรับผิวคุณ ✨</h2>
@@ -302,6 +321,25 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
            )
         )}
       </div>
+
+      {/* Custom Modal Component */}
+      {showConfirmModal && (
+        <div className="skin-modal-overlay" onClick={cancelChangeSkin}>
+            <div className="skin-modal-box" onClick={(e) => e.stopPropagation()}>
+                <span className="skin-modal-icon">✨</span>
+                <h3 className="skin-modal-title">ยืนยันการเปลี่ยนสภาพผิว?</h3>
+                <p className="skin-modal-desc">
+                    คุณต้องการเปลี่ยนเป็น <strong>"{getThaiSkinType(pendingSkinType)}"</strong> ใช่หรือไม่?<br/>
+                    ระบบจะบันทึกข้อมูลนี้เพื่อแนะนำสินค้าที่เหมาะสมให้กับคุณ
+                </p>
+                <div className="skin-modal-actions">
+                    <button className="btn-modal-cancel" onClick={cancelChangeSkin}>ยกเลิก</button>
+                    <button className="btn-modal-confirm" onClick={confirmChangeSkin}>ยืนยันการเปลี่ยน</button>
+                </div>
+            </div>
+        </div>
+      )}
+
     </div>
   );
 }

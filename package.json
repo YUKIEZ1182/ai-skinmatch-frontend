@@ -1,7 +1,7 @@
 {
   "name": "ai_skinmatch",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,7 +21,8 @@
     "react": "^19.1.1",
     "react-datepicker": "^9.0.0",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "thai-address-autocomplete-react": "^1.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
