@@ -22,8 +22,9 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     try {
+      // ✅ เพิ่ม date_created ใน fields
       const response = await apiFetch(
-        `/items/cart_detail?fields=id,quantity,product.id,product.name,product.price,product.brand_name,product.status,product.quantity,product.illustration.directus_files_id,product.thumbnail&filter[owner][_eq]=$CURRENT_USER`
+        `/items/cart_detail?fields=id,quantity,date_created,product.id,product.name,product.price,product.brand_name,product.status,product.quantity,product.illustration.directus_files_id,product.thumbnail&filter[owner][_eq]=$CURRENT_USER`
       );
       
       if (!response.ok) throw new Error('Failed to fetch cart');
@@ -43,7 +44,22 @@ export default function CartPage() {
           stock: product.quantity !== null && product.quantity !== undefined ? Number(product.quantity) : 0, 
           quantity: item.quantity,
           image: imgId ? `${API_URL}/assets/${imgId}` : 'https://via.placeholder.com/80',
+          date_created: item.date_created // ✅ เก็บวันที่
         };
+      });
+
+      // ✅ เพิ่ม Logic การ Sort
+      items.sort((a, b) => {
+        const aIsOutOfStock = a.status === 'inactive' || a.stock <= 0;
+        const bIsOutOfStock = b.status === 'inactive' || b.stock <= 0;
+
+        // 1. แยกตามสถานะ (หมดไว้ล่าง)
+        if (aIsOutOfStock !== bIsOutOfStock) {
+            return aIsOutOfStock ? 1 : -1;
+        }
+
+        // 2. แยกตามเวลา (ใหม่สุดอยู่บน)
+        return new Date(b.date_created) - new Date(a.date_created);
       });
 
       setCartItems(items);
@@ -208,7 +224,6 @@ export default function CartPage() {
   return (
     <div className="cart-page-container">
       
-      {/* ✅ แสดง AlertBanner โดยส่งทั้ง message และ type */}
       {alertInfo && (
         <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
           <AlertBanner 
@@ -263,7 +278,7 @@ export default function CartPage() {
 
                   <div className="col-price">
                     <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                        <span className="item-price">{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                        <span className="item-price">฿{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                         {isOutOfStock && <span className="stock-warning">สินค้าหมด</span>}
                     </div>
                   </div>
@@ -296,7 +311,7 @@ export default function CartPage() {
 
                 {isOutOfStock && itemRecs.length > 0 && (
                   <div className="recommendation-section">
-                    <h4 className="rec-header">สินค้าหมด! แนะนำสินค้าใกล้เคียงในหมวดเดียวกัน:</h4>
+                    <h4 className="rec-header">สินค้าหมด! แนะนำสินค้าที่มีส่วนผสมใกล้เคียงกัน:</h4>
                     <div className="rec-grid">
                       {itemRecs.map(rec => (
                         <div 
@@ -313,7 +328,7 @@ export default function CartPage() {
                               <span className="rec-name">{rec.name}</span>
                            </div>
                            <div className="rec-price-col">
-                              <span className="rec-price">{rec.price.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                              <span className="rec-price">฿{rec.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                            </div>
                            <button 
                                 className="rec-add-btn-black" 
@@ -344,7 +359,7 @@ export default function CartPage() {
             <div className="summary-row total-row">
               <span>ยอดรวม</span>
               <div className="total-group">
-                <span className="total-price">{totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})} Baht</span>
+                <span className="total-price">฿{totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                 <span className="tax-note">(ไม่รวมค่าจัดส่ง)</span>
               </div>
             </div>

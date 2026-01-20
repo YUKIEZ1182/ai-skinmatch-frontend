@@ -33,7 +33,6 @@ export default function ProductDetail() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
 
-  // Helper สำหรับแปลงข้อมูล
   const mapProductData = (item) => ({
     id: item.id,
     name: item.name,
@@ -160,8 +159,12 @@ export default function ProductDetail() {
   const isOutOfStock = product.status === 'out_of_stock';
   const mainImage = galleryImages[currentIndex];
 
+  // ✅ แก้ไขส่วนลดให้ตรงกับหน้า Home (30%)
+  const DISCOUNT_PERCENT = 30;
+  const mockOriginalPrice = Math.round(product.price / (1 - (DISCOUNT_PERCENT / 100)));
+
   return (
-     <div className="product-detail-page">
+    <div className="product-detail-page">
       {alertMessage && (
         <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
           <AlertBanner message={alertMessage} onClose={() => setAlertMessage(null)} />
@@ -170,7 +173,26 @@ export default function ProductDetail() {
 
       <div className="product-main-layout">
         <div className="left-column-gallery">
-          <div className="main-image-frame">
+          <div className="main-image-frame" style={{ position: 'relative' }}>
+            {/* 🟢 Badge ส่วนลดคงที่ 30% */}
+            {!isOutOfStock && (
+                <div className="detail-discount-badge" style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    backgroundColor: '#FF2D55',
+                    color: 'white',
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    fontWeight: '800',
+                    fontSize: '0.9rem',
+                    zIndex: 10,
+                    boxShadow: '0 4px 12px rgba(255, 45, 85, 0.3)'
+                }}>
+                    SAVE {DISCOUNT_PERCENT}%
+                </div>
+            )}
+            
             <img src={mainImage} alt={product.name} className="main-img-display" onError={(e) => { e.target.src = 'https://via.placeholder.com/500?text=Image+Error'; }} />
             {isOutOfStock && <div className="out-of-stock-badge">สินค้าหมด</div>}
           </div>
@@ -197,7 +219,16 @@ export default function ProductDetail() {
                 <span key={index} className="tag-pill">{skinTypeOptions[skinType] || skinType}</span>
             ))}
           </div>
-          <div className="product-price-display">{product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} Baht</div>
+          
+          {/* 🟢 การแสดงผลราคาลด (ปรับให้ตรงกับ Logic 30%) */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', margin: '20px 0 10px 0' }}>
+            <div className="product-price-display" style={{ color: '#FF2D55', fontSize: '2rem', fontWeight: '700' }}>
+               ฿ {product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} 
+            </div>
+            <div style={{ textDecoration: 'line-through', color: '#9CA3AF', fontSize: '1.2rem', fontWeight: '500' }}>
+                ฿ {mockOriginalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          </div>
 
           <div className="actions-wrapper">
             <div className="quantity-selector">
