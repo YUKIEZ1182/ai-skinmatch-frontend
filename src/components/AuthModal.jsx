@@ -244,7 +244,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             {/* 🟢 Banner Success (สีเขียว) */}
             {hideRegisterButton && (
                 <div style={{background: '#d4edda', color: '#155724', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.9rem', textAlign: 'center'}}>
-                    🎉 สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ
+                    สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ
                 </div>
             )}
 
