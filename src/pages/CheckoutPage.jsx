@@ -246,15 +246,9 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
     try {
         const orderPayload = {
-            customer_name: selectedAddress.fullName,
-            phone: selectedAddress.phone,
-            address: selectedAddress.addressLine,
-            sub_district: selectedAddress.subDistrict,
-            district: selectedAddress.district,
-            province: selectedAddress.province,
-            zipcode: selectedAddress.zipCode,
-            total_price: grandTotal,
-            item_ids: selectedItems.map(item => item.id) 
+            item_ids: selectedItems.map(item => item.id),
+            payment_method: paymentMethod,
+            user_address: selectedAddress.id,
         };
         const res = await apiFetch('/shop/checkout', { method: 'POST', body: JSON.stringify(orderPayload) });
         if (!res.ok) {
@@ -289,6 +283,7 @@ export default function CheckoutPage() {
                 body: JSON.stringify({ order_id: createdOrder.id, payment_status: 'success' })
             });
             if (!res.ok) throw new Error("Payment verification failed");
+            window.dispatchEvent(new Event('cart-updated'));
             navigate('/order-confirmation', { 
                 state: { 
                   order_id: createdOrder.id, order_no: createdOrder.no, selectedItems, totalPrice, grandTotal, shippingCost, customerInfo: selectedAddress, paymentMethod: finalMethod, isPaid: true
@@ -573,6 +568,26 @@ export default function CheckoutPage() {
                     <p style={{fontSize:12, color:'#888', marginTop:4}}>Order No: {createdOrder?.no}</p>
                     
                     <div className="qr-actions">
+                        {!isExpired && (
+                            <button 
+                                className="btn-verify-payment" 
+                                onClick={() => handleConfirmPayment('QR PromptPay')}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    backgroundColor: '#000',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: '600',
+                                    fontSize: '1rem',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.2s'
+                                }}
+                            >
+                                ตรวจสอบการชำระเงิน
+                            </button>
+                        )}
                         <button className="btn-back-text" onClick={() => setShowPaymentModal(false)}>ปิดหน้าต่าง</button>
                     </div>
                   </>
