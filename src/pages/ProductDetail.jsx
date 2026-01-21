@@ -4,6 +4,7 @@ import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
 import AlertBanner from '../components/AlertBanner';
 import { apiFetch, getProductById, getSimilarProducts } from '../utils/api'; 
+import { mockProducts } from '../data/mockData';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -37,8 +38,10 @@ export default function ProductDetail() {
     id: item.id,
     name: item.name,
     price: Number(item.price), 
-    image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : 'https://via.placeholder.com/300x300?text=No+Image',
-    brand: item.brand_name || 'General', 
+    // ถ้ามี originalPrice ติดมาด้วย (จาก Mock) ให้เก็บไว้แสดงผล
+    originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
+    image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : (item.image || 'https://via.placeholder.com/300x300?text=No+Image'),
+    brand: item.brand_name || item.brand || 'General', 
     suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : []),
     status: item.status
   });
@@ -47,13 +50,30 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const item = await getProductById(id);
 
+        // 1. ตรวจสอบใน Mock Data ก่อน (กรณีสินค้าลดราคาพิเศษ)
+        const mockedItem = mockProducts.find(p => String(p.id) === String(id));
+        if (mockedItem) {
+          setProduct({
+            ...mockedItem,
+            price: Number(mockedItem.price),
+            originalPrice: mockedItem.originalPrice ? Number(mockedItem.originalPrice) : null,
+            brand_name: mockedItem.brand,
+            suitable_skin_type: mockedItem.skinType || []
+          });
+          setGalleryImages([mockedItem.image]);
+          setLoading(false);
+          return;
+        }
+
+        // 2. ถ้าไม่เจอใน Mock ให้ดึงจาก Directus API
+        const item = await getProductById(id);
         if (item) {
           let images = [];
           if (item.illustration && item.illustration.length > 0) {
             images = item.illustration.map((img) => img.directus_files_id ? `${API_URL}/assets/${img.directus_files_id}` : null).filter(Boolean);
           }
+          if (images.length === 0 && item.thumbnail) images = [`${API_URL}/assets/${item.thumbnail}`];
           if (images.length === 0) images = ['https://via.placeholder.com/500x500?text=No+Image'];
 
           const ingredientList = item.ingredients?.map((i) => i.ingredient_id?.name).filter(Boolean).join(', ') || '-';
@@ -61,6 +81,7 @@ export default function ProductDetail() {
           setProduct({
             ...item,
             price: Number(item.price),
+            originalPrice: null, // สินค้าจาก API ปกติจะไม่มีส่วนลด
             ingredientsDisplay: ingredientList,
             suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : [])
           });
@@ -119,6 +140,11 @@ export default function ProductDetail() {
   const handleProductSelect = (p) => { navigate(`/product/${p.id}`); window.scrollTo(0, 0); };
 
   const handleAddToCart = async () => {
+      if (product.originalPrice) {
+        setAlertMessage({ text:"ขออภัย: ระบบส่วนลดกำลังอยู่ระหว่างการพัฒนา สิ่งที่ท่านเห็นเป็นเพียงการทดสอบระบบตัวอย่างเท่านั้น จึงยังไม่สามารถสั่งซื้อได้ในขณะนี้", type: "warning" });
+        return;
+      }
+
       const token = localStorage.getItem('access_token');
       if (!token) {
         setAlertMessage("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
@@ -158,10 +184,11 @@ export default function ProductDetail() {
 
   const isOutOfStock = product.status === 'out_of_stock';
   const mainImage = galleryImages[currentIndex];
-
-  // ✅ แก้ไขส่วนลดให้ตรงกับหน้า Home (30%)
-  const DISCOUNT_PERCENT = 30;
-  const mockOriginalPrice = Math.round(product.price / (1 - (DISCOUNT_PERCENT / 100)));
+  
+  // คำนวณเปอร์เซ็นต์ส่วนลด (เฉพาะถ้ามี originalPrice)
+  const discountPercent = product.originalPrice 
+    ? Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+    : 0;
 
   return (
     <div className="product-detail-page">
@@ -174,8 +201,8 @@ export default function ProductDetail() {
       <div className="product-main-layout">
         <div className="left-column-gallery">
           <div className="main-image-frame" style={{ position: 'relative' }}>
-            {/* 🟢 Badge ส่วนลดคงที่ 30% */}
-            {!isOutOfStock && (
+            {/* ป้าย SAVE % จะขึ้นเฉพาะเมื่อมีการลดราคาจริง (มี originalPrice) */}
+            {!isOutOfStock && product.originalPrice && discountPercent > 0 && (
                 <div className="detail-discount-badge" style={{
                     position: 'absolute',
                     top: '20px',
@@ -189,7 +216,7 @@ export default function ProductDetail() {
                     zIndex: 10,
                     boxShadow: '0 4px 12px rgba(255, 45, 85, 0.3)'
                 }}>
-                    SAVE {DISCOUNT_PERCENT}%
+                   SAVE {discountPercent}%
                 </div>
             )}
             
@@ -212,7 +239,7 @@ export default function ProductDetail() {
         </div>
 
         <div className="right-column-info">
-          <div className="brand-name">{product.brand_name || '-'}</div>
+          <div className="brand-name">{product.brand_name || product.brand || '-'}</div>
           <h1 className="product-name-title">{product.name}</h1>
           <div className="product-tags-row">
             {Array.isArray(product.suitable_skin_type) && product.suitable_skin_type.map((skinType, index) => (
@@ -220,14 +247,18 @@ export default function ProductDetail() {
             ))}
           </div>
           
-          {/* 🟢 การแสดงผลราคาลด (ปรับให้ตรงกับ Logic 30%) */}
+          {/* การแสดงผลราคา: แยกกรณีลดราคา และไม่ลดราคา */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', margin: '20px 0 10px 0' }}>
-            <div className="product-price-display" style={{ color: '#FF2D55', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="product-price-display" style={{ color: product.originalPrice ? '#FF2D55' : '#000', fontSize: '2rem', fontWeight: '700' }}>
                ฿ {product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} 
             </div>
-            <div style={{ textDecoration: 'line-through', color: '#9CA3AF', fontSize: '1.2rem', fontWeight: '500' }}>
-                ฿ {mockOriginalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
+            
+            {/* แสดงราคาขีดฆ่า เฉพาะเมื่อมีข้อมูล originalPrice (สินค้าจาก Mock) */}
+            {product.originalPrice && (
+              <div style={{ textDecoration: 'line-through', color: '#9CA3AF', fontSize: '1.2rem', fontWeight: '500' }}>
+                  ฿ {product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </div>
+            )}
           </div>
 
           <div className="actions-wrapper">

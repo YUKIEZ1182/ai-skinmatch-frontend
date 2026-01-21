@@ -120,36 +120,12 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleGoBack = () => {
-    navigate('/');
-    window.scrollTo(0, 0);
-  };
-
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
     setActiveCategory('home'); 
     navigate('/'); 
     window.scrollTo(0, 0);
-  };
-
-  const getBreadcrumbItems = () => {
-    const baseItem = { label: 'หน้าหลัก', onClick: handleGoBack, isLink: true };
-    const path = location.pathname;
-    if (path === '/cart') return [baseItem, { label: 'รายการสินค้า', isLink: false }];
-    if (path === '/account') return [baseItem, { label: 'บัญชีของฉัน', isLink: false }];
-    if (path === '/checkout') return [baseItem, { label: 'ชำระเงิน & ที่อยู่จัดส่ง', isLink: false }];
-    if (path === '/order-confirmation') {
-        return [
-            baseItem, 
-            { label: 'ชำระเงิน & ที่อยู่จัดส่ง', isLink: false }, 
-            { label: 'ชำระเงินเรียบร้อย', isLink: false }
-        ];
-    }
-    if (path.includes('/product/')) return [baseItem, { label: 'รายละเอียดสินค้า', isLink: false }];
-    if (path === '/') return [];
-    
-    return [baseItem];
   };
 
   return (
@@ -183,10 +159,6 @@ function App() {
               onClose={() => setAlertMessage(null)}
             />
           </div>
-        )}
-
-        {location.pathname !== '/' && (
-          <Breadcrumb items={getBreadcrumbItems()} />
         )}
 
         <CategoryMenu

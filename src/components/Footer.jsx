@@ -8,9 +8,9 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="brand-logo-group">
             <div className="footer-logo-circle">
-               <img src="/favicon.png" alt="Logo" className="footer-logo-img" />
+               <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
             </div>
-            <span className="footer-brand-name">ai_skinmatch</span>
+            <span className="footer-brand-name">WAY OFFICIAL</span>
           </div>
           <div className="social-icons">
              <a href="http://web.facebook.com/wayofficial.th" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block' }}>

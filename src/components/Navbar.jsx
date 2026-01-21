@@ -51,12 +51,12 @@ export default function Navbar({ isAuthenticated, user, onLoginClick, onLogout, 
         <Link to="/" className="navbar-logo" onClick={handleLogoClick}>
           <div className="logo-circle">
             <img 
-              src="/favicon.png" 
+              src="/logo.png" 
               alt="WAY Logo" 
               style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} 
             />
           </div>
-          <span className="logo-text">ai_skinmatch</span>
+          <span className="logo-text">WAY OFFICIAL</span>
         </Link>
         
         <div className="navbar-actions">

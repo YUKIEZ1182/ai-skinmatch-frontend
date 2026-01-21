@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/Home.css';
 import '../styles/SearchPage.css';
 import ProductCard from '../components/ProductCard';
-import { apiFetch, getRecommendedProducts } from '../utils/api'; 
+import { apiFetch, getRecommendedProducts } from '../utils/api';
+import { mockProducts } from '../data/mockData'; 
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -60,22 +61,16 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
             const newData = await newRes.json();
             if (newData.data) setNewArrivals(newData.data.map(mapProductData));
         } catch (err) { console.warn(err); }
-
-        // 2. สินค้าลดราคา (ล็อคค่าที่ 30% ให้ตรงกับหน้า Detail)
-        try {
-            const saleRes = await apiFetch('/items/product?sort=price&limit=20&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type&filter[status][_eq]=active');
-            const saleData = await saleRes.json();
-            if (saleData.data) {
-                const mockedSaleItems = saleData.data.map(item => {
-                    const mappedItem = mapProductData(item);
-                    const DISCOUNT_RATE = 0.30; // ล็อคส่วนลด 30%
-                    const fakeOriginalPrice = Math.round(mappedItem.price / (1 - DISCOUNT_RATE));
-                    return { ...mappedItem, originalPrice: fakeOriginalPrice };
-                });
-                setSaleItems(mockedSaleItems);
-            }
-        } catch (err) { console.warn(err); }
       }
+
+      const discountedMock = mockProducts
+        .filter(item => item.type === 'discount' || item.originalPrice)
+        .map(item => ({
+          ...item,
+          // ตรวจสอบให้แน่ใจว่ามีฟิลด์ brand สำหรับ ProductCard
+          brand: item.brand || 'Brand' 
+        }));
+      setSaleItems(discountedMock);
 
       // 3. สินค้าแนะนำ
       const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
@@ -157,7 +152,7 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
               {isLoggedIn && currentUser && activeCategory === 'home' && (
                 <div className="watsons-dashboard">
                     <div className="dashboard-header">
-                        <span className="sub-greet">ยินดีต้อนรับกลับมา,</span>
+                        <span className="sub-greet">ยินดีต้อนรับกลับมา</span>
                         <h1>{currentUser.first_name || currentUser.email}</h1>
                     </div>
                     <div className="dashboard-icons-scroll">
