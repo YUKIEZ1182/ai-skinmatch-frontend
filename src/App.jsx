@@ -138,8 +138,17 @@ function App() {
     const path = location.pathname;
     if (path === '/cart') return [baseItem, { label: 'รายการสินค้า', isLink: false }];
     if (path === '/account') return [baseItem, { label: 'บัญชีของฉัน', isLink: false }];
+    if (path === '/checkout') return [baseItem, { label: 'ชำระเงิน & ที่อยู่จัดส่ง', isLink: false }];
+    if (path === '/order-confirmation') {
+        return [
+            baseItem, 
+            { label: 'ชำระเงิน & ที่อยู่จัดส่ง', isLink: false }, 
+            { label: 'ชำระเงินเรียบร้อย', isLink: false }
+        ];
+    }
     if (path.includes('/product/')) return [baseItem, { label: 'รายละเอียดสินค้า', isLink: false }];
     if (path === '/') return [];
+    
     return [baseItem];
   };
 

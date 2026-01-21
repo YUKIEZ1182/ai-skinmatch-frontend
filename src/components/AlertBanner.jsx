@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types'; // 1. นำเข้า PropTypes
 import '../styles/AlertBanner.css';
 
 export default function AlertBanner({ message, type = 'success', onClose }) {
   const [isClosing, setIsClosing] = useState(false);
+  const isObject = typeof message === 'object' && message !== null;
+  const displayMessage = isObject ? message.text : message;
+  const finalType = isObject ? (message.type || type) : (type || 'success');
+
   useEffect(() => {
     const timer = setTimeout(() => {
       handleClose();
-    }, 3000);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -32,10 +37,10 @@ export default function AlertBanner({ message, type = 'success', onClose }) {
     }
   };
 
-  const currentConfig = alertConfig[type] || alertConfig.success;
+  const currentConfig = alertConfig[finalType] || alertConfig.success;
 
   return (
-    <div className={`alert-banner-card alert-${type} ${isClosing ? 'closing' : ''}`}>
+    <div className={`alert-banner-card alert-${finalType} ${isClosing ? 'closing' : ''}`}>
       <div className="alert-icon-box">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d={currentConfig.iconPath} />
@@ -43,7 +48,7 @@ export default function AlertBanner({ message, type = 'success', onClose }) {
       </div>
       <div className="alert-content">
         <div className="alert-title">{currentConfig.title}</div>
-        <div className="alert-message">{message}</div>
+        <div className="alert-message">{displayMessage}</div>
       </div>
       <button className="alert-close-btn" onClick={handleClose}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,3 +59,16 @@ export default function AlertBanner({ message, type = 'success', onClose }) {
     </div>
   );
 }
+
+AlertBanner.propTypes = {
+  message: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      text: PropTypes.string,
+      type: PropTypes.string,
+    }),
+  ]).isRequired,
+
+  type: PropTypes.oneOf(['success', 'warning', 'error']),
+  onClose: PropTypes.func,
+};
