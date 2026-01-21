@@ -324,6 +324,32 @@
     transform: translateY(-2px);
 }
 
+.input-error {
+  border-color: #DC2626 !important;
+  background-color: #FEF2F2 !important;
+}
+
+.helper-text-error {
+  color: #DC2626;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+.btn-save:disabled {
+  background-color: #E5E7EB !important;
+  color: #9CA3AF !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes popIn {
     from { transform: scale(0.8); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
