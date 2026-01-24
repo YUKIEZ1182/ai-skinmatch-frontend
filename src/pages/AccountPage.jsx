@@ -15,7 +15,6 @@ const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 const GENDER_OPTIONS = [
     { value: 'female', label: 'เพศหญิง' },
     { value: 'male', label: 'เพศชาย' },
-    { value: 'other', label: 'ไม่ระบุ' }
 ];
 
 const SKIN_TYPE_OPTIONS = [
@@ -80,58 +79,57 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder, disabled }, r
   </div>
 ));
 
-// 2. 🔥 Password Input (แก้ไข Layout ไม่ให้ตาเบี้ยว)
-const PasswordInput = ({ value, onChange, placeholder, disabled, error, onBlur }) => {
-    const [showPassword, setShowPassword] = useState(false);
-    return (
-        <div style={{ width: '100%' }}>
-            {/* Wrapper ชั้นใน: สำหรับ Input + Icon เท่านั้น (เพื่อให้ top: 50% อิงแค่ความสูง Input) */}
-            <div style={{ position: 'relative' }}>
-                <input 
-                    type={showPassword ? "text" : "password"} 
-                    value={value} 
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    placeholder={placeholder}
-                    disabled={disabled} 
-                    className={`gray-input ${error ? 'input-error' : ''}`}
-                    style={{ paddingRight: '40px' }}
-                />
-                
-                {!disabled && (
-                    <button 
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        // ใช้ Inline Style บังคับตำแหน่งให้ชัวร์
-                        style={{
-                            position: 'absolute',
-                            right: '12px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#666',
-                            zIndex: 10
-                        }}
-                    >
-                        {showPassword ? (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        ) : (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                        )}
-                    </button>
-                )}
-            </div>
+// 2. Password Input
+const PasswordInput = ({ value, onChange, placeholder, disabled, error, onBlur, ...rest }) => {
+  const [showPassword, setShowPassword] = useState(false);
 
-            {/* Error Message อยู่นอก Wrapper ชั้นใน (ดันลงล่าง ไม่กวนตำแหน่งลูกตา) */}
-            {error && <span className="helper-text-error">{error}</span>}
-        </div>
-    );
+  return (
+    <div style={{ width: '100%' }}>
+      <div style={{ position: 'relative' }}>
+        <input
+          {...rest}
+          type={showPassword ? 'text' : 'password'}
+          value={value ?? ''}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`gray-input ${error ? 'input-error' : ''}`}
+          style={{ paddingRight: '40px' }}
+        />
+
+        {!disabled && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#666',
+              zIndex: 10,
+            }}
+          >
+            {showPassword ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            )}
+          </button>
+        )}
+      </div>
+
+      {error && <span className="helper-text-error">{error}</span>}
+    </div>
+  );
 };
 
 // --- Success Modal ---
@@ -174,7 +172,6 @@ const AccountPage = () => {
   const [loading, setLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Fetch Profile
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -205,7 +202,6 @@ const AccountPage = () => {
 
     let newErrors = { ...errors };
 
-    // Check Password & Confirm Password
     if (field === 'password' || field === 'confirmPassword') {
         const pass = field === 'password' ? value : updatedUserInfo.password;
         const confirm = field === 'confirmPassword' ? value : updatedUserInfo.confirmPassword;
@@ -239,7 +235,6 @@ const AccountPage = () => {
     } catch { return false; }
   };
 
-  // 🔥 Check Current Password on Blur (เมื่อกดออกจากช่อง)
   const checkCurrentPasswordValidity = async () => {
       if (!userInfo.currentPassword) return;
       const isValid = await verifyCurrentPassword(userInfo.email, userInfo.currentPassword);
@@ -306,7 +301,7 @@ const AccountPage = () => {
 
       const res = await apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(updateData) });
       if (!res.ok) throw new Error();
-
+      window.dispatchEvent(new Event('profile-updated'));
       setShowSuccess(true);
       setIsEditing(false);
       setUserInfo(prev => ({ ...prev, password: '', confirmPassword: '', currentPassword: '' }));
@@ -346,18 +341,42 @@ const AccountPage = () => {
           </div>
         </div>
 
-        {/* --- รหัสผ่านปัจจุบัน (เช็ค onBlur) --- */}
         {isEditing && (
+          <>
+            {/* กัน password manager ยัดค่ากลับมา */}
+            <input
+              type="text"
+              name="username"
+              autoComplete="username"
+              tabIndex={-1}
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+            />
+            <input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              tabIndex={-1}
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+            />
+
             <div className="form-row">
-                <label className="form-label" style={{color: '#333'}}>รหัสผ่านปัจจุบัน <span style={{color:'red'}}>*</span></label>
-                <PasswordInput 
-                    placeholder="กรอกเพื่อยืนยันการแก้ไข" 
-                    value={userInfo.currentPassword} 
-                    onChange={(e) => handleInputChange('currentPassword', e.target.value)} 
-                    onBlur={checkCurrentPasswordValidity}
-                    error={errors.currentPassword}
-                />
+              <label className="form-label" style={{ color: '#333' }}>
+                รหัสผ่านปัจจุบัน <span style={{ color: 'red' }}>*</span>
+              </label>
+              <PasswordInput
+                placeholder="กรอกเพื่อยืนยันการแก้ไข"
+                value={userInfo.currentPassword}
+                onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+                onBlur={checkCurrentPasswordValidity}
+                error={errors.currentPassword}
+                name="currentPassword"
+                id="currentPassword"
+                autoComplete="current-password"
+              />
             </div>
+          </>
         )}
 
         <div className="form-row">
@@ -373,7 +392,8 @@ const AccountPage = () => {
 
         {isEditing && (
           <div className="form-row">
-            <label className="form-label">ยืนยันรหัสผ่าน</label> 
+            {/* FIX: แก้คำให้ตรงตามใบประเมิน */}
+            <label className="form-label">ยืนยันรหัสผ่านใหม่</label> 
             <PasswordInput 
                 placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง" 
                 value={userInfo.confirmPassword} 
@@ -406,30 +426,31 @@ const AccountPage = () => {
         </div>
 
         <div className="form-row">
-          <label className="form-label">เพศ</label>
-          <div className="input-wrapper">
-             <CustomSelect 
-                options={GENDER_OPTIONS}
-                value={userInfo.gender}
-                onChange={(val) => handleInputChange('gender', val)}
-                placeholder="เลือกเพศ"
-                disabled={!isEditing}
-             />
-          </div>
+        <label className="form-label">เพศ</label>
+        <div className="input-wrapper">
+          <CustomSelect
+            options={GENDER_OPTIONS}
+            value={userInfo.gender}
+            onChange={(val) => handleInputChange('gender', val)}
+            placeholder="เลือกเพศ"
+            disabled={!isEditing}
+        
+          />
         </div>
+      </div>
 
-        <div className="form-row">
-          <label className="form-label">ประเภทผิว</label>
-          <div className="input-wrapper">
-             <CustomSelect 
-                options={SKIN_TYPE_OPTIONS}
-                value={userInfo.skin_type}
-                onChange={(val) => handleInputChange('skin_type', val)}
-                placeholder="เลือกประเภทผิว"
-                disabled={!isEditing}
-             />
-          </div>
+      <div className="form-row">
+        <label className="form-label">ประเภทผิว</label>
+        <div className="input-wrapper">
+          <CustomSelect
+            options={SKIN_TYPE_OPTIONS}
+            value={userInfo.skin_type}
+            onChange={(val) => handleInputChange('skin_type', val)}
+            placeholder="เลือกประเภทผิว"
+            disabled={!isEditing}
+          />
         </div>
+      </div>
 
         {isEditing && (
           <div className="form-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
