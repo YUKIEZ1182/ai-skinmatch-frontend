@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import '../styles/AuthModal.css'; // ✅ ใช้ CSS สไตล์เดิม
+import '../styles/AuthModal.css'; 
 import CustomSelect from './CustomSelect';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
@@ -251,7 +251,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   <input type={showPassword ? "text" : "password"} className="auth-input" style={{paddingRight: '50px'}} placeholder="กรอกรหัสผ่านของคุณ" value={password} onChange={handlePasswordChange} />
                   <button type="button" className="password-toggle-btn" onClick={togglePassword}>{showPassword ? <EyeOpenIcon /> : <EyeClosedIcon />}</button>
                 </div>
-                {/* 🔥 เพิ่มปุ่มลืมรหัสผ่านตรงนี้ครับ 🔥 */}
                 <div style={{ textAlign: 'right', marginTop: '8px' }}>
                     <span className="forgot-password-link">ลืมรหัสผ่าน?</span>
                 </div>
@@ -268,27 +267,27 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <h2 className="auth-title">สมัครสมาชิก</h2>
             <form onSubmit={handleNextStep}>
               <div className="form-group">
-                  <label className="form-label">อีเมล</label>
+                  <label className="form-label">อีเมล <span style={{color: 'red'}}>*</span></label>
                   <input type="text" className={`auth-input ${errors.email ? 'input-error' : ''}`} placeholder="name@example.com" value={email} onChange={handleEmailChange} />
                   {errors.email && <span className="error-text">{errors.email}</span>}
               </div>
-              <div className="form-group"><label className="form-label">รหัสผ่าน</label>
+              <div className="form-group"><label className="form-label">รหัสผ่าน <span style={{color: 'red'}}>*</span></label>
                 <div className={`password-wrapper ${errors.password ? 'input-error' : ''}`}>
                   <input type={showPassword ? "text" : "password"} placeholder="กรุณากรอกรหัสผ่าน" className="auth-input" style={{paddingRight: '50px'}} value={password} onChange={handlePasswordChange} />
                   <button type="button" className="password-toggle-btn" onClick={togglePassword}>{showPassword ? <EyeOpenIcon /> : <EyeClosedIcon />}</button>
                 </div>
                 
-                {password && (
-                    <div style={{marginTop: '10px', background: '#F5F7FA', padding: '12px', borderRadius: '14px'}}>
-                        <PasswordRequirement 
-                            met={isPasswordComplex} 
-                            text="ต้องมีตัวพิมพ์ใหญ่, เล็ก, ตัวเลข และอักขระพิเศษ ผสมกัน (8 ตัวอักษรขึ้นไป)" 
-                        />
-                    </div>
+                {password.length > 0 && !isPasswordComplex && (
+                  <div style={{ marginTop: '10px', background: '#F5F7FA', padding: '12px', borderRadius: '14px' }}>
+                    <PasswordRequirement
+                      met={false}
+                      text="ต้องมีตัวพิมพ์ใหญ่, เล็ก, ตัวเลข และอักขระพิเศษ ผสมกัน (8 ตัวอักษรขึ้นไป)"
+                    />
+                  </div>
                 )}
                 {errors.password && <span className="error-text">{errors.password}</span>}
               </div>
-              <div className="form-group"><label className="form-label">ยืนยันรหัสผ่าน</label>
+              <div className="form-group"><label className="form-label">ยืนยันรหัสผ่าน <span style={{color: 'red'}}>*</span></label>
                 <div className={`password-wrapper ${errors.confirmPassword ? 'input-error' : ''}`}>
                   <input type={showConfirmPassword ? "text" : "password"} placeholder="กรุณากรอกรหัสผ่าน" className="auth-input" style={{paddingRight: '50px'}} value={confirmPassword} onChange={handleConfirmPasswordChange} />
                   <button type="button" className="password-toggle-btn" onClick={toggleConfirmPassword}>{showConfirmPassword ? <EyeOpenIcon /> : <EyeClosedIcon />}</button>
@@ -306,12 +305,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <h2 className="auth-title">ข้อมูลส่วนบุคคล</h2>
             {error && <div style={{ background: '#f8d7da', color: '#721c24', padding: '12px', borderRadius: '14px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}><AlertCircleIcon /><span>{error}</span></div>}
             <form onSubmit={handleFinalSubmit}>
-              <div className="form-group"><label className="form-label">วันเกิด</label>
+              <div className="form-group"><label className="form-label">วันเกิด <span style={{color: 'red'}}>*</span></label>
                 <DatePicker selected={birthDate} onChange={(date) => setBirthDate(date)} dateFormat="dd/MM/yyyy" placeholderText="กรุณาเลือกวันเกิด" customInput={<CustomDateInput />} showYearDropdown scrollableYearDropdown yearDropdownItemNumber={100} maxDate={new Date()} />
               </div>
-              <div className="form-group"><label className="form-label">เพศ</label><CustomSelect options={genderOptions} placeholder="กรุณาเลือกเพศของคุณ" value={gender} onChange={setGender} /></div>
+              <div className="form-group"><label className="form-label">เพศ <span style={{color: 'red'}}>*</span></label><CustomSelect options={genderOptions} placeholder="กรุณาเลือกเพศของคุณ" value={gender} onChange={setGender} /></div>
               <div className="form-group">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}><label className="form-label">ประเภทผิว</label><a href="#" style={{fontSize: '13px'}} className="legal-link">ไม่แน่ใจ? ทำแบบทดสอบ</a></div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}><label className="form-label">ประเภทผิว <span style={{color: 'red'}}>*</span></label>
+                {/* FIX: ใส่ลิงก์แบบทดสอบ */}
+                <a href="https://choicechecker.com/quiz/testing?id=1" target="_blank" rel="noreferrer" style={{fontSize: '13px'}} className="legal-link">ไม่แน่ใจ? ทำแบบทดสอบ</a>
+                </div>
                 <CustomSelect options={skinTypeOptions} placeholder="กรุณาเลือกสภาพผิวของคุณ" value={skinType} onChange={setSkinType} />
               </div>
               <button type="submit" className="auth-submit-btn" disabled={isLoading}>{isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}</button>
