@@ -161,10 +161,20 @@ export default function CheckoutPage() {
 
   // 🔥 VALIDATION LOGIC
   const validateField = (name, value) => {
-      if (!value || (typeof value === 'string' && !value.trim())) return 'กรุณาระบุข้อมูล';
-      if (name === 'phone' && (value.length < 9 || !/^\d+$/.test(value))) return 'เบอร์โทรศัพท์ไม่ถูกต้อง';
-      if (name === 'zipCode' && value.length !== 5) return 'รหัสไปรษณีย์ 5 หลัก';
-      return '';
+  const v = String(value ?? '').trim();
+
+    if (!v) return 'กรุณาระบุข้อมูล';
+
+    if (name === 'phone') {
+      const digits = v.replace(/\D/g, '');
+      if (digits.length < 9 || digits.length > 10) return 'เบอร์โทรศัพท์ไม่ถูกต้อง';
+    }
+
+    if (name === 'zipCode') {
+      if (!/^\d{5}$/.test(v)) return 'รหัสไปรษณีย์ 5 หลัก';
+    }
+
+    return '';
   };
 
   const handleFormChange = (e) => { 
@@ -201,14 +211,26 @@ export default function CheckoutPage() {
       const hasError = Object.values(addressErrors).some(err => err);
       return hasEmpty || hasError;
   };
+  const validateAllFields = () => {
+  const requiredFields = ['fullName', 'phone', 'addressLine', 'subDistrict', 'district', 'province', 'zipCode'];
+
+  const nextErrors = {};
+  requiredFields.forEach((field) => {
+    nextErrors[field] = validateField(field, addressForm[field]);
+  });
+
+  setAddressErrors(nextErrors);
+  return Object.values(nextErrors).some(Boolean);
+};
 
   const handleSaveAddress = async () => {
-    if (isFormInvalid()) return; 
+  const hasError = validateAllFields();
+  if (hasError) return;
 
-    if (!currentUserId) { 
-        setAlertMessage({ text: "กรุณาล็อกอินใหม่", type: "error" });
-        return; 
-    }
+  if (!currentUserId) {
+    setAlertMessage({ text: "กรุณาล็อกอินใหม่", type: "error" });
+    return;
+  }
 
     const payload = { 
         name: addressForm.fullName, 
@@ -401,7 +423,7 @@ export default function CheckoutPage() {
                     <div className="address-form-mode">
                         <div className="form-group-row">
                             <div className="fg">
-                                <label className="lbl">ชื่อ-นามสกุล</label>
+                                <label className="lbl">ชื่อ-นามสกุล <span className="req-star">*</span></label>
                                 <input 
                                     type="text" name="fullName" placeholder="ระบุชื่อ-นามสกุล" 
                                     className={`gray-input ${addressErrors.fullName ? 'input-error' : ''}`} 
@@ -410,7 +432,7 @@ export default function CheckoutPage() {
                                 {addressErrors.fullName && <span className="helper-text-error">{addressErrors.fullName}</span>}
                             </div>
                             <div className="fg">
-                                <label className="lbl">เบอร์โทรศัพท์</label>
+                                <label className="lbl">เบอร์โทรศัพท์ <span className="req-star">*</span></label>
                                 <input 
                                     type="text" name="phone" placeholder="ระบุเบอร์โทรศัพท์" 
                                     className={`gray-input ${addressErrors.phone ? 'input-error' : ''}`} 
@@ -421,7 +443,7 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="fg full">
-                            <label className="lbl">ที่อยู่</label>
+                            <label className="lbl">ที่อยู่ <span className="req-star">*</span></label>
                             <input 
                                 type="text" name="addressLine" placeholder="บ้านเลขที่, ซอย, หมู่บ้าน, ถนน" 
                                 className={`gray-input ${addressErrors.addressLine ? 'input-error' : ''}`} 
@@ -432,7 +454,7 @@ export default function CheckoutPage() {
 
                          <div className="form-group-row">
                              <div className="fg">
-                                 <label className="lbl">ตำบล / แขวง</label>
+                                 <label className="lbl">ตำบล / แขวง <span className="req-star">*</span></label>
                                  <InputThaiAddress.District 
                                     value={addressForm.subDistrict} onChange={handleAddressChange('district')} onSelect={handleAddressSelect} 
                                     className={`thai-address-input ${addressErrors.subDistrict ? 'input-error' : ''}`} placeholder="ระบุตำบล / แขวง"
@@ -440,7 +462,7 @@ export default function CheckoutPage() {
                                 {addressErrors.subDistrict && <span className="helper-text-error">{addressErrors.subDistrict}</span>}
                              </div>
                              <div className="fg">
-                                 <label className="lbl">อำเภอ / เขต</label>
+                                 <label className="lbl">อำเภอ / เขต <span className="req-star">*</span></label>
                                  <InputThaiAddress.Amphoe 
                                     value={addressForm.district} onChange={handleAddressChange('amphoe')} onSelect={handleAddressSelect} 
                                     className={`thai-address-input ${addressErrors.district ? 'input-error' : ''}`} placeholder="ระบุอำเภอ / เขต"
@@ -450,7 +472,7 @@ export default function CheckoutPage() {
                          </div>
                          <div className="form-group-row">
                              <div className="fg">
-                                 <label className="lbl">จังหวัด</label>
+                                 <label className="lbl">จังหวัด <span className="req-star">*</span></label>
                                  <InputThaiAddress.Province 
                                     value={addressForm.province} onChange={handleAddressChange('province')} onSelect={handleAddressSelect} 
                                     className={`thai-address-input ${addressErrors.province ? 'input-error' : ''}`} placeholder="ระบุจังหวัด"
@@ -458,7 +480,7 @@ export default function CheckoutPage() {
                                 {addressErrors.province && <span className="helper-text-error">{addressErrors.province}</span>}
                              </div>
                              <div className="fg">
-                                 <label className="lbl">รหัสไปรษณีย์</label>
+                                 <label className="lbl">รหัสไปรษณีย์ <span className="req-star">*</span></label>
                                  <InputThaiAddress.Zipcode 
                                     value={addressForm.zipCode} onChange={handleAddressChange('zipcode')} onSelect={handleAddressSelect} 
                                     className={`thai-address-input ${addressErrors.zipCode ? 'input-error' : ''}`} placeholder="ระบุรหัสไปรษณีย์"
