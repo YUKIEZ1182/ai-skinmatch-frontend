@@ -386,7 +386,7 @@ export default function CheckoutPage() {
                             <div key={addr.id} className={`address-item-row ${selectedAddress?.id === addr.id ? 'selected' : ''}`} onClick={() => handleSelectAddress(addr)}>
                                 <div className="radio-col"><input type="radio" checked={selectedAddress?.id === addr.id} readOnly /></div>
                                 <div className="info-col">
-                                    <div className="row-top"><span className="name">{addr.fullName}</span><span className="separator">|</span><span className="phone">{addr.phone}</span></div>
+                                    <div className="row-top"><span className="name">{addr.fullName}</span><span className="separator"> </span><span className="phone">{`(${addr.phone})`}</span></div>
                                     <div className="row-detail">{addr.addressLine} {addr.subDistrict} {addr.district} {addr.province} {addr.zipCode}</div>
                                 </div>
                                 <div className="edit-col">
