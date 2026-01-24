@@ -12,6 +12,9 @@
   padding: 0 24px;
 }
 
+/* =========================
+   Search (Sticky)
+========================= */
 .search-section {
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -32,7 +35,7 @@
 .search-input {
   width: 100%;
   padding: 14px 60px 14px 25px;
-  border-radius: 50px; 
+  border-radius: 50px;
   border: 1px solid #E5E7EB;
   background-color: #F9FAFB;
   font-size: 1rem;
@@ -42,13 +45,13 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 
-.search-input::placeholder { 
-  color: #9CA3AF; 
+.search-input::placeholder {
+  color: #9CA3AF;
 }
 
 .search-input:focus {
   background-color: #fff;
-  border-color: #F1978C; 
+  border-color: #F1978C;
   box-shadow: 0 4px 20px rgba(241, 151, 140, 0.15);
 }
 
@@ -59,7 +62,7 @@
   transform: translateY(-50%);
   width: 42px;
   height: 42px;
-  background-color: #231F20; 
+  background-color: #231F20;
   border: none;
   border-radius: 50%;
   display: flex;
@@ -75,16 +78,19 @@
   transform: translateY(-50%) scale(1.05);
 }
 
+/* =========================
+   Dashboard
+========================= */
 .watsons-dashboard {
-  margin-bottom: 50px;
+  margin-bottom: 36px; /* ปรับให้ไม่โล่งเกิน */
   padding: 0 10px;
   text-align: left;
   position: relative;
-  z-index: 50; 
+  z-index: 50;
 }
 
 .dashboard-header {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -102,13 +108,15 @@
   letter-spacing: 0.5px;
 }
 
+/* เดิมของยูกิเป็น h1 ตรงๆ บางทีใหญ่เกิน ดูเหมือน test */
 .user-email-title {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #111827;
-  letter-spacing: -1px;
-  line-height: 1.1;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
   margin: 0;
+  word-break: break-word;
 }
 
 .dashboard-icons-scroll {
@@ -195,6 +203,7 @@
   gap: 4px;
 }
 
+/* Dropdown */
 .custom-dropdown-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -230,15 +239,18 @@
   color: #E11D48;
 }
 
-.dropdown-option.active { 
-  background-color: #F1978C; 
-  color: #fff; 
+.dropdown-option.active {
+  background-color: #F1978C;
+  color: #fff;
 }
 
-.recommend-outside-area, 
+/* =========================
+   Sections
+========================= */
+.recommend-outside-area,
 .product-section {
-  margin-bottom: 60px;
-  padding-top: 10px;
+  margin-bottom: 40px; /* เดิม 60px -> ลดให้แน่นขึ้น */
+  padding-top: 4px;    /* เดิม 10px */
   position: relative;
   z-index: 1;
 }
@@ -247,7 +259,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 20px; /* เดิม 24px */
 }
 
 .section-title-custom {
@@ -257,7 +269,7 @@
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 12px; 
+  gap: 12px;
 }
 
 .badge-base {
@@ -274,6 +286,19 @@
   justify-content: center;
 }
 
+.badge-new {
+  background-color: #FF2D55;
+  box-shadow: none;
+  margin-right: 8px;
+}
+
+.badge-sale {
+  background-color: #EF4444;
+  box-shadow: none;
+  margin-left: 8px;
+}
+
+/* AI icon */
 .ai-icon-wrapper {
   display: flex;
   align-items: center;
@@ -287,31 +312,9 @@
 }
 
 .ai-icon-wrapper svg {
-  color: #ffffff !important; 
+  color: #ffffff !important;
   width: 20px;
   height: 20px;
-}
-
-.badge-new {
-  background-color: #FF2D55;
-  box-shadow: none; 
-  margin-right: 8px;
-}
-
-.badge-sale {
-  background-color: #EF4444;
-  box-shadow: none;
-  margin-left: 8px;
-}
-
-.ai-icon-clean {
-  margin-left: 8px;
-  color: #8B5CF6;
-  transition: transform 0.3s ease;
-}
-
-.section-title-custom:hover .ai-icon-clean {
-  transform: scale(1.1) rotate(10deg);
 }
 
 .skin-badge {
@@ -324,6 +327,9 @@
   box-shadow: none;
 }
 
+/* =========================
+   Horizontal scroll
+========================= */
 .scroll-container-wrapper {
   position: relative;
   width: 100%;
@@ -331,9 +337,9 @@
 
 .horizontal-scroll-list {
   display: flex;
-  gap: 20px;
+  gap: 16px; /* เดิม 20px -> ลดให้แน่นขึ้น */
   overflow-x: auto;
-  padding: 10px 4px 20px 4px;
+  padding: 8px 2px 14px 2px; /* เดิม 10/4/20/4 */
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
@@ -342,16 +348,17 @@
   transition: scrollbar-color 0.3s ease;
 }
 
+/* โผล่ scrollbar แบบสุภาพ */
 .horizontal-scroll-list:hover {
-  scrollbar-color: #F1978C #F3F4F6;
+  scrollbar-color: rgba(241, 151, 140, 0.55) rgba(243, 244, 246, 0.6);
 }
 
 .horizontal-scroll-list::-webkit-scrollbar {
-  height: 6px;
+  height: 5px; /* เดิม 6px */
 }
 
 .horizontal-scroll-list::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
   border-radius: 10px;
 }
 
@@ -362,16 +369,16 @@
 }
 
 .horizontal-scroll-list:hover::-webkit-scrollbar-thumb {
-  background-color: #F1978C;
+  background-color: rgba(241, 151, 140, 0.55); /* จางลง */
 }
 
 .horizontal-scroll-list:hover::-webkit-scrollbar-track {
-  background-color: #F9FAFB; 
+  background-color: rgba(243, 244, 246, 0.6);
 }
 
 .horizontal-scroll-list .product-card {
-  min-width: 240px; 
-  max-width: 240px;
+  min-width: 220px;  /* เดิม 240px -> ลดให้ไม่โล่ง */
+  max-width: 220px;
   scroll-snap-align: start;
   flex-shrink: 0;
 }
@@ -380,6 +387,9 @@
   display: none !important;
 }
 
+/* =========================
+   Grid Listing
+========================= */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -395,6 +405,36 @@
   border: 1px dashed #E5E7EB;
 }
 
+/* Search empty state (กันกรณีไม่มีในไฟล์อื่น) */
+.search-empty-state {
+  text-align: center;
+  padding: 60px 16px;
+  background: #FAFAFA;
+  border-radius: 16px;
+  border: 1px dashed #E5E7EB;
+  color: #666;
+}
+
+.search-empty-state h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #374151;
+}
+
+/* Loading spinner (กันกรณีไม่มีในไฟล์อื่น) */
+.loading-spinner-home {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #6B7280;
+}
+
+/* =========================
+   Modal
+========================= */
 .skin-modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
@@ -405,27 +445,154 @@
   animation: fadeIn 0.2s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .skin-modal-box {
-  background: #fff; width: 90%; max-width: 380px; padding: 30px;
-  border-radius: 20px; text-align: center;
+  background: #fff;
+  width: 90%;
+  max-width: 380px;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.1);
   animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.skin-modal-icon { font-size: 3rem; margin-bottom: 15px; display: block; animation: bounce 2s infinite; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.skin-modal-title { font-size: 1.3rem; font-weight: 800; color: #333; margin-bottom: 10px; }
-.skin-modal-desc { font-size: 0.95rem; color: #666; line-height: 1.5; margin-bottom: 25px; }
-.skin-modal-actions { display: flex; gap: 12px; justify-content: center; }
+@keyframes scaleIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
 
-.btn-modal-cancel { padding: 10px 24px; border-radius: 10px; border: 1px solid #E5E7EB; background: #fff; color: #666; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.btn-modal-cancel:hover { background: #F9FAFB; color: #333; }
-.btn-modal-confirm { padding: 10px 24px; border-radius: 10px; border: none; background: #F1978C; color: #fff; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(241, 151, 140, 0.3); transition: all 0.2s; }
-.btn-modal-confirm:hover { background: #E0867B; transform: translateY(-2px); }
+/* เผื่อมี class นี้ใน JSX */
+.skin-modal-icon-container {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3F4F6;
+  color: #111827;
+}
 
-.guest-banner { background: linear-gradient(135deg, #FDFBF7 0%, #FFF 100%); border: 1px solid #F0F0F0; border-radius: 16px; padding: 60px 20px; margin-bottom: 60px; text-align: center; }
-.guest-banner h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; color: #333; }
-.guest-banner p { color: #666; font-size: 1rem; margin-bottom: 24px; }
-.btn-guest-login { background: #F1978C; color: #fff; border: none; padding: 12px 28px; border-radius: 100px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(241, 151, 140, 0.4); transition: all 0.2s; }
-.btn-guest-login:hover { background: #E0867B; transform: translateY(-2px); }
+.skin-modal-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.skin-modal-desc {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.skin-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-modal-cancel {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  background: #fff;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modal-cancel:hover {
+  background: #F9FAFB;
+  color: #333;
+}
+
+.btn-modal-confirm {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  background: #F1978C;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(241, 151, 140, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-modal-confirm:hover {
+  background: #E0867B;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Guest Banner (เผื่อมีใช้)
+========================= */
+.guest-banner {
+  background: linear-gradient(135deg, #FDFBF7 0%, #FFF 100%);
+  border: 1px solid #F0F0F0;
+  border-radius: 16px;
+  padding: 60px 20px;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.guest-banner h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.guest-banner p {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+.btn-guest-login {
+  background: #F1978C;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(241, 151, 140, 0.4);
+  transition: all 0.2s;
+}
+
+.btn-guest-login:hover {
+  background: #E0867B;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 768px) {
+  .home-content {
+    padding: 0 16px;
+  }
+
+  .dashboard-item {
+    min-width: 160px;
+    max-width: 100%;
+  }
+
+  .section-title-custom {
+    font-size: 1.3rem;
+  }
+
+  .horizontal-scroll-list .product-card {
+    min-width: 210px;
+    max-width: 210px;
+  }
+}
