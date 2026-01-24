@@ -311,7 +311,18 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               </div>
               <div className="form-group"><label className="form-label">เพศ</label><CustomSelect options={genderOptions} placeholder="กรุณาเลือกเพศของคุณ" value={gender} onChange={setGender} /></div>
               <div className="form-group">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}><label className="form-label">ประเภทผิว</label><a href="#" style={{fontSize: '13px'}} className="legal-link">ไม่แน่ใจ? ทำแบบทดสอบ</a></div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <label className="form-label">ประเภทผิว</label>
+                  <a 
+                    href="https://choicechecker.com/quiz/testing?id=1" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{fontSize: '13px'}} 
+                    className="legal-link"
+                  >
+                    ไม่แน่ใจ? ทำแบบทดสอบ
+                  </a>
+                </div>
                 <CustomSelect options={skinTypeOptions} placeholder="กรุณาเลือกสภาพผิวของคุณ" value={skinType} onChange={setSkinType} />
               </div>
               <button type="submit" className="auth-submit-btn" disabled={isLoading}>{isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}</button>
