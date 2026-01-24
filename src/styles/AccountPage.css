@@ -154,7 +154,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ปุ่มลูกตา */
 .eye-icon-btn {
   position: absolute;
   right: 12px;
@@ -169,8 +168,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center;
   color: #666;
   transition: color 0.2s;
-}
 
+  z-index: 1; /* ⭐ สำคัญ */
+}
 .eye-icon-btn:hover {
   color: #333;
 }
