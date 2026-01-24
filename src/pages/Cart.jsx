@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
 export default function CartPage() {
   const navigate = useNavigate();
-  
+
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recommendationsMap, setRecommendationsMap] = useState({});
@@ -20,20 +20,27 @@ export default function CartPage() {
     setAlertInfo({ message, type });
   };
 
+  const isItemOutOfStock = (item) => {
+    const legacyInactive = item.status === 'inactive';
+    const statusOos = item.status === 'out_of_stock';
+    const stockZero = Number(item.stock) <= 0;
+    return legacyInactive || statusOos || stockZero;
+  };
+
   const fetchCart = async () => {
     try {
       // ✅ เพิ่ม date_created ใน fields
       const response = await apiFetch(
-        `/items/cart_detail?fields=id,quantity,date_created,product.id,product.name,product.price,product.brand_name,product.status,product.quantity,product.illustration.directus_files_id,product.thumbnail&filter[owner][_eq]=$CURRENT_USER`
+        '/items/cart_detail?fields=id,quantity,date_created,product.id,product.name,product.price,product.brand_name,product.status,product.quantity,product.illustration.directus_files_id,product.thumbnail&filter[owner][_eq]=$CURRENT_USER'
       );
-      
+
       if (!response.ok) throw new Error('Failed to fetch cart');
-      
+
       const json = await response.json();
-      const items = json.data.map(item => {
+      const items = (json.data || []).map((item) => {
         const product = item.product || {};
-        const imgId =  product.thumbnail || product.illustration?.[0]?.directus_files_id; 
-        
+        const imgId = product.thumbnail || product.illustration?.[0]?.directus_files_id;
+
         return {
           id: item.id,
           productId: product.id,
@@ -41,30 +48,25 @@ export default function CartPage() {
           price: Number(product.price) || 0,
           brand: product.brand_name || 'Brand',
           status: product.status,
-          stock: product.quantity !== null && product.quantity !== undefined ? Number(product.quantity) : 0, 
+          stock: product.quantity !== null && product.quantity !== undefined ? Number(product.quantity) : 0,
           quantity: item.quantity,
           image: imgId ? `${API_URL}/assets/${imgId}` : 'https://via.placeholder.com/80',
-          date_created: item.date_created // ✅ เก็บวันที่
+          date_created: item.date_created,
         };
       });
 
-      // ✅ เพิ่ม Logic การ Sort
+      // ✅ Sort: ของหมดไว้ล่าง, ของใหม่อยู่บน
       items.sort((a, b) => {
-        const aIsOutOfStock = a.status === 'inactive' || a.stock <= 0;
-        const bIsOutOfStock = b.status === 'inactive' || b.stock <= 0;
+        const aIsOut = isItemOutOfStock(a);
+        const bIsOut = isItemOutOfStock(b);
 
-        // 1. แยกตามสถานะ (หมดไว้ล่าง)
-        if (aIsOutOfStock !== bIsOutOfStock) {
-            return aIsOutOfStock ? 1 : -1;
-        }
-
-        // 2. แยกตามเวลา (ใหม่สุดอยู่บน)
+        if (aIsOut !== bIsOut) return aIsOut ? 1 : -1;
         return new Date(b.date_created) - new Date(a.date_created);
       });
 
       setCartItems(items);
     } catch (error) {
-      console.error("Error fetching cart:", error);
+      console.error('Error fetching cart:', error);
     } finally {
       setLoading(false);
     }
@@ -75,114 +77,123 @@ export default function CartPage() {
   }, []);
 
   useEffect(() => {
-    cartItems.forEach(item => {
-      const isOutOfStock = item.status === 'inactive' || item.stock <= 0;
-      if (isOutOfStock && !recommendationsMap[item.productId]) {
+    cartItems.forEach((item) => {
+      const out = isItemOutOfStock(item);
+      if (out && !recommendationsMap[item.productId]) {
         fetchSimilarProducts(item.productId);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartItems]);
 
   const fetchSimilarProducts = async (productId) => {
     try {
       const json = await getSimilarProducts(productId);
       if (json.data) {
-        const mappedRecs = json.data.map(p => ({
+        const mappedRecs = json.data.map((p) => ({
           id: p.id,
           name: p.name,
           brand: p.brand_name || 'Brand',
           price: Number(p.price) || 0,
-          image: p.thumbnail ? `${API_URL}/assets/${p.thumbnail}` : 'https://via.placeholder.com/60'
+          image: p.thumbnail ? `${API_URL}/assets/${p.thumbnail}` : 'https://via.placeholder.com/60',
         }));
-        setRecommendationsMap(prev => ({ ...prev, [productId]: mappedRecs.slice(0, 3) }));
+        setRecommendationsMap((prev) => ({ ...prev, [productId]: mappedRecs.slice(0, 3) }));
       }
     } catch (error) {
-      console.error("Error fetching recommendations:", error);
+      console.error('Error fetching recommendations:', error);
     }
   };
 
   const handleRemoveItem = async (cartId) => {
     if (!cartId) return;
-    if (!confirm("ต้องการลบสินค้าออกจากตะกร้า?")) return;
+    if (!confirm('ต้องการลบสินค้าออกจากตะกร้า?')) return;
 
     try {
       await deleteCartDetail(cartId);
-      setCartItems(prev => prev.filter(item => item.id !== cartId));
-      setSelectedIds(prev => prev.filter(id => id !== cartId));
+      setCartItems((prev) => prev.filter((item) => item.id !== cartId));
+      setSelectedIds((prev) => prev.filter((id) => id !== cartId));
       window.dispatchEvent(new Event('cart-updated'));
-      showAlert("ลบสินค้าออกจากตะกร้าแล้ว", "warning");
+      showAlert('ลบสินค้าออกจากตะกร้าแล้ว', 'warning');
     } catch (error) {
-      console.error("Error removing item:", error);
-      showAlert("เกิดข้อผิดพลาดในการลบสินค้า", "error");
+      console.error('Error removing item:', error);
+      showAlert('เกิดข้อผิดพลาดในการลบสินค้า', 'error');
     }
   };
 
   const handleUpdateQuantity = async (cartId, delta) => {
-    const item = cartItems.find(i => i.id === cartId);
+    const item = cartItems.find((i) => i.id === cartId);
     if (!item) return;
+
+    if (isItemOutOfStock(item)) {
+      showAlert('สินค้าหมด ไม่สามารถปรับจำนวนได้', 'warning');
+      return;
+    }
 
     const newQty = item.quantity + delta;
 
-    if (delta > 0) { 
-        if (newQty > item.stock) {
-            showAlert(`สินค้ามีจำกัด เพิ่มได้สูงสุด ${item.stock} ชิ้น`, "warning");
-            return;
-        }
+    if (delta > 0) {
+      if (newQty > item.stock) {
+        showAlert(`สินค้ามีจำกัด เพิ่มได้สูงสุด ${item.stock} ชิ้น`, 'warning');
+        return;
+      }
     }
 
     if (newQty < 1) return;
 
-    setCartItems(prev => prev.map(i => i.id === cartId ? { ...i, quantity: newQty } : i));
+    setCartItems((prev) => prev.map((i) => (i.id === cartId ? { ...i, quantity: newQty } : i)));
 
     try {
       await apiFetch(`/items/cart_detail/${cartId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ quantity: newQty })
+        body: JSON.stringify({ quantity: newQty }),
       });
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      console.error('Error updating quantity:', error);
       fetchCart();
     }
   };
 
   const handleAddToCartRec = async (productRec) => {
     try {
-      const checkRes = await apiFetch(`/items/cart_detail?filter[product][_eq]=${productRec.id}&filter[owner][_eq]=$CURRENT_USER`);
+      const checkRes = await apiFetch(
+        `/items/cart_detail?filter[product][_eq]=${productRec.id}&filter[owner][_eq]=$CURRENT_USER`
+      );
       const checkData = await checkRes.json();
 
       if (checkData.data && checkData.data.length > 0) {
         const existing = checkData.data[0];
         await apiFetch(`/items/cart_detail/${existing.id}`, {
           method: 'PATCH',
-          body: JSON.stringify({ quantity: existing.quantity + 1 })
+          body: JSON.stringify({ quantity: existing.quantity + 1 }),
         });
       } else {
-        await apiFetch(`/items/cart_detail`, {
+        await apiFetch('/items/cart_detail', {
           method: 'POST',
-          body: JSON.stringify({ product: productRec.id, quantity: 1 })
+          body: JSON.stringify({ product: productRec.id, quantity: 1 }),
         });
       }
-      showAlert(`เพิ่ม "${productRec.name}" ลงในตะกร้าแล้ว`, "success");
+      showAlert(`เพิ่ม "${productRec.name}" ลงในตะกร้าแล้ว`, 'success');
       fetchCart();
       window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
-      console.error("Error adding recommendation:", error);
-      showAlert("เกิดข้อผิดพลาดในการเพิ่มสินค้า", "error");
+      console.error('Error adding recommendation:', error);
+      showAlert('เกิดข้อผิดพลาดในการเพิ่มสินค้า', 'error');
     }
   };
 
   useEffect(() => {
     if (loading || isInitialized || cartItems.length === 0) return;
-    const availableItems = cartItems.filter(item => item.status !== 'inactive' && item.stock > 0);
-    const availableIds = availableItems.map(item => item.id);
+
+    const availableItems = cartItems.filter((item) => !isItemOutOfStock(item));
+    const availableIds = availableItems.map((item) => item.id);
     setSelectedIds(availableIds);
     setIsInitialized(true);
   }, [loading, cartItems, isInitialized]);
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const availableItems = cartItems.filter(item => item.status !== 'inactive' && item.stock > 0);
-      setSelectedIds(availableItems.map(item => item.id));
+      const availableItems = cartItems.filter((item) => !isItemOutOfStock(item));
+      setSelectedIds(availableItems.map((item) => item.id));
     } else {
       setSelectedIds([]);
     }
@@ -190,47 +201,49 @@ export default function CartPage() {
 
   const handleSelectOne = (id) => {
     if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter(itemId => itemId !== id));
+      setSelectedIds(selectedIds.filter((itemId) => itemId !== id));
     } else {
       setSelectedIds([...selectedIds, id]);
     }
   };
 
-  const selectedItems = cartItems.filter(item => selectedIds.includes(item.id));
-  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
+  const selectedItems = cartItems.filter((item) => selectedIds.includes(item.id));
+  const totalPrice = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   const handleCheckout = () => {
     if (selectedIds.length === 0) {
-        showAlert("กรุณาเลือกสินค้าอย่างน้อย 1 รายการ", "warning");
-        return;
+      showAlert('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ', 'warning');
+      return;
     }
-    navigate('/checkout', { 
-        state: { 
-          selectedItems, 
-          totalPrice 
-        } 
+
+    const hasOos = selectedItems.some((it) => isItemOutOfStock(it));
+    if (hasOos) {
+      showAlert('มีสินค้าหมดในรายการที่เลือก กรุณาเลือกใหม่', 'warning');
+      return;
+    }
+
+    navigate('/checkout', {
+      state: {
+        selectedItems,
+        totalPrice,
+      },
     });
   };
 
   const goToProduct = (productId) => {
-      navigate(`/product/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
-  const availableItemsCount = cartItems.filter(item => item.status !== 'inactive' && item.stock > 0).length;
+  const availableItemsCount = cartItems.filter((item) => !isItemOutOfStock(item)).length;
   const isAllSelected = availableItemsCount > 0 && selectedIds.length === availableItemsCount;
 
   if (loading) return <div className="cart-page-container">Loading...</div>;
 
   return (
     <div className="cart-page-container">
-      
       {alertInfo && (
         <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
-          <AlertBanner 
-            message={alertInfo.message} 
-            type={alertInfo.type}
-            onClose={() => setAlertInfo(null)} 
-          />
+          <AlertBanner message={alertInfo.message} type={alertInfo.type} onClose={() => setAlertInfo(null)} />
         </div>
       )}
 
@@ -238,7 +251,12 @@ export default function CartPage() {
         <div className="cart-list-container">
           <div className="cart-header-row">
             <div className="col-checkbox-header">
-              <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} className="custom-checkbox" />
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                onChange={handleSelectAll}
+                className="custom-checkbox"
+              />
               <span className="header-label">ทั้งหมด</span>
             </div>
             <div className="col-product">รายการสินค้า</div>
@@ -246,61 +264,106 @@ export default function CartPage() {
             <div className="col-qty text-center">จำนวน</div>
             <div className="col-action text-center">แก้ไข</div>
           </div>
-          
-          {cartItems.length === 0 && <div style={{padding: '40px', textAlign:'center'}}>ไม่มีสินค้าในตะกร้า</div>}
+
+          {cartItems.length === 0 && <div style={{ padding: '40px', textAlign: 'center' }}>ไม่มีสินค้าในตะกร้า</div>}
 
           {cartItems.map((item) => {
-            const isOutOfStock = item.status === 'inactive' || item.stock <= 0;
+            const isOutOfStock = isItemOutOfStock(item);
             const itemRecs = recommendationsMap[item.productId] || [];
 
             return (
               <div key={item.id} className={`cart-item-group ${isOutOfStock ? 'group-out-of-stock' : ''}`}>
                 <div className="cart-item-row">
                   <div className="col-checkbox">
-                    <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => handleSelectOne(item.id)} className="custom-checkbox" disabled={isOutOfStock}/>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => handleSelectOne(item.id)}
+                      className="custom-checkbox"
+                      disabled={isOutOfStock}
+                    />
                   </div>
-                  
-                  <div className="col-img" onClick={() => goToProduct(item.productId)} style={{cursor: 'pointer'}}>
+
+                  <div className="col-img" onClick={() => goToProduct(item.productId)} style={{ cursor: 'pointer' }}>
                     <div className="img-wrapper">
-                      <img src={item.image} alt={item.name} onError={(e) => e.target.src='https://via.placeholder.com/80'} />
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/80';
+                        }}
+                      />
                     </div>
                   </div>
 
-                  <div className="col-info" onClick={() => goToProduct(item.productId)} style={{cursor: 'pointer'}}>
+                  <div className="col-info" onClick={() => goToProduct(item.productId)} style={{ cursor: 'pointer' }}>
                     <span className="cart-item-brand">{item.brand}</span>
                     <span className="cart-item-name">{item.name}</span>
                     {!isOutOfStock && item.stock > 0 && (
-                        <div style={{fontSize:'0.85rem', color:'#e67e22', marginTop:'4px', fontWeight:'500'}}>
-                            เหลือสินค้า {item.stock} ชิ้น
-                        </div>
+                      <div style={{ fontSize: '0.85rem', color: '#e67e22', marginTop: '4px', fontWeight: '500' }}>
+                        เหลือสินค้า {item.stock} ชิ้น
+                      </div>
                     )}
                   </div>
 
                   <div className="col-price">
-                    <div className="price-group" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
-                        <span className="item-price">฿{item.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                        {isOutOfStock && <span className="stock-warning">สินค้าหมด</span>}
+                    <div className="price-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <span className="item-price">
+                        ฿{item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </span>
+                      {isOutOfStock && <span className="stock-warning">สินค้าหมด</span>}
                     </div>
                   </div>
+
                   <div className="col-qty">
                     <div className={`qty-simple ${isOutOfStock ? 'hidden-qty' : ''}`}>
                       <button className="qty-btn" onClick={() => handleUpdateQuantity(item.id, -1)}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
                       </button>
+
                       <span>{item.quantity}</span>
-                      
-                      <button 
-                        className="qty-btn" 
-                        onClick={() => handleUpdateQuantity(item.id, 1)}
-                        style={{ cursor: 'pointer' }} 
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+
+                      <button className="qty-btn" onClick={() => handleUpdateQuantity(item.id, 1)} style={{ cursor: 'pointer' }}>
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
                       </button>
                     </div>
                   </div>
+
                   <div className="col-action">
                     <button className="delete-btn" onClick={() => handleRemoveItem(item.id)}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999"strokeWidth="2" strokeLinecap="round"  strokeLinejoin="round">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#999"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <path d="M3 6h18"></path>
                         <path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"></path>
                         <path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"></path>
@@ -313,32 +376,52 @@ export default function CartPage() {
                   <div className="recommendation-section">
                     <h4 className="rec-header">สินค้าหมด! แนะนำสินค้าที่มีส่วนผสมใกล้เคียงกัน:</h4>
                     <div className="rec-grid">
-                      {itemRecs.map(rec => (
-                        <div 
-                            key={rec.id} 
-                            className="rec-card" 
-                            onClick={() => goToProduct(rec.id)} 
-                            style={{cursor: 'pointer'}}
+                      {itemRecs.map((rec) => (
+                        <div
+                          key={rec.id}
+                          className="rec-card"
+                          onClick={() => goToProduct(rec.id)}
+                          style={{ cursor: 'pointer' }}
                         >
-                           <div className="rec-img-box">
-                             <img src={rec.image} alt={rec.name} onError={(e) => e.target.src='https://via.placeholder.com/60'} />
-                           </div>
-                           <div className="rec-info-col">
-                              <span className="rec-brand">{rec.brand}</span>
-                              <span className="rec-name">{rec.name}</span>
-                           </div>
-                           <div className="rec-price-col">
-                              <span className="rec-price">฿{rec.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                           </div>
-                           <button 
-                                className="rec-add-btn-black" 
-                                onClick={(e) => {
-                                    e.stopPropagation(); 
-                                    handleAddToCartRec(rec);
-                                }}
-                           >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                           </button>
+                          <div className="rec-img-box">
+                            <img
+                              src={rec.image}
+                              alt={rec.name}
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/60';
+                              }}
+                            />
+                          </div>
+                          <div className="rec-info-col">
+                            <span className="rec-brand">{rec.brand}</span>
+                            <span className="rec-name">{rec.name}</span>
+                          </div>
+                          <div className="rec-price-col">
+                            <span className="rec-price">
+                              ฿{rec.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <button
+                            className="rec-add-btn-black"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCartRec(rec);
+                            }}
+                          >
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -348,7 +431,7 @@ export default function CartPage() {
             );
           })}
         </div>
-        
+
         <div className="cart-summary-container">
           <div className="summary-box">
             <h3 className="summary-title">รายการสินค้า</h3>
@@ -359,11 +442,13 @@ export default function CartPage() {
             <div className="summary-row total-row">
               <span>ยอดรวม</span>
               <div className="total-group">
-                <span className="total-price">฿{totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                <span className="total-price">฿{totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 <span className="tax-note">(ไม่รวมค่าจัดส่ง)</span>
               </div>
             </div>
-            <button className="checkout-btn" onClick={handleCheckout}>ดำเนินการชำระเงิน</button>
+            <button className="checkout-btn" onClick={handleCheckout}>
+              ดำเนินการชำระเงิน
+            </button>
           </div>
         </div>
       </div>
