@@ -93,3 +93,29 @@
 .check-icon {
   color: #F1978C;
 }
+
+.custom-select.is-disabled .custom-select-trigger {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #e5e5e5;
+}
+
+.custom-select.is-disabled .custom-select-arrow {
+  opacity: 0.4;
+}
+
+.custom-select-wrapper.is-disabled {
+  pointer-events: none; /* กันคลิกทั้งก้อน */
+}
+
+.custom-select-control.is-disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #e5e5e5;
+}
+
+.custom-select-control.is-disabled .arrow-icon {
+  opacity: 0.4;
+}
