@@ -153,16 +153,39 @@ export default function ProductDetail() {
   
       try {
         setAddingToCart(true);
+
+        const stockRes = await apiFetch(`/items/product/${product.id}?fields=quantity`);
+        const stockData = await stockRes.json();
+        const availableStock = stockData.data?.quantity ?? 0;
+
         const checkRes = await apiFetch(`/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`);
         const checkData = await checkRes.json();
-  
-        if (checkData.data && checkData.data.length > 0) {
-          const existingItem = checkData.data[0];
+        
+        const existingItem = checkData.data && checkData.data.length > 0 ? checkData.data[0] : null;
+        const currentQtyInCart = existingItem ? existingItem.quantity : 0;
+        const totalNewQuantity = currentQtyInCart + quantity;
+
+      if (totalNewQuantity > availableStock) {
+          if (existingItem) {
+            setAlertMessage({
+              text: `ไม่สามารถเพิ่มได้: คุณมีในตะกร้าแล้ว ${currentQtyInCart} ชิ้น (คงเหลือ ${availableStock} ชิ้น)`,
+              type: "warning"
+            });
+          } else {
+            setAlertMessage({
+              text: `ไม่สามารถเพิ่มได้: จำนวนที่เลือกเกินกว่าสินค้าที่มีในสต็อก (คงเหลือ ${availableStock} ชิ้น)`,
+              type: "warning"
+            });
+          }
+          return;
+        }
+
+        if (existingItem) {
           await apiFetch(`/items/cart_detail/${existingItem.id}`, {
             method: 'PATCH',
-            body: JSON.stringify({ quantity: existingItem.quantity + quantity })
+            body: JSON.stringify({ quantity: totalNewQuantity })
           });
-          setAlertMessage(`เพิ่มสินค้าจำนวน ${quantity} ชิ้น เรียบร้อยแล้ว`);
+          setAlertMessage(`อัปเดตจำนวนสินค้าในตะกร้าเป็น ${totalNewQuantity} ชิ้น เรียบร้อยแล้ว`);
         } else {
           await apiFetch(`/items/cart_detail`, {
             method: 'POST',
@@ -182,7 +205,7 @@ export default function ProductDetail() {
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (!product) return null;
 
-  const isOutOfStock = product.status === 'out_of_stock';
+  const isOutOfStock = product.status === 'inactive';
   const mainImage = galleryImages[currentIndex];
   
   // คำนวณเปอร์เซ็นต์ส่วนลด (เฉพาะถ้ามี originalPrice)
