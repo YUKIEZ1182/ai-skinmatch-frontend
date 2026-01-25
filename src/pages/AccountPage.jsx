@@ -326,8 +326,35 @@ const AccountPage = () => {
       <div className="account-header">
         <h1 className="account-title">บัญชีของฉัน</h1>
         {!isEditing && (
-          <button className="btn-edit-outline" onClick={() => setIsEditing(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 6}}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <button
+            className="btn-edit-outline"
+            onClick={() => {
+              // เคลียร์ค่าที่ไม่ควรโชว์/ติดมา
+              setUserInfo(prev => ({
+                ...prev,
+                currentPassword: "",
+                password: "",
+                confirmPassword: "",
+              }));
+
+              setErrors({});
+              setIsEditing(true);
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ marginRight: 6 }}
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
             แก้ไขข้อมูล
           </button>
         )}
@@ -363,7 +390,7 @@ const AccountPage = () => {
 
             <div className="form-row">
               <label className="form-label" style={{ color: '#333' }}>
-                รหัสผ่านปัจจุบัน <span style={{ color: 'red' }}>*</span>
+                รหัสผ่านปัจจุบัน
               </label>
               <PasswordInput
                 placeholder="กรอกเพื่อยืนยันการแก้ไข"
@@ -380,13 +407,18 @@ const AccountPage = () => {
         )}
 
         <div className="form-row">
-          <label className="form-label">รหัสผ่านใหม่</label> 
-          <PasswordInput 
-             placeholder={isEditing ? "กรอกรหัสผ่าน (ถ้าต้องการเปลี่ยน)" : "********"} 
-             value={userInfo.password} 
-             disabled={!isEditing} 
-             onChange={(e) => handleInputChange('password', e.target.value)} 
-             error={errors.password}
+          <label className="form-label">
+            {isEditing ? "รหัสผ่านใหม่" : "รหัสผ่าน"}
+          </label>
+
+          <PasswordInput
+            placeholder={isEditing ? "กรอกรหัสผ่าน (ถ้าต้องการเปลี่ยน)" : "********"}
+            value={isEditing ? userInfo.password : "********"}   // ✅ ตอนไม่แก้ไข บังคับโชว์เป็น ******
+            disabled={!isEditing}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            error={errors.password}
+            autoComplete={isEditing ? "new-password" : "off"}
+            name={isEditing ? "newPassword" : "password-display"}
           />
         </div>
 
