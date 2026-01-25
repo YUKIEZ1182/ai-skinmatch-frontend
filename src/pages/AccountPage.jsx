@@ -363,7 +363,7 @@ const AccountPage = () => {
 
             <div className="form-row">
               <label className="form-label" style={{ color: '#333' }}>
-                รหัสผ่านปัจจุบัน <span style={{ color: 'red' }}>*</span>
+                รหัสผ่านปัจจุบัน
               </label>
               <PasswordInput
                 placeholder="กรอกเพื่อยืนยันการแก้ไข"
