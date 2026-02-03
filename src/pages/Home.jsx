@@ -4,7 +4,6 @@ import '../styles/Home.css';
 import '../styles/SearchPage.css';
 import ProductCard from '../components/ProductCard';
 import { apiFetch, getRecommendedProducts } from '../utils/api';
-import { mockProducts } from '../data/mockData';
 
 const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
@@ -42,38 +41,63 @@ export default function Home({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const mapProductData = (item) => ({
-    id: item.id,
-    name: item.name,
-    price: Number(item.price),
-    image: item.thumbnail
-      ? `${API_URL}/assets/${item.thumbnail}`
-      : 'https://placehold.co/400x400?text=No+Image',
-    brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'Brand',
-    suitable_skin_type: Array.isArray(item.suitable_skin_type)
-      ? item.suitable_skin_type
-      : item.suitable_skin_type
-        ? [item.suitable_skin_type]
-        : [],
-    date_created: item.date_created,
-    date_updated: item.date_updated,
-    status: item.status,
-    stock: item.stock,
-  });
+  const mapProductData = useCallback(
+    (item) => ({
+      id: item.id,
+      name: item.name,
+      price: Number(item.price),
+      originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
+      image: item.thumbnail
+        ? `${API_URL}/assets/${item.thumbnail}`
+        : 'https://placehold.co/400x400?text=No+Image',
+      brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'Brand',
+      suitable_skin_type: Array.isArray(item.suitable_skin_type)
+        ? item.suitable_skin_type
+        : item.suitable_skin_type
+          ? [item.suitable_skin_type]
+          : [],
+      date_created: item.date_created,
+      date_updated: item.date_updated,
+      status: item.status,
+      stock: item.stock,
+    }),
+    [],
+  );
 
-  // ✅ map เฉพาะการ์ดลดราคา (mock) เท่านั้น
-  const mapDiscountMockToCard = (item) => ({
-    id: item.id,
-    name: item.name,
-    price: Number(item.price),
-    originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
-    image: item.image,
-    brand: item.brand || 'Brand',
-    type: item.type,
-    suitable_skin_type: Array.isArray(item.skinType) ? item.skinType : [],
-    stock: item.stock,
-    status: Number(item.stock) <= 0 ? 'out_of_stock' : 'active', // ✅ ทำให้ overlay ทำงาน
-  });
+  const fetchNewArrivals = useCallback(async () => {
+    if (activeCategory !== 'home') return;
+
+    try {
+      const filterObj = { status: { _in: ['active', 'out_of_stock'] } };
+      const filterParam = encodeURIComponent(JSON.stringify(filterObj));
+
+      const newRes = await apiFetch(
+        `/items/product?sort=-date_created&limit=20&fields=id,name,price,originalPrice,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,stock,date_updated&filter=${filterParam}`,
+      );
+      const newData = await newRes.json();
+      setNewArrivals(newData.data ? newData.data.map(mapProductData) : []);
+    } catch (err) {
+      console.warn('Error fetching new arrivals:', err);
+      setNewArrivals([]);
+    }
+  }, [activeCategory, mapProductData]);
+
+  const fetchSaleItems = useCallback(async () => {
+    try {
+      const saleFilterObj = {
+        _and: [{ status: { _in: ['active', 'out_of_stock'] } }, { originalPrice: { _nnull: true } }],
+      };
+      const saleFilterParam = encodeURIComponent(JSON.stringify(saleFilterObj));
+      const saleRes = await apiFetch(
+        `/items/product?sort=-date_created&limit=20&fields=id,name,price,originalPrice,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,stock,date_updated&filter=${saleFilterParam}`,
+      );
+      const saleData = await saleRes.json();
+      setSaleItems(saleData.data ? saleData.data.map(mapProductData) : []);
+    } catch (err) {
+      console.warn('Error fetching sale items:', err);
+      setSaleItems([]);
+    }
+  }, [mapProductData]);
 
   const getThaiSkinType = (type) => {
     const map = {
@@ -89,27 +113,8 @@ export default function Home({
     async (manualSkinType = null) => {
       setLoading(true);
       try {
-        // ✅ ของเดิม: home ดึง new arrivals จาก API
-        if (activeCategory === 'home') {
-          try {
-            const filterObj = { status: { _in: ['active', 'out_of_stock'] } };
-            const filterParam = encodeURIComponent(JSON.stringify(filterObj));
-
-            const newRes = await apiFetch(
-              `/items/product?sort=-date_created&limit=20&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,stock,date_updated&filter=${filterParam}`,
-            );
-            const newData = await newRes.json();
-            if (newData.data) setNewArrivals(newData.data.map(mapProductData));
-          } catch (err) {
-            console.warn('Error fetching new arrivals:', err);
-          }
-        }
-
-        // ✅ ONLY SALE: ใช้ mock เท่านั้น (ไม่ยุ่ง API)
-        const discountedMock = mockProducts
-          .filter((item) => item.type === 'discount')
-          .map(mapDiscountMockToCard);
-        setSaleItems(discountedMock);
+        await fetchNewArrivals();
+        await fetchSaleItems();
 
         // ✅ แนะนำจาก AI (API เดิม)
         const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
@@ -130,7 +135,7 @@ export default function Home({
         setLoading(false);
       }
     },
-    [activeCategory, currentSkinType, currentUser, isLoggedIn],
+    [activeCategory, currentSkinType, currentUser, fetchNewArrivals, fetchSaleItems, isLoggedIn],
   );
 
   const fetchProducts = useCallback(async (searchTerm, categoryId) => {
@@ -150,7 +155,7 @@ export default function Home({
 
       const filterParam = encodeURIComponent(JSON.stringify(filterObj));
       const response = await apiFetch(
-        `/items/product?limit=50&fields=id,name,price,thumbnail,brand_name,categories.category_id.name,categories.category_id.id,suitable_skin_type,date_created,date_updated,status,stock&sort=-date_created&filter=${filterParam}`,
+        `/items/product?limit=50&fields=id,name,price,originalPrice,thumbnail,brand_name,categories.category_id.name,categories.category_id.id,suitable_skin_type,date_created,date_updated,status,stock&sort=-date_created&filter=${filterParam}`,
       );
       const json = await response.json();
 
@@ -162,7 +167,7 @@ export default function Home({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mapProductData]);
 
   useEffect(() => {
     if (currentUser?.skin_type) setCurrentSkinType(currentUser.skin_type);
