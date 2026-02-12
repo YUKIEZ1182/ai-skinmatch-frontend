@@ -1,3 +1,6 @@
+/* =========================
+   HOME BASE
+========================= */
 .home-container {
   min-height: 100vh;
   background-color: #FFFFFF;
@@ -79,14 +82,15 @@
 }
 
 /* =========================
-   Dashboard
+   Dashboard (NO SCROLL + Responsive Grid)
 ========================= */
 .watsons-dashboard {
-  margin-bottom: 36px; /* ปรับให้ไม่โล่งเกิน */
+  margin-bottom: 36px;
   padding: 0 10px;
   text-align: left;
   position: relative;
-  z-index: 50;
+  z-index: 300;
+  overflow: visible;
 }
 
 .dashboard-header {
@@ -108,30 +112,32 @@
   letter-spacing: 0.5px;
 }
 
-/* เดิมของยูกิเป็น h1 ตรงๆ บางทีใหญ่เกิน ดูเหมือน test */
 .user-email-title {
-  font-size: 1.6rem;
+  font-size: clamp(22px, 6vw, 40px);
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.5px;
   line-height: 1.15;
   margin: 0;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
+/* ✅ grid ไม่เลื่อน ไม่เกิด scrollbar */
 .dashboard-icons-scroll {
-  display: flex;
-  gap: 16px;
-  padding-bottom: 10px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  overflow: visible !important;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 6px 0 0;
+  position: relative;
+  z-index: 10;
+  overflow: visible; /* ต้อง visible เพื่อให้ dropdown ไม่ถูกตัด */
 }
 
 .dashboard-item {
-  flex: 0 1 auto;
-  min-width: 180px;
-  max-width: 240px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
   border-radius: 16px;
@@ -145,6 +151,8 @@
   text-decoration: none;
   position: relative;
   overflow: visible;
+  isolation: isolate;
+  z-index: 1;
 }
 
 .dashboard-item:hover {
@@ -154,8 +162,12 @@
 }
 
 .skin-selector-wrapper {
-  position: relative !important;
-  overflow: visible !important;
+  position: relative;
+  isolation: isolate;
+  z-index: 50;
+}
+.skin-selector-wrapper:has(.custom-dropdown-menu) {
+  z-index: 999;
 }
 
 .circle-icon {
@@ -178,6 +190,7 @@
 .item-label {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .small-label {
@@ -190,35 +203,38 @@
   white-space: nowrap;
 }
 
+.main-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .main-label {
   font-size: 0.9rem;
   font-weight: 700;
   color: #1F2937;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.main-label-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Dropdown */
 .custom-dropdown-menu {
   position: absolute;
-  top: calc(100% + 10px);
   left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 9999;
   background: #fff;
   border: 1px solid #F3F4F6;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  width: 100%;
-  min-width: 180px;
-  z-index: 100;
   padding: 8px;
-  animation: dropdownFadeIn 0.2s ease-out;
+  transform: translateZ(0);
 }
-
+.skin-selector-wrapper.dropdown-open {
+  z-index: 999;
+}
 @keyframes dropdownFadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -232,6 +248,9 @@
   border-radius: 8px;
   transition: background 0.2s;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dropdown-option:hover {
@@ -249,8 +268,8 @@
 ========================= */
 .recommend-outside-area,
 .product-section {
-  margin-bottom: 40px; /* เดิม 60px -> ลดให้แน่นขึ้น */
-  padding-top: 4px;    /* เดิม 10px */
+  margin-bottom: 40px;
+  padding-top: 4px;
   position: relative;
   z-index: 1;
 }
@@ -259,7 +278,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px; /* เดิม 24px */
+  margin-bottom: 20px;
+  gap: 12px;
 }
 
 .section-title-custom {
@@ -270,6 +290,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap; /* ✅ กันซ้อนตอน zoom */
+  min-width: 0;
 }
 
 .badge-base {
@@ -309,6 +331,8 @@
   margin-left: 10px;
   background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  position: static !important; /* ✅ กัน inline absolute (ถ้ายังมี) */
+  flex: 0 0 auto;
 }
 
 .ai-icon-wrapper svg {
@@ -325,10 +349,11 @@
   font-size: 0.85rem;
   font-weight: 600;
   box-shadow: none;
+  flex: 0 0 auto;
 }
 
 /* =========================
-   Horizontal scroll
+   Horizontal scroll products
 ========================= */
 .scroll-container-wrapper {
   position: relative;
@@ -337,9 +362,9 @@
 
 .horizontal-scroll-list {
   display: flex;
-  gap: 16px; /* เดิม 20px -> ลดให้แน่นขึ้น */
+  gap: 16px;
   overflow-x: auto;
-  padding: 8px 2px 14px 2px; /* เดิม 10/4/20/4 */
+  padding: 8px 2px 14px 2px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
@@ -348,13 +373,12 @@
   transition: scrollbar-color 0.3s ease;
 }
 
-/* โผล่ scrollbar แบบสุภาพ */
 .horizontal-scroll-list:hover {
   scrollbar-color: rgba(241, 151, 140, 0.55) rgba(243, 244, 246, 0.6);
 }
 
 .horizontal-scroll-list::-webkit-scrollbar {
-  height: 5px; /* เดิม 6px */
+  height: 5px;
 }
 
 .horizontal-scroll-list::-webkit-scrollbar-track {
@@ -369,7 +393,7 @@
 }
 
 .horizontal-scroll-list:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(241, 151, 140, 0.55); /* จางลง */
+  background-color: rgba(241, 151, 140, 0.55);
 }
 
 .horizontal-scroll-list:hover::-webkit-scrollbar-track {
@@ -377,7 +401,7 @@
 }
 
 .horizontal-scroll-list .product-card {
-  min-width: 220px;  /* เดิม 240px -> ลดให้ไม่โล่ง */
+  min-width: 220px;
   max-width: 220px;
   scroll-snap-align: start;
   flex-shrink: 0;
@@ -405,7 +429,6 @@
   border: 1px dashed #E5E7EB;
 }
 
-/* Search empty state (กันกรณีไม่มีในไฟล์อื่น) */
 .search-empty-state {
   text-align: center;
   padding: 60px 16px;
@@ -422,7 +445,6 @@
   color: #374151;
 }
 
-/* Loading spinner (กันกรณีไม่มีในไฟล์อื่น) */
 .loading-spinner-home {
   min-height: 60vh;
   display: flex;
@@ -466,7 +488,6 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-/* เผื่อมี class นี้ใน JSX */
 .skin-modal-icon-container {
   width: 56px;
   height: 56px;
@@ -533,7 +554,7 @@
 }
 
 /* =========================
-   Guest Banner (เผื่อมีใช้)
+   Guest Banner
 ========================= */
 .guest-banner {
   background: linear-gradient(135deg, #FDFBF7 0%, #FFF 100%);
@@ -577,22 +598,75 @@
 /* =========================
    Responsive
 ========================= */
-@media (max-width: 768px) {
+
+/* iPad / Tablet */
+@media (max-width: 1024px) {
   .home-content {
     padding: 0 16px;
   }
 
-  .dashboard-item {
-    min-width: 160px;
-    max-width: 100%;
-  }
-
   .section-title-custom {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
   }
 
   .horizontal-scroll-list .product-card {
     min-width: 210px;
     max-width: 210px;
+  }
+
+  /* ✅ dashboard grid ยังไม่เลื่อน */
+  .dashboard-icons-scroll {
+  position: relative;
+  z-index: 10;
+  overflow: visible; /* ต้อง visible เพื่อให้ dropdown ไม่ถูกตัด */
+}
+}
+
+/* Desktop ใหญ่: 3 ช่อง */
+@media (min-width: 900px) {
+  .dashboard-icons-scroll {
+    position: relative;
+    z-index: 10;
+    overflow: visible; 
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Phone */
+@media (max-width: 768px) {
+  .home-content {
+    padding: 0 16px;
+  }
+
+  .watsons-dashboard {
+    padding: 0;
+    margin-bottom: 22px;
+  }
+
+  .section-title-custom {
+    font-size: 1.25rem;
+  }
+
+  .horizontal-scroll-list .product-card {
+    min-width: 200px;
+    max-width: 200px;
+  }
+
+  /* ✅ ให้การ์ด dashboard เรียง 1 คอลัมน์ อ่านง่าย ไม่ล้น */
+  .dashboard-icons-scroll {
+    position: relative;
+    z-index: 10;
+    overflow: visible; 
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small phone */
+@media (max-width: 360px) {
+  .dashboard-icons-scroll {
+    grid-template-columns: 1fr;
+    position: relative;
+    z-index: 10;
+    overflow: visible; 
   }
 }

@@ -21,7 +21,7 @@ export const mockProducts = [
     category: "เอสเซนส์บำรุงผิวหน้า",
     //type: "discount",
     skinType: ["ผิวแห้ง"],
-    //stock: 0,                 // ✅ สำคัญ
+    stock: 0,                 // ✅ สำคัญ
     //status: "out_of_stock",   // ✅ สำคัญ
     description: "เอสเซนส์เข้มข้นด้วย Galactomyces 95% ช่วยปรับสีผิวให้กระจ่างใส ลดรอยแดง และทำให้ผิวเรียบเนียนดูสุขภาพดี",
   },
@@ -48,7 +48,7 @@ export const mockProducts = [
     category: "คลีนเซอร์",
     type: "discount",
     skinType: ["ผิวแพ้ง่าย"],
-    stock: 10,
+    stock: 0,   
     description: "สูตรไม่มีฟอง ช่วยรักษาสมดุลผิว ให้ผิวสะอาดและคงความชุ่มชื้นยาวนาน",
   },
   {
@@ -60,7 +60,7 @@ export const mockProducts = [
     category: "มอยส์เจอร์ไรเซอร์",
     type: "",
     skinType: ["ผิวแห้ง"],
-    stock: 10,
+    stock: 0,   
     description: "ครีมบำรุงผิวเข้มข้น เติมความชุ่มชื้นยาวนาน 24 ชั่วโมง",
   },
   {
@@ -73,7 +73,7 @@ export const mockProducts = [
     category: "คลีนเซอร์ผลัดเซลล์ผิว",
     type: "discount",
     skinType: ["ผิวมัน"],
-    stock: 10,
+    stock: 0,   
     description: "ช่วยผลัดเซลล์ผิวและลดการอุดตันรูขุมขน ผิวเรียบเนียนกระจ่างใสขึ้น",
   },
   {
@@ -112,7 +112,7 @@ export const mockProducts = [
     category: "ผิวมัน",
     type: "discount",
     skinType: ["ผิวแห้ง"],
-    stock: 10,
+    stock: 0,
     description: "เซรั่มเข้มข้นเติมน้ำให้ผิวอิ่มฟูใน 1 วัน พร้อมลดเลือนริ้วรอย",
   },
   {
@@ -137,7 +137,7 @@ export const mockProducts = [
     image: "/assets/sample-new2.webp",
     category: "เซรั่มกระชับผิว",
     type: "discount",
-    skinType: ["ผิวหย่อนคล้อย"],
+    skinType: ["ผิวมัน"],
     stock: 10,
     description: "เซรั่มเข้มข้นลดเลือนริ้วรอย คืนความยืดหยุ่นให้ผิว",
   },

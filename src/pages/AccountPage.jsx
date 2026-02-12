@@ -13,15 +13,15 @@ const API_URL = import.meta.env.VITE_DIRECTUS_PUBLIC_URL;
 
 // --- Options ---
 const GENDER_OPTIONS = [
-    { value: 'female', label: 'เพศหญิง' },
-    { value: 'male', label: 'เพศชาย' },
+  { value: 'female', label: 'เพศหญิง' },
+  { value: 'male', label: 'เพศชาย' },
 ];
 
 const SKIN_TYPE_OPTIONS = [
-    { value: 'oily', label: 'ผิวมัน' },
-    { value: 'dry', label: 'ผิวแห้ง' },
-    { value: 'combination', label: 'ผิวผสม' },
-    { value: 'sensitive', label: 'ผิวแพ้ง่าย' }
+  { value: 'oily', label: 'ผิวมัน' },
+  { value: 'dry', label: 'ผิวแห้ง' },
+  { value: 'combination', label: 'ผิวผสม' },
+  { value: 'sensitive', label: 'ผิวแพ้ง่าย' }
 ];
 
 // --- Helpers ---
@@ -47,6 +47,17 @@ const formatISOLocal = (date) => {
   return `${y}-${m}-${d}`;
 };
 
+// ✅ normalize วันที่ (ตัดเวลาออก)
+const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+// ✅ yesterday (00:00) เพื่อห้ามเลือก “วันนี้”
+const getYesterday = () => {
+  const today = startOfDay(new Date());
+  const y = new Date(today);
+  y.setDate(y.getDate() - 1);
+  return y;
+};
+
 // --- Custom Components ---
 
 // 1. Date Input
@@ -60,21 +71,21 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder, disabled }, r
       placeholder={placeholder}
       ref={ref}
       disabled={disabled}
-      style={{ 
-        background: disabled ? '#f5f5f5' : '#fff', 
+      style={{
+        background: disabled ? '#f5f5f5' : '#fff',
         cursor: disabled ? 'default' : 'pointer',
         color: disabled ? '#999' : '#333'
       }}
     />
     {!disabled && (
-        <div className="calendar-icon-overlay">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-        </div>
+      <div className="calendar-icon-overlay">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
     )}
   </div>
 ));
@@ -166,7 +177,7 @@ const AccountPage = () => {
     gender: '',
     skin_type: ''
   });
-  
+
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -188,10 +199,14 @@ const AccountPage = () => {
           gender: user.gender || 'female',
           skin_type: user.skin_type || 'oily'
         });
-        setErrors({}); 
+        setErrors({});
       }
-    } catch (error) { console.error(error); } 
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error(error);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchProfile(); }, []);
@@ -202,21 +217,26 @@ const AccountPage = () => {
 
     let newErrors = { ...errors };
 
+    // ✅ เคลียร์ error วันเกิดทันทีที่เลือกใหม่
+    if (field === 'date_of_birth') {
+      delete newErrors.date_of_birth;
+    }
+
     if (field === 'password' || field === 'confirmPassword') {
-        const pass = field === 'password' ? value : updatedUserInfo.password;
-        const confirm = field === 'confirmPassword' ? value : updatedUserInfo.confirmPassword;
+      const pass = field === 'password' ? value : updatedUserInfo.password;
+      const confirm = field === 'confirmPassword' ? value : updatedUserInfo.confirmPassword;
 
-        if (field === 'password') {
-            if (pass && pass.length < 8) newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร";
-            else delete newErrors.password;
-        }
+      if (field === 'password') {
+        if (pass && pass.length < 8) newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร";
+        else delete newErrors.password;
+      }
 
-        if (confirm) {
-            if (pass !== confirm) newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
-            else delete newErrors.confirmPassword;
-        } else {
-            delete newErrors.confirmPassword;
-        }
+      if (confirm) {
+        if (pass !== confirm) newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
+        else delete newErrors.confirmPassword;
+      } else {
+        delete newErrors.confirmPassword;
+      }
     }
 
     if (field === 'currentPassword') delete newErrors.currentPassword;
@@ -226,69 +246,85 @@ const AccountPage = () => {
 
   const verifyCurrentPassword = async (email, password) => {
     try {
-        const res = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-        return res.ok;
-    } catch { return false; }
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
   };
 
   const checkCurrentPasswordValidity = async () => {
-      if (!userInfo.currentPassword) return;
-      const isValid = await verifyCurrentPassword(userInfo.email, userInfo.currentPassword);
-      
-      if (!isValid) {
-          setErrors(prev => ({ ...prev, currentPassword: "รหัสผ่านปัจจุบันไม่ถูกต้อง (ตรวจสอบอีกครั้ง)" }));
-      } else {
-          setErrors(prev => ({ ...prev, currentPassword: null }));
-      }
+    if (!userInfo.currentPassword) return;
+    const isValid = await verifyCurrentPassword(userInfo.email, userInfo.currentPassword);
+
+    if (!isValid) {
+      setErrors(prev => ({ ...prev, currentPassword: "รหัสผ่านปัจจุบันไม่ถูกต้อง (ตรวจสอบอีกครั้ง)" }));
+    } else {
+      setErrors(prev => ({ ...prev, currentPassword: null }));
+    }
+  };
+
+  // ✅ validate วันเกิด: ต้อง “ก่อนวันนี้” เท่านั้น
+  const isValidBirthDate = (date) => {
+    if (!date) return true; // ไม่บังคับให้ต้องกรอกในหน้านี้ (คง behavior เดิม)
+    const chosen = startOfDay(date).getTime();
+    const today = startOfDay(new Date()).getTime();
+    return chosen < today;
   };
 
   const validateForm = async () => {
-      let newErrors = { ...errors };
-      let isValid = true;
+    let newErrors = { ...errors };
+    let isValid = true;
 
-      const isTryingToChangePassword = userInfo.password || userInfo.confirmPassword;
+    // ✅ ถ้าแก้ไขอยู่ และมีวันเกิด ให้ตรวจว่าห้ามวันนี้/อนาคต
+    if (isEditing && userInfo.date_of_birth && !isValidBirthDate(userInfo.date_of_birth)) {
+      newErrors.date_of_birth = "วันเกิดต้องเป็นวันก่อนหน้าวันนี้";
+      isValid = false;
+    }
 
-      if (isTryingToChangePassword) {
-          if (!userInfo.password) {
-              newErrors.password = "กรุณากรอกรหัสผ่าน";
-              isValid = false;
-          } else if (userInfo.password.length < 8) {
-              newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร";
-              isValid = false;
-          }
+    const isTryingToChangePassword = userInfo.password || userInfo.confirmPassword;
 
-          if (!userInfo.confirmPassword) {
-              newErrors.confirmPassword = "กรุณากรอกยืนยันรหัสผ่าน";
-              isValid = false;
-          } else if (userInfo.password !== userInfo.confirmPassword) {
-              newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
-              isValid = false;
-          }
-
-          if (!userInfo.currentPassword) {
-              newErrors.currentPassword = "กรุณากรอกรหัสผ่านปัจจุบันเพื่อยืนยัน";
-              isValid = false;
-          } else {
-              const isPassCorrect = await verifyCurrentPassword(userInfo.email, userInfo.currentPassword);
-              if (!isPassCorrect) {
-                  newErrors.currentPassword = "รหัสผ่านปัจจุบันไม่ถูกต้อง";
-                  isValid = false;
-              }
-          }
+    if (isTryingToChangePassword) {
+      if (!userInfo.password) {
+        newErrors.password = "กรุณากรอกรหัสผ่าน";
+        isValid = false;
+      } else if (userInfo.password.length < 8) {
+        newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร";
+        isValid = false;
       }
 
-      setErrors(newErrors);
-      if (Object.keys(newErrors).length > 0 && Object.values(newErrors).some(x => x)) isValid = false;
-      return isValid;
+      if (!userInfo.confirmPassword) {
+        newErrors.confirmPassword = "กรุณากรอกยืนยันรหัสผ่าน";
+        isValid = false;
+      } else if (userInfo.password !== userInfo.confirmPassword) {
+        newErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
+        isValid = false;
+      }
+
+      if (!userInfo.currentPassword) {
+        newErrors.currentPassword = "กรุณากรอกรหัสผ่านปัจจุบันเพื่อยืนยัน";
+        isValid = false;
+      } else {
+        const isPassCorrect = await verifyCurrentPassword(userInfo.email, userInfo.currentPassword);
+        if (!isPassCorrect) {
+          newErrors.currentPassword = "รหัสผ่านปัจจุบันไม่ถูกต้อง";
+          isValid = false;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0 && Object.values(newErrors).some(x => x)) isValid = false;
+    return isValid;
   };
 
   const handleSave = async () => {
     const isValid = await validateForm();
-    if (!isValid) return; 
+    if (!isValid) return;
 
     try {
       const isoDate = formatISOLocal(userInfo.date_of_birth);
@@ -301,6 +337,7 @@ const AccountPage = () => {
 
       const res = await apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(updateData) });
       if (!res.ok) throw new Error();
+
       window.dispatchEvent(new Event('profile-updated'));
       setShowSuccess(true);
       setIsEditing(false);
@@ -312,12 +349,14 @@ const AccountPage = () => {
   };
 
   const handleCancel = () => {
-      setIsEditing(false);
-      fetchProfile();
-      setErrors({});
-  }
+    setIsEditing(false);
+    fetchProfile();
+    setErrors({});
+  };
 
   if (loading) return <div className="account-page-wrapper">Loading...</div>;
+
+  const maxBirthDate = getYesterday(); // ✅ ห้ามเลือกวันนี้/อนาคต
 
   return (
     <div className="account-page-wrapper">
@@ -327,7 +366,10 @@ const AccountPage = () => {
         <h1 className="account-title">บัญชีของฉัน</h1>
         {!isEditing && (
           <button className="btn-edit-outline" onClick={() => setIsEditing(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 6}}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
             แก้ไขข้อมูล
           </button>
         )}
@@ -337,7 +379,7 @@ const AccountPage = () => {
         <div className="form-row">
           <label className="form-label">อีเมล</label>
           <div className="input-wrapper">
-             <input type="text" value={userInfo.email} disabled={true} className="gray-input readonly-field"/>
+            <input type="text" value={userInfo.email} disabled={true} className="gray-input readonly-field" />
           </div>
         </div>
 
@@ -363,7 +405,7 @@ const AccountPage = () => {
 
             <div className="form-row">
               <label className="form-label" style={{ color: '#333' }}>
-                รหัสผ่านปัจจุบัน <span style={{ color: 'red' }}>*</span>
+                รหัสผ่านปัจจุบัน
               </label>
               <PasswordInput
                 placeholder="กรอกเพื่อยืนยันการแก้ไข"
@@ -380,82 +422,83 @@ const AccountPage = () => {
         )}
 
         <div className="form-row">
-          <label className="form-label">รหัสผ่านใหม่</label> 
-          <PasswordInput 
-             placeholder={isEditing ? "กรอกรหัสผ่าน (ถ้าต้องการเปลี่ยน)" : "********"} 
-             value={userInfo.password} 
-             disabled={!isEditing} 
-             onChange={(e) => handleInputChange('password', e.target.value)} 
-             error={errors.password}
+          <label className="form-label">รหัสผ่านใหม่</label>
+          <PasswordInput
+            placeholder={isEditing ? "กรอกรหัสผ่าน (ถ้าต้องการเปลี่ยน)" : "********"}
+            value={userInfo.password}
+            disabled={!isEditing}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            error={errors.password}
           />
         </div>
 
         {isEditing && (
           <div className="form-row">
-            {/* FIX: แก้คำให้ตรงตามใบประเมิน */}
-            <label className="form-label">ยืนยันรหัสผ่านใหม่</label> 
-            <PasswordInput 
-                placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง" 
-                value={userInfo.confirmPassword} 
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)} 
-                error={errors.confirmPassword}
+            <label className="form-label">ยืนยันรหัสผ่านใหม่</label>
+            <PasswordInput
+              placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง"
+              value={userInfo.confirmPassword}
+              onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+              error={errors.confirmPassword}
             />
           </div>
         )}
-        
-        <div style={{borderTop: '1px solid #eee', margin: '20px 0'}}></div>
+
+        <div style={{ borderTop: '1px solid #eee', margin: '20px 0' }}></div>
 
         <div className="form-row">
           <label className="form-label">วันเกิด</label>
           <div className="input-wrapper">
-             <DatePicker
-                selected={userInfo.date_of_birth}
-                onChange={(date) => handleInputChange('date_of_birth', date)}
-                customInput={<CustomDateInput />}
-                value={userInfo.date_of_birth ? formatThaiDisplay(userInfo.date_of_birth) : ''}
-                locale="th"
-                dateFormat="dd/MM/yyyy"
-                placeholderText="เลือกวันเกิด"
-                disabled={!isEditing}
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                popperPlacement="bottom-end" 
-             />
+            <DatePicker
+              selected={userInfo.date_of_birth}
+              onChange={(date) => handleInputChange('date_of_birth', date)}
+              customInput={<CustomDateInput disabled={!isEditing} />}
+              value={userInfo.date_of_birth ? formatThaiDisplay(userInfo.date_of_birth) : ''}
+              locale="th"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="เลือกวันเกิด"
+              disabled={!isEditing}
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              popperPlacement="bottom-end"
+              // ✅ ดักไม่ให้เลือก “วันนี้/อนาคต”
+              maxDate={maxBirthDate}
+            />
+            {errors.date_of_birth && <span className="helper-text-error">{errors.date_of_birth}</span>}
           </div>
         </div>
 
         <div className="form-row">
-        <label className="form-label">เพศ</label>
-        <div className="input-wrapper">
-          <CustomSelect
-            options={GENDER_OPTIONS}
-            value={userInfo.gender}
-            onChange={(val) => handleInputChange('gender', val)}
-            placeholder="เลือกเพศ"
-            disabled={!isEditing}
-        
-          />
+          <label className="form-label">เพศ</label>
+          <div className="input-wrapper">
+            <CustomSelect
+              options={GENDER_OPTIONS}
+              value={userInfo.gender}
+              onChange={(val) => handleInputChange('gender', val)}
+              placeholder="เลือกเพศ"
+              disabled={!isEditing}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="form-row">
-        <label className="form-label">ประเภทผิว</label>
-        <div className="input-wrapper">
-          <CustomSelect
-            options={SKIN_TYPE_OPTIONS}
-            value={userInfo.skin_type}
-            onChange={(val) => handleInputChange('skin_type', val)}
-            placeholder="เลือกประเภทผิว"
-            disabled={!isEditing}
-          />
+        <div className="form-row">
+          <label className="form-label">ประเภทผิว</label>
+          <div className="input-wrapper">
+            <CustomSelect
+              options={SKIN_TYPE_OPTIONS}
+              value={userInfo.skin_type}
+              onChange={(val) => handleInputChange('skin_type', val)}
+              placeholder="เลือกประเภทผิว"
+              disabled={!isEditing}
+            />
+          </div>
         </div>
-      </div>
 
         {isEditing && (
           <div className="form-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
-             <button className="btn-save-black" onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
-             <button className="btn-save-black" style={{background: '#999'}} onClick={handleCancel}>ยกเลิก</button>
+            <button className="btn-save-black" onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+            <button className="btn-save-black" style={{ background: '#999' }} onClick={handleCancel}>ยกเลิก</button>
           </div>
         )}
       </div>

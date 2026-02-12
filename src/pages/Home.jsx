@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import '../styles/Home.css';
 import '../styles/SearchPage.css';
 import ProductCard from '../components/ProductCard';
@@ -72,7 +72,7 @@ export default function Home({
     type: item.type,
     suitable_skin_type: Array.isArray(item.skinType) ? item.skinType : [],
     stock: item.stock,
-    status: Number(item.stock) <= 0 ? 'out_of_stock' : 'active', // ✅ ทำให้ overlay ทำงาน
+    status: Number(item.stock) <= 0 ? 'out_of_stock' : 'active',
   });
 
   const getThaiSkinType = (type) => {
@@ -89,7 +89,7 @@ export default function Home({
     async (manualSkinType = null) => {
       setLoading(true);
       try {
-        // ✅ ของเดิม: home ดึง new arrivals จาก API
+        // ✅ home ดึง new arrivals จาก API
         if (activeCategory === 'home') {
           try {
             const filterObj = { status: { _in: ['active', 'out_of_stock'] } };
@@ -105,13 +105,13 @@ export default function Home({
           }
         }
 
-        // ✅ ONLY SALE: ใช้ mock เท่านั้น (ไม่ยุ่ง API)
+        // ✅ ONLY SALE: ใช้ mock เท่านั้น
         const discountedMock = mockProducts
           .filter((item) => item.type === 'discount')
           .map(mapDiscountMockToCard);
         setSaleItems(discountedMock);
 
-        // ✅ แนะนำจาก AI (API เดิม)
+        // ✅ แนะนำจาก AI
         const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
         if (isLoggedIn && skinToUse) {
           setCurrentSkinType(skinToUse);
@@ -199,7 +199,6 @@ export default function Home({
   const handleSearch = () => setExecutedSearchTerm(inputValue.trim());
   const handleKeyDown = (e) => e.key === 'Enter' && handleSearch();
 
-  // ✅ สำคัญ: “ทุกการ์ด” กดเข้า detail ได้หมด (รวม out_of_stock)
   const handleProductClick = (p) => {
     handleProductSelect(p);
     setTimeout(() => window.scrollTo(0, 0), 0);
@@ -228,6 +227,37 @@ export default function Home({
       console.error(error);
     }
   };
+
+  // ✅ FILTER SALE (mock) ให้ค้นหาได้เหมือนอันอื่น ๆ
+  const filteredSaleItems = useMemo(() => {
+    const q = executedSearchTerm.trim().toLowerCase();
+    if (!q) return saleItems;
+    return saleItems.filter((p) => {
+      const name = String(p?.name || '').toLowerCase();
+      const brand = String(p?.brand || '').toLowerCase();
+      return name.includes(q) || brand.includes(q);
+    });
+  }, [executedSearchTerm, saleItems]);
+
+  // ✅ SEARCH RESULTS: ตอนค้นหาในหน้า home ให้รวม SALE(mock) + API products
+  const searchResults = useMemo(() => {
+    if (!executedSearchTerm) return products;
+
+    if (activeCategory === 'home') {
+      const apiList = Array.isArray(products) ? products : [];
+      const saleList = Array.isArray(filteredSaleItems) ? filteredSaleItems : [];
+
+      const seen = new Set();
+      return [...saleList, ...apiList].filter((p) => {
+        const k = String(p?.id);
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
+
+    return products;
+  }, [executedSearchTerm, activeCategory, products, filteredSaleItems]);
 
   if (loading && activeCategory !== 'home') return <div className="loading-spinner-home">กำลังโหลด...</div>;
 
@@ -273,7 +303,7 @@ export default function Home({
 
                 <div className="dashboard-icons-scroll">
                   <div
-                    className="dashboard-item skin-selector-wrapper"
+                    className={`dashboard-item skin-selector-wrapper ${isSkinDropdownOpen ? 'dropdown-open' : ''}`}
                     ref={dropdownRef}
                     onClick={() => setIsSkinDropdownOpen(!isSkinDropdownOpen)}
                     role="button"
@@ -438,7 +468,16 @@ export default function Home({
                     <div className="scroll-container-wrapper">
                       <div className="horizontal-scroll-list">
                         {recommended.map((p) => (
-                          <ProductCard key={p.id} product={p} onClick={() => handleProductClick(p)} />
+                          <ProductCard key={`rec:${p.id}`} product={p} onClick={() => handleProductClick(p)} />
+                        ))}
+                        {newArrivals.map((p) => (
+                          <ProductCard key={`new:${p.id}`} product={p} onClick={() => handleProductClick(p)} />
+                        ))}
+                        {saleItems.map((p) => (
+                          <ProductCard key={`sale:${p.id}`} product={p} onClick={() => handleProductClick(p)} />
+                        ))}
+                        {products.map((p) => (
+                          <ProductCard key={`p:${p.id}`} product={p} onClick={() => handleProductClick(p)} />
                         ))}
                       </div>
                     </div>
@@ -497,14 +536,18 @@ export default function Home({
               {executedSearchTerm ? `ผลการค้นหา: "${executedSearchTerm}"` : categoryTitle}
             </h2>
 
-            {products.length === 0 ? (
+            {searchResults.length === 0 ? (
               <div className="search-empty-state">
                 <h3>ไม่พบสินค้าที่คุณค้นหา</h3>
               </div>
             ) : (
               <div className="product-grid">
-                {products.map((p) => (
-                  <ProductCard key={p.id} product={p} onClick={() => handleProductClick(p)} />
+                {searchResults.map((p) => (
+                  <ProductCard
+                    key={`${p.type === 'discount' ? 'sale' : 'api'}:${p.id}`}
+                    product={p}
+                    onClick={() => handleProductClick(p)}
+                  />
                 ))}
               </div>
             )}
