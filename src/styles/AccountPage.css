@@ -18,6 +18,7 @@
   font-weight: 600;
   margin: 0;
 }
+
 .btn-edit-outline {
   display: flex;
   align-items: center;
@@ -44,8 +45,8 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 200px 1fr; 
-  align-items: center; 
+  grid-template-columns: 200px 1fr;
+  align-items: center;
 }
 
 .form-label {
@@ -56,7 +57,7 @@
 
 .form-actions {
   display: grid;
-  grid-template-columns: 200px 1fr; 
+  grid-template-columns: 200px 1fr;
   width: 100%;
   margin-top: 40px;
 }
@@ -136,24 +137,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.9;
 }
 
-.helper-text-error {
-  color: #DC2626;
-  font-size: 0.85rem;
-  margin-top: 4px;
-  display: block;
-  animation: fadeIn 0.2s ease;
-}
-
-.input-error {
-  border-color: #DC2626 !important;
-  background-color: #FEF2F2 !important;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-3px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .eye-icon-btn {
   position: absolute;
   right: 12px;
@@ -168,8 +151,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center;
   color: #666;
   transition: color 0.2s;
-
-  z-index: 1; /* ⭐ สำคัญ */
+  z-index: 1;
 }
 .eye-icon-btn:hover {
   color: #333;
@@ -199,9 +181,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     justify-content: center;
     width: 100%;
   }
-  
+
   .btn-save-black {
     width: 100%;
     justify-self: stretch;
+    grid-column: auto; /* ✅ กันเพี้ยนจาก grid-column:2 */
   }
 }
