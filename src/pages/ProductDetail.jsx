@@ -1,5 +1,5 @@
-// src/pages/ProductDetail.jsx
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+﻿// src/pages/ProductDetail.jsx
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
@@ -17,10 +17,35 @@ const skinTypeOptions = {
   all: 'ทุกสภาพผิว',
 };
 
+const MOCK_CART_KEY = 'mock_cart';
+
+const readMockCartSafe = () => {
+  try {
+    const raw = localStorage.getItem(MOCK_CART_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeMockCartSafe = (arr) => {
+  try {
+    localStorage.setItem(MOCK_CART_KEY, JSON.stringify(arr));
+  } catch (e) {
+    console.error('Failed to write mock cart:', e);
+  }
+};
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const scrollRef = useRef(null);
+
+  const galleryScrollRef = useRef(null);
+
+  // ✅ refs สำหรับสไลด์
+  const relatedScrollRef = useRef(null);
+  const skinRecScrollRef = useRef(null);
 
   const [product, setProduct] = useState(null);
   const [isMockProduct, setIsMockProduct] = useState(false);
@@ -38,40 +63,42 @@ export default function ProductDetail() {
   const [alertMessage, setAlertMessage] = useState(null);
 
   // ---------- helpers ----------
-  const mapProductData = (item) => ({
-    id: item.id,
-    name: item.name,
-    price: Number(item.price),
-    originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
-    image: item.thumbnail
-      ? `${API_URL}/assets/${item.thumbnail}`
-      : item.image || 'https://via.placeholder.com/300x300?text=No+Image',
-    brand: item.brand_name || item.brand || 'General',
-    suitable_skin_type: Array.isArray(item.suitable_skin_type)
-      ? item.suitable_skin_type
-      : item.suitable_skin_type
-        ? [item.suitable_skin_type]
-        : [],
-    status: item.status,
-    stock: item.stock,
-  });
+  const mapProductData = useCallback(
+    (item) => ({
+      id: item.id,
+      name: item.name,
+      price: Number(item.price),
+      originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
+      image: item.thumbnail
+        ? `${API_URL}/assets/${item.thumbnail}`
+        : item.image || 'https://via.placeholder.com/300x300?text=No+Image',
+      brand: item.brand_name || item.brand || 'General',
+      suitable_skin_type: Array.isArray(item.suitable_skin_type)
+        ? item.suitable_skin_type
+        : item.suitable_skin_type
+          ? [item.suitable_skin_type]
+          : [],
+      status: item.status,
+      stock: item.stock,
+    }),
+    [],
+  );
 
-  const isOutOfStock = (p) => {
+  const isOutOfStock = useCallback((p) => {
     const status = String(p?.status || '').toLowerCase();
     const stock = Number(p?.stock ?? 999999);
     return status === 'out_of_stock' || status === 'inactive' || stock <= 0;
-  };
+  }, []);
 
-  const oos = useMemo(() => isOutOfStock(product), [product]);
+  const oos = useMemo(() => isOutOfStock(product), [product, isOutOfStock]);
 
   const stockLeft = useMemo(() => {
-  const raw = product?.stock;
-  if (raw === null || raw === undefined || raw === '') return null;
-
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return null;
-  return Math.max(0, Math.floor(n));
-}, [product?.stock]);
+    const raw = product?.stock;
+    if (raw === null || raw === undefined || raw === '') return null;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    return Math.max(0, Math.floor(n));
+  }, [product?.stock]);
 
   const discountPercent = useMemo(() => {
     if (!product?.originalPrice) return 0;
@@ -83,12 +110,19 @@ export default function ProductDetail() {
 
   const mainImage = useMemo(() => galleryImages[currentIndex], [galleryImages, currentIndex]);
 
+  const scrollByCard = (ref, dir = 1) => {
+    const el = ref?.current;
+    if (!el) return;
+    const step = Math.max(240, Math.floor(el.clientWidth * 0.9));
+    el.scrollBy({ left: dir * step, behavior: 'smooth' });
+  };
+
   // ---------- scroll top ----------
   useEffect(() => {
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-  }, [id, loading]);
+  }, [id]);
 
   // ---------- load product (mock only if id exists in mockProducts) ----------
   useEffect(() => {
@@ -99,6 +133,16 @@ export default function ProductDetail() {
         const mockedItem = mockProducts.find((p) => String(p.id) === String(id));
         if (mockedItem) {
           setIsMockProduct(true);
+
+          const ingredientsDisplay = mockedItem.ingredients
+            ? (Array.isArray(mockedItem.ingredients)
+                ? mockedItem.ingredients
+                : String(mockedItem.ingredients).split(','))
+                .map((x) => String(x).trim())
+                .filter(Boolean)
+                .join(', ')
+            : '-';
+
           setProduct({
             ...mockedItem,
             price: Number(mockedItem.price),
@@ -107,17 +151,12 @@ export default function ProductDetail() {
             suitable_skin_type: mockedItem.skinType || [],
             status: mockedItem.status ?? (Number(mockedItem.stock) <= 0 ? 'out_of_stock' : 'active'),
             stock: mockedItem.stock,
-            ingredientsDisplay: mockedItem.ingredients
-              ? (Array.isArray(mockedItem.ingredients) ? mockedItem.ingredients : String(mockedItem.ingredients).split(','))
-                  .map((x) => String(x).trim())
-                  .filter(Boolean)
-                  .join(', ')
-              : '-',
+            ingredientsDisplay,
           });
+
           setGalleryImages([mockedItem.image]);
           setCurrentIndex(0);
           setQuantity(1);
-          setLoading(false);
           return;
         }
 
@@ -165,7 +204,6 @@ export default function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
-  // ---------- similar products (API if possible, else mock fallback) ----------
   useEffect(() => {
     const normalizeTags = (arr) =>
       (Array.isArray(arr) ? arr : arr ? [arr] : [])
@@ -193,7 +231,7 @@ export default function ProductDetail() {
         })
         .sort((a, b) => b.score - a.score)
         .filter((x) => x.score > 0)
-        .slice(0, 8) // ✅ เอาได้มากกว่า 2/4 ตามที่อยากได้
+        .slice(0, 8)
         .map(({ p }) => ({
           id: p.id,
           name: p.name,
@@ -227,7 +265,6 @@ export default function ProductDetail() {
     const fetchRelated = async () => {
       if (!id) return;
 
-      // ✅ ถ้าเป็น mock: ไม่เรียก API
       if (isMockProduct) {
         setRelatedProducts(getMockSimilar());
         return;
@@ -250,8 +287,7 @@ export default function ProductDetail() {
     };
 
     fetchRelated();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, isMockProduct]);
+  }, [id, isMockProduct, mapProductData]);
 
   // ---------- skin recommendations (API) ----------
   useEffect(() => {
@@ -276,7 +312,7 @@ export default function ProductDetail() {
           const excludeCurrent = `&filter[id][_neq]=${id}`;
 
           const productRes = await apiFetch(
-            `/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type,stock&${filterString}${excludeCurrent}`
+            `/items/product?limit=8&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type,stock&${filterString}${excludeCurrent}`,
           );
 
           if (productRes.ok) {
@@ -290,7 +326,7 @@ export default function ProductDetail() {
     };
 
     if (id) fetchSkinRecs();
-  }, [id]);
+  }, [id, mapProductData]);
 
   // ---------- gallery controls ----------
   const handlePrev = () => setCurrentIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
@@ -301,10 +337,7 @@ export default function ProductDetail() {
     setQuantity((prev) => {
       const next = prev + delta;
       if (next < 1) return 1;
-
-      if (stockLeft !== null && Number.isFinite(stockLeft)) {
-        return next > stockLeft ? stockLeft : next;
-      }
+      if (stockLeft !== null && Number.isFinite(stockLeft)) return next > stockLeft ? stockLeft : next;
       return next;
     });
   };
@@ -323,15 +356,45 @@ export default function ProductDetail() {
       return;
     }
 
-    // ✅ กันซื้อเฉพาะ mock discount (เดโม่)
-    if (isMockProduct && product?.originalPrice) {
-      setAlertMessage({
-        text: 'ขออภัย: ระบบส่วนลดกำลังอยู่ระหว่างการพัฒนา (ตัวอย่าง demo) จึงยังไม่สามารถสั่งซื้อได้ในขณะนี้',
-        type: 'warning',
-      });
+    // ✅ CASE: MOCK -> เขียนลง localStorage เหมือน API
+    if (isMockProduct) {
+      try {
+        setAddingToCart(true);
+
+        const cart = readMockCartSafe();
+        const pid = String(product.id);
+
+        const found = cart.find((x) => String(x.productId ?? x.id) === pid);
+
+        if (found) {
+          found.quantity = Number(found.quantity || 0) + Number(quantity || 1);
+        } else {
+          cart.push({
+            productId: product.id,
+            id: product.id, // กันหน้าอื่นที่อ่าน id
+            name: product.name,
+            price: Number(product.price),
+            quantity: Number(quantity || 1),
+            image: product.image || galleryImages?.[0],
+            source: 'mock',
+            stock: product.stock,
+            status: product.status,
+            originalPrice: product.originalPrice || null,
+            brand: product.brand_name || product.brand || 'Brand',
+          });
+        }
+
+        writeMockCartSafe(cart);
+        window.dispatchEvent(new Event("cart-updated"));
+
+        setAlertMessage({ text: `เพิ่มสินค้า ${quantity} ชิ้น ลงในตะกร้าเรียบร้อย`, type: 'success' });
+      } finally {
+        setAddingToCart(false);
+      }
       return;
     }
 
+    // ✅ CASE: API (ของเดิม)
     const token = localStorage.getItem('access_token');
     if (!token) {
       setAlertMessage({ text: 'กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ', type: 'warning' });
@@ -342,7 +405,7 @@ export default function ProductDetail() {
       setAddingToCart(true);
 
       const checkRes = await apiFetch(
-        `/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`
+        `/items/cart_detail?filter[product][_eq]=${product.id}&filter[owner][_eq]=$CURRENT_USER`,
       );
       const checkData = await checkRes.json();
 
@@ -398,7 +461,6 @@ export default function ProductDetail() {
               }}
             />
 
-            {/* ✅ OUT OF STOCK pill กลางรูป */}
             {oos && (
               <div className="pd-oos-overlay" aria-hidden="true">
                 <div className="pd-oos-pill">สินค้าหมด</div>
@@ -414,7 +476,7 @@ export default function ProductDetail() {
                 </svg>
               </button>
 
-              <div className="thumbnail-scroll-area" ref={scrollRef}>
+              <div className="thumbnail-scroll-area" ref={galleryScrollRef}>
                 {galleryImages.map((img, idx) => (
                   <div
                     key={`${img}-${idx}`}
@@ -472,7 +534,6 @@ export default function ProductDetail() {
             )}
           </div>
 
-
           <div className="actions-wrapper">
             <div className="quantity-selector">
               <span className="qty-label-top">จำนวน</span>
@@ -506,18 +567,13 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* ✅ กันซื้อ */}
             <button
               type="button"
               className={`add-to-cart-btn-black ${oos || addingToCart ? 'disabled' : ''}`}
               onClick={() => !oos && !addingToCart && handleAddToCart()}
               disabled={oos || addingToCart}
             >
-              {oos ? (
-                'สินค้าหมด'
-              ) : addingToCart ? (
-                'กำลังเพิ่ม...'
-              ) : (
+              {oos ? 'สินค้าหมด' : addingToCart ? 'กำลังเพิ่ม...' : (
                 <>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}>
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -547,32 +603,65 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      {/* ✅ แนะนำพิเศษเพื่อคุณ: เลื่อนซ้ายขวา */}
       {skinRecommendations.length > 0 && (
-        <div className="related-section" style={{ marginBottom: '40px', background: '#FFF5F4', padding: '30px', borderRadius: '16px' }}>
-          <div className="section-header-flex" style={{ marginBottom: '20px' }}>
+        <div
+          className="related-section"
+          style={{ marginBottom: '40px', background: '#FFF5F4', padding: '30px', borderRadius: '16px' }}
+        >
+          <div
+            className="section-header-flex"
+            style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
             <h2 className="related-title" style={{ color: '#F1978C', margin: 0, display: 'flex', alignItems: 'center' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '10px' }}>
                 <path d="M12,2L9,9L2,12L9,15L12,22L15,15L22,12L15,9L12,2Z" />
               </svg>
               แนะนำพิเศษเพื่อคุณ ({skinTypeOptions[userSkinType] || userSkinType})
             </h2>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="nav-arrow left" onClick={() => scrollByCard(skinRecScrollRef, -1)} aria-label="เลื่อนซ้าย">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button type="button" className="nav-arrow right" onClick={() => scrollByCard(skinRecScrollRef, 1)} aria-label="เลื่อนขวา">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div className="related-grid">
-            {skinRecommendations.map((p) => (
-              <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
-            ))}
+          <div className="scroll-container-wrapper">
+            <div className="horizontal-scroll-list" ref={skinRecScrollRef}>
+              {skinRecommendations.map((p) => (
+                <ProductCard key={`skin:${p.id}`} product={p} onClick={() => handleProductSelect(p)} />
+              ))}
+            </div>
           </div>
         </div>
       )}
 
+      {/* ✅ สินค้าที่มีส่วนผสมคล้ายคลึงกัน: เลื่อนซ้ายขวา + ปุ่ม */}
       {relatedProducts.length > 0 && (
         <div className="related-section">
-          <h2 className="related-title">สินค้าที่มีส่วนผสมคล้ายคลึงกัน</h2>
-          <div className="related-grid">
-            {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />
-            ))}
+          <div
+            className="section-header-flex"
+            style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <h2 className="related-title" style={{ margin: 0 }}>
+              สินค้าที่มีส่วนผสมคล้ายคลึงกัน
+            </h2>
+          </div>
+
+          <div className="scroll-container-wrapper">
+            <div className="horizontal-scroll-list" ref={relatedScrollRef}>
+              {relatedProducts.map((p) => (
+                <ProductCard key={`rel:${p.id}`} product={p} onClick={() => handleProductSelect(p)} />
+              ))}
+            </div>
           </div>
         </div>
       )}
