@@ -23,21 +23,34 @@ import { th } from "date-fns/locale";
 import { apiFetch } from './utils/api';
 
 function App() {
-  // 🔥 FIX: เช็คจาก Token จริงๆ (access_token)
-  // ถ้ามี Token -> ถือว่า Login แล้ว (ค่าเริ่มต้นเป็น true) -> Modal ปิด (false)
-  // ถ้าไม่มี Token -> Login เป็น false -> Modal เปิด (true)
   const hasToken = !!localStorage.getItem('access_token');
 
   const [isLoggedIn, setIsLoggedIn] = useState(hasToken);
-  const [isModalOpen, setIsModalOpen] = useState(!hasToken); // เปิด Modal ทันทีถ้าไม่มี Token
+  const [isModalOpen, setIsModalOpen] = useState(!hasToken);
   
   const [alertMessage, setAlertMessage] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [activeCategory, setActiveCategory] = useState('home'); 
+  
+  const [resetSearchKey, setResetSearchKey] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 🔥 FIX: สูตรยาแรง ดีดหน้าจอขึ้นบนสุดทุกกรณี
+  const forceScrollTop = () => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0; // สำหรับ Safari
+    document.documentElement.scrollTop = 0; // สำหรับ Chrome, Firefox, IE
+  };
+
+  // ทำงานเมื่อเปลี่ยนหน้า (Path เปลี่ยน)
+  useEffect(() => {
+    forceScrollTop();
+    // สั่งซ้ำอีกทีเผื่อ Browser โหลดช้า
+    setTimeout(forceScrollTop, 10);
+  }, [location.pathname]); 
 
   const fetchCartData = async () => {
     if (!isLoggedIn) return;
@@ -79,7 +92,6 @@ function App() {
     };
   }, [isLoggedIn]);
 
-  // ✅ เช็ค Token ตลอด ถ้าอยู่ๆ Token หาย (Logout หรือหมดอายุ) ให้เด้ง Modal
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token && isLoggedIn) {
@@ -90,26 +102,26 @@ function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // ลบ Token ทั้งหมด
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("skinmatch_is_logged_in");
     
     setCurrentUser(null);
     setCartItems([]);
-    
-    // สั่งเปิด Modal ทันทีที่ Logout
     setIsModalOpen(true);
-    
     setActiveCategory('home'); 
     navigate('/');
   };
 
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
+    setResetSearchKey(prev => prev + 1);
+    
+    // ดีดขึ้นทันทีที่กดเมนู
+    forceScrollTop();
+
     if (location.pathname !== '/') {
       navigate('/');
-      window.scrollTo(0, 0);
     }
   };
 
@@ -117,7 +129,7 @@ function App() {
 
   const handleProductSelect = (product) => {
     navigate(`/product/${product.id}`);
-    window.scrollTo(0, 0);
+    forceScrollTop();
   };
 
   const handleLoginSuccess = () => {
@@ -125,19 +137,16 @@ function App() {
     setIsModalOpen(false);
     setActiveCategory('home'); 
     navigate('/'); 
-    window.scrollTo(0, 0);
+    forceScrollTop();
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
       <div className="app-container">
-
-        {/* Modal ควบคุมที่นี่จุดเดียว */}
         {isModalOpen && (
           <AuthModal
             isOpen={true}
             onLoginSuccess={handleLoginSuccess}
-            // ปิด Modal ได้เฉพาะตอนที่ล็อกอินแล้วเท่านั้น (ป้องกันกดปิดหนี)
             onClose={() => {
                if (isLoggedIn) setIsModalOpen(false);
             }}
@@ -175,6 +184,7 @@ function App() {
                 isLoggedIn={isLoggedIn}
                 currentUser={currentUser}
                 onLoginClick={() => setIsModalOpen(true)}
+                resetSearchKey={resetSearchKey}
               />
             </main>
           } />
