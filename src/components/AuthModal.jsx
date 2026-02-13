@@ -599,67 +599,98 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
         {/* --- REGISTER STEP 2 --- */}
         {mode === 'register_step2' && (
-          <form noValidate onSubmit={handleFinalSubmit}>
-            <div className="form-group">
-              <label className="form-label">
-                วันเกิด <span style={{ color: 'red' }}>*</span>
-              </label>
-
-              <DatePicker
-                selected={birthDate}
-                onChange={(date) => {
-                  setBirthDate(date);
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.birthDate;
-                    return next;
-                  });
-                }}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="กรุณาเลือกวันเกิด"
-                customInput={<CustomDateInput hasError={!!errors.birthDate} />}
-                showYearDropdown
-                yearDropdownItemNumber={100}
-                maxDate={maxBirthDate}
-              />
-
-              {errors.birthDate && <span className="error-text">{errors.birthDate}</span>}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                เพศ <span style={{ color: 'red' }}>*</span>
-              </label>
-
-              <CustomSelect
-                options={genderOptions}
-                placeholder="กรุณาเลือกเพศของคุณ"
-                value={gender}
-                onChange={(val) => {
-                  setGender(val);
-                  setErrors((prev) => {
-                    const next = { ...prev };
-                    delete next.gender;
-                    return next;
-                  });
-                }}
-                hasError={!!errors.gender}
-              />
-
-              {errors.gender && <span className="error-text">{errors.gender}</span>}
-            </div>
-
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {mode === 'register_step2' && (
+            <form noValidate onSubmit={handleFinalSubmit}>
+              <div className="form-group">
                 <label className="form-label">
-                  ประเภทผิว <span style={{ color: 'red' }}>*</span>
+                  วันเกิด <span style={{ color: 'red' }}>*</span>
                 </label>
 
-                <a href="https://choicechecker.com/quiz/testing?id=1" target="_blank" rel="noreferrer" style={{ fontSize: '13px' }} className="legal-link">
-                  ไม่แน่ใจ? ทำแบบทดสอบ
-                </a>
+                <DatePicker
+                  selected={birthDate}
+                  onChange={(date) => {
+                    setBirthDate(date);
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.birthDate;
+                      return next;
+                    });
+                  }}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="กรุณาเลือกวันเกิด"
+                  customInput={<CustomDateInput hasError={!!errors.birthDate} />}
+                  showYearDropdown
+                  yearDropdownItemNumber={100}
+                  maxDate={maxBirthDate}
+                />
+
+                {errors.birthDate && <span className="error-text">{errors.birthDate}</span>}
               </div>
 
+              <div className="form-group">
+                <label className="form-label">
+                  เพศ <span style={{ color: 'red' }}>*</span>
+                </label>
+
+                <CustomSelect
+                  options={genderOptions}
+                  placeholder="กรุณาเลือกเพศของคุณ"
+                  value={gender}
+                  onChange={(val) => {
+                    setGender(val);
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.gender;
+                      return next;
+                    });
+                  }}
+                  hasError={!!errors.gender}
+                />
+
+                {errors.gender && <span className="error-text">{errors.gender}</span>}
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">
+                    ประเภทผิว <span style={{ color: 'red' }}>*</span>
+                  </label>
+
+                  <a
+                    href="https://choicechecker.com/quiz/testing?id=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '13px' }}
+                    className="legal-link"
+                  >
+                    ไม่แน่ใจ? ทำแบบทดสอบ
+                  </a>
+                </div>
+
+                <CustomSelect
+                  options={skinTypeOptions}
+                  placeholder="กรุณาเลือกสภาพผิวของคุณ"
+                  value={skinType}
+                  onChange={(val) => {
+                    setSkinType(val);
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.skinType;
+                      return next;
+                    });
+                  }}
+                  hasError={!!errors.skinType}
+                />
+
+                {errors.skinType && <span className="error-text">{errors.skinType}</span>}
+              </div>
+
+              <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+                {isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}
+              </button>
+            </form>
+          )}
+              </div>
               <CustomSelect
                 options={skinTypeOptions}
                 placeholder="กรุณาเลือกสภาพผิวของคุณ"
