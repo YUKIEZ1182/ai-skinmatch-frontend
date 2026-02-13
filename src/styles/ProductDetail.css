@@ -351,6 +351,53 @@
   margin-bottom: 30px;
 }
 
+.detail-discount-badge{
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #FF2D55;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+}
+
+/* ✅ OUT OF STOCK pill กลางรูป */
+.pd-oos-overlay{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.pd-oos-pill{
+  background: rgba(58, 58, 58, 0.9);
+  color: #fff;
+  padding: 16px 44px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+.main-img-display {
+  image-rendering: auto;
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+}
+/* ทำภาพให้ดูหมด แต่ยังเห็นชัด */
+.main-img-display.is-oos{
+  filter: grayscale(100%) contrast(0.95) brightness(1.02);
+  opacity: 0.95;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .product-main-layout {

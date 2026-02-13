@@ -122,3 +122,23 @@
   display: flex;
   align-items: center;
 }
+
+/* ================================
+   FIX: DatePicker Z-INDEX
+   ================================ */
+
+/* ตัว popper ที่ลอย */
+.react-datepicker-popper {
+  z-index: 99999 !important;
+}
+
+/* ตัวกล่องปฏิทิน */
+.react-datepicker {
+  z-index: 99999 !important;
+}
+
+/* กัน parent บางตัวบัง popper */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  overflow: visible !important;
+}
