@@ -157,7 +157,7 @@
 .summary-row.total { font-size: 1.2rem; font-weight: bold; color: #281D1B; }
 
 .btn-place-order {
-    width: 100%; background-color: #281D1B; color: white; padding: 14px; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.2s;
+    width: 100%; background-color: #281D1B; color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.2s;
 }
 .btn-place-order:hover { background-color: #000; }
 
@@ -241,7 +241,7 @@
 .fg.full { width: 100%; margin-bottom: 15px; }
 .gray-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f9f9f9; }
 .form-actions-row { display: flex; justify-content: flex-end; gap: 10px; }
-.btn-save { background: #F1978C; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+.btn-save { background: #281D1B; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
 .btn-cancel { background: white; border: 1px solid #ddd; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
 .btn-add-new-big { width: 100%; padding: 12px; border: 1px dashed #ccc; background: white; color: #666; cursor: pointer; margin-top: 15px; border-radius: 6px; }
 .btn-add-new-big:hover { border-color: #F1978C; color: #F1978C; }
@@ -343,6 +343,12 @@
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
+}
+.req-star{
+  color:#DC2626;
+  font-weight:700;
+  margin-left:4px;
+  line-height:1;
 }
 
 @keyframes fadeIn {
