@@ -308,11 +308,23 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <div className="form-group"><label className="form-label">วันเกิด <span style={{color: 'red'}}>*</span></label>
                 <DatePicker selected={birthDate} onChange={(date) => setBirthDate(date)} dateFormat="dd/MM/yyyy" placeholderText="กรุณาเลือกวันเกิด" customInput={<CustomDateInput />} showYearDropdown scrollableYearDropdown yearDropdownItemNumber={100} maxDate={new Date()} />
               </div>
-              <div className="form-group"><label className="form-label">เพศ <span style={{color: 'red'}}>*</span></label><CustomSelect options={genderOptions} placeholder="กรุณาเลือกเพศของคุณ" value={gender} onChange={setGender} /></div>
-              <div className="form-group">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}><label className="form-label">ประเภทผิว <span style={{color: 'red'}}>*</span></label>
-                {/* FIX: ใส่ลิงก์แบบทดสอบ */}
-                <a href="https://choicechecker.com/quiz/testing?id=1" target="_blank" rel="noreferrer" style={{fontSize: '13px'}} className="legal-link">ไม่แน่ใจ? ทำแบบทดสอบ</a>
+                <div className="form-group"><label className="form-label">เพศ <span style={{color: 'red'}}>*</span></label><CustomSelect options={genderOptions} placeholder="กรุณาเลือกเพศของคุณ" value={gender} onChange={setGender} /></div>
+                <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label">
+                    ประเภทผิว <span style={{ color: 'red' }}>*</span>
+                  </label>
+
+                  <a
+                    href="https://choicechecker.com/quiz/testing?id=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '13px' }}
+                    className="legal-link"
+                  >
+                    ไม่แน่ใจ? ทำแบบทดสอบ
+                  </a>
+                </div>
                 </div>
                 <CustomSelect options={skinTypeOptions} placeholder="กรุณาเลือกสภาพผิวของคุณ" value={skinType} onChange={setSkinType} />
               </div>
