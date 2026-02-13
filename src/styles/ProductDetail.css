@@ -55,25 +55,40 @@
   font-weight: 600;
   border-radius: 4px;
 }
+.thumbnails-container .nav-arrow.left { left: 10px; }
+.thumbnails-container .nav-arrow.right { right: 10px; }
 
 .thumbnails-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 90px;
+  position: relative;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0 56px;          /* กันพื้นที่ให้ปุ่มซ้าย-ขวา */
+  box-sizing: border-box;
 }
 
 .thumbnail-scroll-area {
-  flex: 1;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-behavior: smooth;
-  scrollbar-width: none;
-  padding: 5px 2px;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 2px;
 }
+
+/* ซ่อน scrollbar (ถ้าอยากให้สวย) */
 .thumbnail-scroll-area::-webkit-scrollbar {
-  display: none;
+  height: 0px;
+}
+
+.thumbnails-container .nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
 }
 
 .thumb-card {
@@ -394,8 +409,9 @@
 }
 /* ทำภาพให้ดูหมด แต่ยังเห็นชัด */
 .main-img-display.is-oos{
-  filter: grayscale(100%) contrast(0.95) brightness(1.02);
-  opacity: 0.95;
+  filter: blur(1px);
+  opacity: 0.6;
+  transition: filter 0.3s ease;
 }
 
 /* Responsive */
