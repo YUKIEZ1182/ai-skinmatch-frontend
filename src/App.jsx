@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./styles/App.css";
 
@@ -20,46 +20,112 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { th } from "date-fns/locale";
 
-import { apiFetch } from './utils/api';
+import { apiFetch } from "./utils/api";
+
+// -----------------------------
+// MOCK CART STORAGE
+// -----------------------------
+const MOCK_KEY = "mock_cart";
+
+/** ✅ นับเป็น “จำนวนรายการ” (unique items) */
+const readMockCartUniqueCount = () => {
+  try {
+    const raw = localStorage.getItem(MOCK_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(arr)) return 0;
+
+    const uniq = new Set(
+      arr
+        .filter(Boolean)
+        .map((x) => String(x?.productId ?? x?.id ?? ""))
+        .filter(Boolean)
+    );
+
+    return uniq.size;
+  } catch {
+    return 0;
+  }
+};
 
 function App() {
-  // 🔥 FIX: เช็คจาก Token จริงๆ (access_token)
-  // ถ้ามี Token -> ถือว่า Login แล้ว (ค่าเริ่มต้นเป็น true) -> Modal ปิด (false)
-  // ถ้าไม่มี Token -> Login เป็น false -> Modal เปิด (true)
-  const hasToken = !!localStorage.getItem('access_token');
+  const hasToken = !!localStorage.getItem("access_token");
 
   const [isLoggedIn, setIsLoggedIn] = useState(hasToken);
-  const [isModalOpen, setIsModalOpen] = useState(!hasToken); // เปิด Modal ทันทีถ้าไม่มี Token
-  
+  const [isModalOpen, setIsModalOpen] = useState(!hasToken);
+
   const [alertMessage, setAlertMessage] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+
+  // ✅ เก็บ API cart_detail
   const [cartItems, setCartItems] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('home'); 
+
+  // ✅ เก็บจำนวน “รายการ” ของ mock
+  const [mockCartUniqueCount, setMockCartUniqueCount] = useState(readMockCartUniqueCount());
+
+  const [activeCategory, setActiveCategory] = useState("home");
+  const [resetSearchKey, setResetSearchKey] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchCartData = async () => {
+  // 🔥 FIX: ดีดหน้าจอขึ้นบนสุดทุกกรณี
+  const forceScrollTop = () => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0; // Safari
+    document.documentElement.scrollTop = 0; // Chrome/Firefox
+  };
+
+  useEffect(() => {
+    forceScrollTop();
+    setTimeout(forceScrollTop, 10);
+  }, [location.pathname]);
+
+  // -----------------------------
+  // fetch user + API cart
+  // -----------------------------
+  const fetchCartData = useCallback(async () => {
     if (!isLoggedIn) return;
+
     try {
       if (!currentUser) {
-        const userRes = await apiFetch('/users/me');
+        const userRes = await apiFetch("/users/me");
         if (userRes.ok) {
           const userData = await userRes.json();
           setCurrentUser(userData.data);
         }
       }
 
-      const cartRes = await apiFetch(`/items/cart_detail?fields=id,quantity&filter[owner][_eq]=$CURRENT_USER`);
+      // ✅ สำคัญ: ขอ product.id มาด้วย เพื่อเอาไปนับ “จำนวนรายการ”
+      const cartRes = await apiFetch(
+        `/items/cart_detail?fields=id,quantity,product.id&filter[owner][_eq]=$CURRENT_USER`
+      );
+
       if (cartRes.ok) {
         const json = await cartRes.json();
         setCartItems(json.data || []);
+      } else {
+        setCartItems([]);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setCartItems([]);
     }
-  };
+  }, [isLoggedIn, currentUser]);
 
+  // ✅ refresh badge (API + MOCK)
+  const refreshCartBadge = useCallback(async () => {
+    // mock (unique)
+    setMockCartUniqueCount(readMockCartUniqueCount());
+
+    // api
+    if (isLoggedIn) {
+      await fetchCartData();
+    }
+  }, [isLoggedIn, fetchCartData]);
+
+  // -----------------------------
+  // init + subscribe cart signals
+  // -----------------------------
   useEffect(() => {
     if (isLoggedIn) {
       fetchCartData();
@@ -69,77 +135,93 @@ function App() {
     }
 
     const handleCartUpdateSignal = () => {
-      fetchCartData();
+      refreshCartBadge();
     };
 
-    window.addEventListener('cart-updated', handleCartUpdateSignal);
+    window.addEventListener("cart-updated", handleCartUpdateSignal);
+    window.addEventListener("storage", handleCartUpdateSignal);
 
     return () => {
-      window.removeEventListener('cart-updated', handleCartUpdateSignal);
+      window.removeEventListener("cart-updated", handleCartUpdateSignal);
+      window.removeEventListener("storage", handleCartUpdateSignal);
     };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, fetchCartData, refreshCartBadge]);
 
-  // ✅ เช็ค Token ตลอด ถ้าอยู่ๆ Token หาย (Logout หรือหมดอายุ) ให้เด้ง Modal
+  // -----------------------------
+  // guard token หาย
+  // -----------------------------
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (!token && isLoggedIn) {
-       setIsLoggedIn(false);
-       setIsModalOpen(true);
+      setIsLoggedIn(false);
+      setIsModalOpen(true);
     }
-  }, [location.pathname]); 
+  }, [location.pathname, isLoggedIn]);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // ลบ Token ทั้งหมด
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("skinmatch_is_logged_in");
-    
+
     setCurrentUser(null);
     setCartItems([]);
-    
-    // สั่งเปิด Modal ทันทีที่ Logout
     setIsModalOpen(true);
-    
-    setActiveCategory('home'); 
-    navigate('/');
+    setActiveCategory("home");
+    navigate("/");
   };
 
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
-    if (location.pathname !== '/') {
-      navigate('/');
-      window.scrollTo(0, 0);
+    setResetSearchKey((prev) => prev + 1);
+
+    forceScrollTop();
+
+    if (location.pathname !== "/") {
+      navigate("/");
     }
   };
 
-  const totalItemsInCart = cartItems.length;
+  /** ✅ นับ API เป็น “จำนวนรายการ” (unique product) */
+  const apiCartUniqueCount = useMemo(() => {
+    const uniq = new Set(
+      (cartItems || [])
+        .map((row) => String(row?.product?.id ?? ""))
+        .filter(Boolean)
+    );
+    return uniq.size;
+  }, [cartItems]);
+
+  /** ✅ รวม “จำนวนรายการ” ทั้งหมด */
+  const totalUniqueItemsInCart = apiCartUniqueCount + mockCartUniqueCount;
 
   const handleProductSelect = (product) => {
     navigate(`/product/${product.id}`);
-    window.scrollTo(0, 0);
+    forceScrollTop();
   };
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
-    setActiveCategory('home'); 
-    navigate('/'); 
-    window.scrollTo(0, 0);
+    setActiveCategory("home");
+    navigate("/");
+    forceScrollTop();
+
+    // ✅ ให้ badge รีเฟรชทันทีหลัง login
+    setTimeout(() => {
+      window.dispatchEvent(new Event("cart-updated"));
+    }, 0);
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={th}>
       <div className="app-container">
-
-        {/* Modal ควบคุมที่นี่จุดเดียว */}
         {isModalOpen && (
           <AuthModal
             isOpen={true}
             onLoginSuccess={handleLoginSuccess}
-            // ปิด Modal ได้เฉพาะตอนที่ล็อกอินแล้วเท่านั้น (ป้องกันกดปิดหนี)
             onClose={() => {
-               if (isLoggedIn) setIsModalOpen(false);
+              if (isLoggedIn) setIsModalOpen(false);
             }}
           />
         )}
@@ -149,35 +231,37 @@ function App() {
           user={currentUser}
           onLoginClick={() => setIsModalOpen(true)}
           onLogout={handleLogout}
-          cartItemCount={isLoggedIn ? totalItemsInCart : 0}
+          // ✅ ส่งเป็น “จำนวนรายการ” (ไม่ใช่จำนวนชิ้น)
+          cartUniqueCount={totalUniqueItemsInCart}
         />
 
         {alertMessage && (
           <div className="alert-banner-wrapper">
-            <AlertBanner
-              message={alertMessage}
-              onClose={() => setAlertMessage(null)}
-            />
+            <AlertBanner message={alertMessage} onClose={() => setAlertMessage(null)} />
           </div>
         )}
 
         <CategoryMenu
-          activeCategory={location.pathname === '/' ? activeCategory : ''}
+          activeCategory={location.pathname === "/" ? activeCategory : ""}
           onCategorySelect={handleCategoryChange}
         />
 
         <Routes>
-          <Route path="/" element={
-            <main>
-              <Home
-                activeCategory={activeCategory}
-                handleProductSelect={handleProductSelect}
-                isLoggedIn={isLoggedIn}
-                currentUser={currentUser}
-                onLoginClick={() => setIsModalOpen(true)}
-              />
-            </main>
-          } />
+          <Route
+            path="/"
+            element={
+              <main>
+                <Home
+                  activeCategory={activeCategory}
+                  handleProductSelect={handleProductSelect}
+                  isLoggedIn={isLoggedIn}
+                  currentUser={currentUser}
+                  onLoginClick={() => setIsModalOpen(true)}
+                  resetSearchKey={resetSearchKey}
+                />
+              </main>
+            }
+          />
 
           <Route path="/product/:id" element={<main><ProductDetail /></main>} />
           <Route path="/account" element={<main><AccountPage /></main>} />

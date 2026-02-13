@@ -1,89 +1,173 @@
+/* ===============================
+   React DatePicker (Updated)
+   Theme: AuthModal / Peach
+   =============================== */
 
-.react-datepicker {
-  font-family: 'Prompt', sans-serif !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-  overflow: hidden;
-}
-
-.react-datepicker__header {
-  background-color: #fff !important;
-  border-bottom: 1px solid #f0f0f0 !important;
-  padding-top: 15px !important;
+/* ✅ Popper ต้องชนะทุกอย่าง */
+.react-datepicker-popper {
+  z-index: 99999 !important;
 }
 
-.react-datepicker__current-month {
-  color: #333 !important;
-  font-weight: 600 !important;
-  font-size: 16px !important;
-  margin-bottom: 10px !important;
-}
-
-.react-datepicker__day-name {
-  color: #999 !important;
-  width: 2.5rem !important;
-}
-
-.react-datepicker__day {
-  width: 2.5rem !important;
-  line-height: 2.5rem !important;
-  margin: 0.1rem !important;
-  border-radius: 50% !important;
-  color: #444 !important;
-  transition: all 0.2s;
-}
-
-.react-datepicker__day:hover {
-  background-color: #FFF0F0 !important;
-  color: #FF8B73 !important;
-}
-
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  background-color: #FF8B73 !important;
-  color: white !important;
-  font-weight: bold;
-}
-
-.react-datepicker__day--today {
-  color: #444 !important;
-  font-weight: 600;
-  border: 1px solid #FF8B73;
-  background-color: transparent;
-}
-.react-datepicker__day--today.react-datepicker__day--selected {
-  background-color: #FF8B73 !important;
-  color: white !important;
-}
-
-.react-datepicker__navigation-icon::before {
-  border-color: #666 !important;
-  border-width: 2px 2px 0 0 !important;
-}
-
-.custom-date-input {
-  width: 100%;
-  padding: 12px 15px;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  background-color: #f9f9f9;
-  font-family: 'Prompt', sans-serif;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-}
-.custom-date-input:focus {
-  outline: none;
-  background-color: #fff;
-  border-color: #FF8B73;
-}
+/* กัน parent บางตัวตัด */
 .react-datepicker-wrapper,
 .react-datepicker__input-container {
   display: block !important;
   width: 100% !important;
+  overflow: visible !important;
 }
 
+/* ===== Calendar Box ===== */
+.react-datepicker {
+  font-family: 'Prompt', sans-serif !important;
+  border: 1px solid #D1D5DB !important;
+  border-radius: 8px !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18) !important;
+  overflow: visible;
+  background: #fff !important;
+
+  z-index: 99999 !important;
+}
+
+/* ===== Header ===== */
+.react-datepicker__header {
+  background-color: #fff !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  padding-top: 14px !important;
+  padding-bottom: 10px !important;
+}
+
+.react-datepicker__current-month {
+  color: #111827 !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  margin-bottom: 10px !important;
+}
+
+/* ===== Month/Year Dropdown ===== */
+.react-datepicker__month-dropdown-container,
+.react-datepicker__year-dropdown-container {
+  margin: 0 6px !important;
+}
+
+.react-datepicker__year-read-view,
+.react-datepicker__month-read-view {
+  padding: 6px 10px !important;
+  border-radius: 10px !important;
+  border: 1px solid #f1f1f1 !important;
+  background: #fafafa !important;
+  font-weight: 600;
+  color: #111827;
+}
+
+.react-datepicker__year-dropdown,
+.react-datepicker__month-dropdown,
+.react-datepicker__month-year-dropdown {
+  border-radius: 12px !important;
+  border: 1px solid #f1f1f1 !important;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.12) !important;
+  overflow: hidden !important;
+  max-height: 220px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.react-datepicker__year-option,
+.react-datepicker__month-option {
+  padding: 10px 12px !important;
+  cursor: pointer;
+}
+
+.react-datepicker__year-option:hover,
+.react-datepicker__month-option:hover {
+  background: #FFF5F4 !important;
+  color: #F1978C !important;
+}
+
+.react-datepicker__year-option--selected,
+.react-datepicker__month-option--selected {
+  background: #FFF0ED !important;
+  color: #F1978C !important;
+  font-weight: 700 !important;
+}
+
+/* ===== Day Names ===== */
+.react-datepicker__day-names {
+  margin-top: 4px !important;
+}
+
+.react-datepicker__day-name {
+  color: #9CA3AF !important;
+  width: 2.5rem !important;
+  font-weight: 600;
+}
+
+/* ===== Day Cells ===== */
+.react-datepicker__day {
+  width: 2.5rem !important;
+  line-height: 2.5rem !important;
+  margin: 0.12rem !important;
+  border-radius: 999px !important;
+  color: #374151 !important;
+  transition: all 0.18s ease;
+}
+
+.react-datepicker__day:hover {
+  background-color: #FFF5F4 !important;
+  color: #F1978C !important;
+}
+
+/* outside month */
+.react-datepicker__day--outside-month {
+  color: #D1D5DB !important;
+}
+
+/* disabled day */
+.react-datepicker__day--disabled,
+.react-datepicker__day--disabled:hover {
+  color: #D1D5DB !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+}
+
+/* selected */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #F1978C !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+/* today */
+.react-datepicker__day--today {
+  color: #111827 !important;
+  font-weight: 700 !important;
+  border: 1px solid #F1978C !important;
+  background-color: transparent !important;
+}
+
+.react-datepicker__day--today.react-datepicker__day--selected {
+  background-color: #F1978C !important;
+  color: white !important;
+  border-color: #F1978C !important;
+}
+
+/* ===== Navigation Arrows ===== */
+.react-datepicker__navigation {
+  top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #6B7280 !important;
+  border-width: 2px 2px 0 0 !important;
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #111827 !important;
+}
+
+/* ===============================
+   Custom Date Input (Auth)
+   =============================== */
 .date-input-wrapper {
   width: 100%;
   position: relative;
@@ -93,32 +177,63 @@
 
 .auth-input-date {
   width: 100%;
-  padding: 14px 20px;
-  border-radius: 12px;
-  border: 1px solid #E0E0E0;
-  background-color: #fff;
+  padding: 15px 18px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  border-color: #D1D5DB;
+  background: #F5F7FA;
   font-family: 'Prompt', sans-serif;
   font-size: 15px;
-  color: #333;
+  color: #111827;
   cursor: pointer;
   box-sizing: border-box;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-/* ตอนกดเลือก (Focus) */
+.auth-input-date::placeholder {
+  color: #9CA3AF;
+}
+
 .auth-input-date:focus {
   outline: none;
-  border-color: #FF8B73;
-  box-shadow: 0 0 0 3px rgba(255, 139, 115, 0.1);
+  background: #fff;
+  border-color: #111827;
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+
+/* ✅ error state ให้เข้ากับระบบ */
+.auth-input-date.input-error {
+  background: #FEF2F2 !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
 }
 
 .calendar-icon-overlay {
   position: absolute;
-  right: 20px;
+  right: 18px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: #999;
+  color: #6B7280;
   display: flex;
   align-items: center;
+}
+
+/* ===============================
+   Mobile tweaks
+   =============================== */
+@media (max-width: 480px) {
+  .react-datepicker {
+    border-radius: 18px !important;
+  }
+
+  .react-datepicker__day,
+  .react-datepicker__day-name {
+    width: 2.35rem !important;
+    line-height: 2.35rem !important;
+  }
+
+  .auth-input-date {
+    border-radius: 14px;
+  }
 }

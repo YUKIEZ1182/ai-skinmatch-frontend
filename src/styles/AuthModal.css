@@ -1,127 +1,296 @@
-/* --- Overlay & Modal --- */
+/* ===============================
+   Overlay
+   =============================== */
 .auth-modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;
-  z-index: 10000; backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease-out;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
+/* ===============================
+   Modal Container
+   =============================== */
 .auth-modal-content {
-  background-color: #fff; 
-  padding: 45px 40px; 
-  border-radius: 24px; /* ความโค้งเดิม */
-  width: 90%; 
-  max-width: 520px; 
-  position: relative; 
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
-  font-family: 'FC Iconic', 'Prompt', sans-serif;
-  animation: slideUp 0.3s ease-out;
+  background: #fff;
+  width: 90%;
+  max-width: 520px;
   max-height: 90vh;
+  border-radius: 24px;
+  padding: 28px 32px 32px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  font-family: 'FC Iconic', 'Prompt', sans-serif;
   overflow-y: auto;
 }
 
-/* ซ่อน Scrollbar */
-.auth-modal-content::-webkit-scrollbar { display: none; }
-.auth-modal-content { -ms-overflow-style: none; scrollbar-width: none; }
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* hide scrollbar */
+.auth-modal-content::-webkit-scrollbar {
+  display: none;
+}
+.auth-modal-content {
+  scrollbar-width: none;
 }
 
-.modal-close-icon, .modal-back-icon {
-  position: absolute; top: 25px; background: none; border: none; font-size: 26px; cursor: pointer; color: #333; transition: transform 0.2s;
-  z-index: 10;
+/* ===============================
+   HEADER (Back | Title | Close)
+   =============================== */
+.auth-modal-content .auth-modal-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 20px;
 }
-.modal-close-icon:hover, .modal-back-icon:hover { transform: scale(1.1); }
-.modal-close-icon { right: 25px; }
-.modal-back-icon { left: 25px; }
 
-/* Titles */
-.auth-title {
+/* slot ซ้าย / ขวา */
+.auth-modal-content .auth-modal-header-slot {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+/* center */
+.auth-modal-content .auth-modal-header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* title */
+.auth-modal-content .auth-title {
+  margin: 0;
   font-size: 24px;
-  font-weight: 700; text-align: center; margin-bottom: 30px; color: #1a1a1a;
-  line-height: 1.4;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a1a1a;
+  text-align: center;
+  padding-top: 2px; /* baseline fix ฟอนต์ไทย */
 }
 
-/* Form Elements */
-.form-group { margin-bottom: 22px; }
-.form-label {
-  display: block; font-size: 15px; color: #444; margin-bottom: 8px; font-weight: 500; text-align: left;
+/* banner (เขียว) */
+.auth-modal-content .auth-header-banner {
+  margin-top: 8px;
+  background: #e6f7ed;
+  color: #0f5132;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
 }
 
-/* Inputs & Selects (สไตล์เดิม: พื้นหลังเทา, ขอบมน 14px) */
-.auth-input, .auth-select, .auth-input-date {
-  width: 100%; padding: 15px 18px; border: 1px solid transparent; border-radius: 14px;
-  font-size: 15px; color: #333; background-color: #F5F7FA; font-family: inherit;
-  box-sizing: border-box; transition: all 0.2s; outline: none;
-}
-.auth-input:focus, .auth-select:focus, .auth-input-date:focus {
-  background-color: #fff; border-color: #1a1a1a; box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
-}
-.auth-input::placeholder { color: #aaa; }
-
-/* Password Wrapper */
-.password-wrapper { position: relative; }
-/* ปุ่มลูกตา */
-.password-toggle-btn {
-  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
-  cursor: pointer; background: none; border: none; padding: 0; display: flex; align-items: center; color: #888;
-}
-.password-toggle-btn:hover { color: #333; }
-
-/* Date Input Hacks */
-.date-input-wrapper { position: relative; width: 100%; }
-.auth-input-date { padding-right: 50px; cursor: pointer; }
-.calendar-icon-overlay {
-  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
-  pointer-events: none; color: #666;
+/* back / close buttons */
+.auth-modal-content .modal-back-icon,
+.auth-modal-content .modal-close-icon {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #333;
+  padding: 0;
 }
 
-/* Buttons (สไตล์เดิม: สีดำ ขอบมน 14px) */
-.auth-submit-btn {
-  width: 100%; padding: 16px; background-color: #1a1a1a; color: #fff; border: 1px solid #1a1a1a;
-  border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 15px;
+.auth-modal-content .modal-close-icon {
+  font-size: 26px;
+  line-height: 1;
+  padding-top: 1px; /* จูน X ให้เสมอ title */
+}
+
+/* ===============================
+   Form
+   =============================== */
+.auth-modal-content .form-group {
+  margin-bottom: 22px;
+}
+
+.auth-modal-content .form-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+/* inputs */
+.auth-modal-content .auth-input,
+.auth-modal-content .auth-input-date {
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: #f5f7fa;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
   transition: all 0.2s;
 }
-.auth-submit-btn:hover:not(:disabled) { background-color: #333; border-color: #333; transform: translateY(-1px); }
-.auth-submit-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
 
-.auth-outline-btn {
-  width: 100%; padding: 16px; background-color: #fff; color: #1a1a1a; border: 1px solid #e0e0e0;
-  border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 15px;
-  transition: all 0.2s;
+.auth-modal-content .auth-input::placeholder {
+  color: #aaa;
 }
-.auth-outline-btn:hover { background-color: #f9f9f9; border-color: #ccc; }
 
-/* Links & Footer */
-.forgot-password-link {
-  font-size: 13px; color: #2563EB; cursor: pointer; font-weight: 500;
+.auth-modal-content .auth-input:focus,
+.auth-modal-content .auth-input-date:focus {
+  background: #fff;
+  border-color: #1a1a1a;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
-.forgot-password-link:hover { text-decoration: underline; }
 
-.auth-legal-text {
-  text-align: center; font-size: 12px; color: #999; margin-top: 30px; line-height: 1.5;
+/* password */
+.auth-modal-content .password-wrapper {
+  position: relative;
 }
-.legal-link {
-  color: #2563EB; text-decoration: none; font-weight: 600; cursor: pointer; transition: color 0.2s;
-}
-.legal-link:hover { text-decoration: underline; color: #1d4ed8; }
 
-/* Error Styles */
-.error-text {
-  color: #ef4444; font-size: 12px; margin-top: 5px; display: block; font-weight: 500; text-align: left;
+.auth-modal-content .password-toggle-btn {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
 }
-.auth-input.input-error,
-.password-wrapper.input-error .auth-input {
+
+.auth-modal-content .password-toggle-btn:hover {
+  color: #333;
+}
+
+/* forgot link */
+.auth-modal-content .forgot-password-link {
+  font-size: 13px;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.auth-modal-content .forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+   Buttons
+   =============================== */
+.auth-modal-content .auth-submit-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.auth-modal-content .auth-submit-btn:hover:not(:disabled) {
+  background: #333;
+}
+
+.auth-modal-content .auth-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.auth-modal-content .auth-outline-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+/* ===============================
+   Errors
+   =============================== */
+.auth-modal-content .error-text {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 6px;
+  display: block;
+}
+
+.auth-modal-content .auth-input.input-error,
+.auth-modal-content .auth-input-date.input-error {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* select error (CustomSelect / react-select) */
+.auth-modal-content .select-error .custom-select-control,
+.auth-modal-content .select-error .custom-select__control {
   border-color: #ef4444 !important;
-  background-color: #FEF2F2;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
 }
 
-/* React Datepicker Custom Overrides (เพื่อให้เข้ากับ Theme) */
-.react-datepicker-wrapper { width: 100%; }
+/* กัน invalid โผล่ชมพู */
+.auth-modal-content .auth-input:invalid,
+.auth-modal-content .auth-input-date:invalid {
+  background: #f5f7fa !important;
+}
+
+/* ===============================
+   Footer
+   =============================== */
+.auth-modal-content .auth-legal-text {
+  margin-top: 28px;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.auth-modal-content .legal-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-modal-content .legal-link:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+   Datepicker
+   =============================== */
+.auth-modal-content .date-input-wrapper {
+  position: relative;
+}
+
+.auth-modal-content .calendar-icon-overlay {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #666;
+}
+
+.auth-modal-content .react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* ===============================
+   Responsive (คงดีไซน์เดิม แค่ลด padding)
+   =============================== */
+@media (max-width: 520px) {
+  .auth-modal-content {
+    padding: 22px 18px 22px;
+    border-radius: 20px;
+  }
+}
