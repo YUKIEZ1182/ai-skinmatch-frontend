@@ -55,25 +55,40 @@
   font-weight: 600;
   border-radius: 4px;
 }
+.thumbnails-container .nav-arrow.left { left: 10px; }
+.thumbnails-container .nav-arrow.right { right: 10px; }
 
 .thumbnails-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 90px;
+  position: relative;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0 56px;          /* กันพื้นที่ให้ปุ่มซ้าย-ขวา */
+  box-sizing: border-box;
 }
 
 .thumbnail-scroll-area {
-  flex: 1;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-behavior: smooth;
-  scrollbar-width: none;
-  padding: 5px 2px;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 2px;
 }
+
+/* ซ่อน scrollbar (ถ้าอยากให้สวย) */
 .thumbnail-scroll-area::-webkit-scrollbar {
-  display: none;
+  height: 0px;
+}
+
+.thumbnails-container .nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
 }
 
 .thumb-card {
@@ -349,6 +364,54 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 30px;
+}
+
+.detail-discount-badge{
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #FF2D55;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+}
+
+/* ✅ OUT OF STOCK pill กลางรูป */
+.pd-oos-overlay{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.pd-oos-pill{
+  background: rgba(58, 58, 58, 0.9);
+  color: #fff;
+  padding: 16px 44px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+.main-img-display {
+  image-rendering: auto;
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+}
+/* ทำภาพให้ดูหมด แต่ยังเห็นชัด */
+.main-img-display.is-oos{
+  filter: blur(1px);
+  opacity: 0.6;
+  transition: filter 0.3s ease;
 }
 
 /* Responsive */
