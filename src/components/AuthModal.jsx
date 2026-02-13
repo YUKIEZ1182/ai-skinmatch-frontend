@@ -655,11 +655,40 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   ประเภทผิว <span style={{ color: 'red' }}>*</span>
                 </label>
 
-                <a href="https://choicechecker.com/quiz/testing?id=1" target="_blank" rel="noreferrer" style={{ fontSize: '13px' }} className="legal-link">
+                <a
+                  href="https://choicechecker.com/quiz/testing?id=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: '13px' }}
+                  className="legal-link"
+                >
                   ไม่แน่ใจ? ทำแบบทดสอบ
                 </a>
               </div>
 
+              <CustomSelect
+                options={skinTypeOptions}
+                placeholder="กรุณาเลือกสภาพผิวของคุณ"
+                value={skinType}
+                onChange={(val) => {
+                  setSkinType(val);
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.skinType;
+                    return next;
+                  });
+                }}
+                hasError={!!errors.skinType}
+              />
+
+              {errors.skinType && <span className="error-text">{errors.skinType}</span>}
+            </div>
+
+            <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+              {isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}
+            </button>
+          </form>
+              </div>
               <CustomSelect
                 options={skinTypeOptions}
                 placeholder="กรุณาเลือกสภาพผิวของคุณ"
