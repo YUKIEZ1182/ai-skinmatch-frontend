@@ -61,9 +61,8 @@
 
 /* ใส่หมอกบาง ๆ ให้ดูหมด แต่ยังคลิกเข้าได้ */
 .product-card.is-oos .product-image {
-  filter: blur(1px);
-  opacity: 0.6;
-  transition: filter 0.3s ease;
+  filter: grayscale(100%) contrast(0.95) brightness(1.02);
+  opacity: 0.95;
 }
 
 .product-info {

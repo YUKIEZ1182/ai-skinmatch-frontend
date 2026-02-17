@@ -3,23 +3,11 @@ import React from 'react';
 import '../styles/ProductCard.css';
 
 export default function ProductCard({ product, onClick, onShowSimilar }) {
-  // ✅ ตามที่คุยกัน: out of stock ต้องเช็คทั้ง status และ stock
-  const status = String(product?.status || '').toLowerCase();
-  const stockNum = Number(product?.stock ?? NaN);
-  const isOutOfStock = status === 'out_of_stock' || status === 'inactive' || (Number.isFinite(stockNum) && stockNum <= 0);
+  const isOutOfStock = product?.status === 'out_of_stock';
 
-  // ✅ กัน NaN/Infinity + ให้ลดราคาแสดงเฉพาะกรณี originalPrice > price และ originalPrice > 0
-  const priceNum = Number(product?.price ?? NaN);
-  const originalNum = Number(product?.originalPrice ?? NaN);
-
-  const discountPercentage =
-    Number.isFinite(originalNum) &&
-    originalNum > 0 &&
-    Number.isFinite(priceNum) &&
-    priceNum >= 0 &&
-    originalNum > priceNum
-      ? Math.floor(((originalNum - priceNum) / originalNum) * 100)
-      : 0;
+  const discountPercentage = product?.originalPrice
+    ? Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
 
   const getSkinLabel = (type) => {
     if (!type) return '';
@@ -46,7 +34,7 @@ export default function ProductCard({ product, onClick, onShowSimilar }) {
   };
 
   const handleCardClick = () => {
-    if (typeof onClick === 'function') onClick();
+    if (typeof onClick === 'function') onClick(); // ✅ สินค้าหมดก็เข้า Detail ได้
   };
 
   const handleKeyDown = (e) => {
