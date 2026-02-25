@@ -2,6 +2,7 @@ import React from 'react';
 import '../styles/ProductCard.css';
 
 export default function ProductCard({ product, onClick }) {
+  // เช็คสถานะสินค้าหมด
   const isOutOfStock = product.status === 'out_of_stock';
 
   // คำนวณ % ลดราคา
@@ -16,7 +17,6 @@ export default function ProductCard({ product, onClick }) {
       'dry': 'ผิวแห้ง',
       'combination': 'ผิวผสม',
       'sensitive': 'แพ้ง่าย',
-      'normal': 'ผิวธรรมดา'
     };
     return map[type.toLowerCase()] || type;
   };
@@ -26,12 +26,17 @@ export default function ProductCard({ product, onClick }) {
     : (product.suitable_skin_type ? [product.suitable_skin_type] : []);
 
   return (
-    <div className="product-card" onClick={onClick}>
+    /* แก้ไขจุดนี้: ให้ onClick ทำงานได้เสมอแม้สินค้าจะหมด */
+    <div className={`product-card ${isOutOfStock ? 'out-of-stock' : ''}`} onClick={onClick}>
       <div className="product-image-container">
-        <img src={product.image} alt={product.name} className="product-image" />
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className={`product-image ${isOutOfStock ? 'blur-img' : ''}`} 
+        />
         
-        {/* ป้ายลดราคา (มุมขวาบน) */}
-        {discountPercentage > 0 && (
+        {/* ไม่แสดงป้ายลดราคาถ้าสินค้าหมด */}
+        {discountPercentage > 0 && !isOutOfStock && (
             <div className="card-discount-badge">-{discountPercentage}%</div>
         )}
 
@@ -43,44 +48,35 @@ export default function ProductCard({ product, onClick }) {
       </div>
       
       <div className="product-info">
-        
-        {/* 🔥 ส่วนหัว (Header Row): แบรนด์ (ซ้าย) - ราคา (ขวา) */}
         <div className="product-header-row">
-          {/* ซ้าย: แบรนด์ */}
           <span className="product-brand">{product.brand}</span>
-
-          {/* ขวา: ราคา (Logic เดิม: ถ้ามีลดราคา ให้โชว์ขีดฆ่า) */}
           <div className="price-container-right">
             {product.originalPrice ? (
-              // กรณีมีลดราคา
               <>
                 <span className="price-original-sm">฿{product.originalPrice.toLocaleString()}</span>
-                <span className="price-current sale-text">฿{product.price.toLocaleString()}</span>
+                <span className={`price-current ${!isOutOfStock ? 'sale-text' : ''}`}>
+                  ฿{product.price.toLocaleString()}
+                </span>
               </>
             ) : (
-              // กรณีปกติ
               <span className="price-current">฿{product.price.toLocaleString()}</span>
             )}
           </div>
         </div>
         
-        {/* ชื่อสินค้า (บรรทัดต่อมา) */}
         <div className="product-name-row">
           <span className="product-name">{product.name}</span>
         </div>
 
-        {/* Tags (ล่างสุด) */}
         {skinTags.length > 0 && (
           <div className="product-tags">
             {skinTags.map((tag, index) => (
-              // ลบ style={{...}} ออก แล้วใส่ className="skin-tag-item" แทน
               <span key={index} className="skin-tag-item">
                 {getSkinLabel(tag)}
               </span>
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
