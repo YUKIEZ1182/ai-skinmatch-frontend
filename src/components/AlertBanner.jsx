@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types'; // 1. นำเข้า PropTypes
+import React, { useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types'; 
 import '../styles/AlertBanner.css';
 
 export default function AlertBanner({ message, type = 'success', onClose }) {
@@ -7,21 +7,18 @@ export default function AlertBanner({ message, type = 'success', onClose }) {
   const isObject = typeof message === 'object' && message !== null;
   const displayMessage = isObject ? message.text : message;
   const finalType = isObject ? (message.type || type) : (type || 'success');
-
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      if (onClose) onClose();
+    }, 300);
+  }, [onClose]);
   useEffect(() => {
     const timer = setTimeout(() => {
       handleClose();
     }, 4000);
     return () => clearTimeout(timer);
-  }, []);
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      if (onClose) onClose();
-    }, 300);
-  };
-
+  }, [handleClose]);
   const alertConfig = {
     success: {
       title: 'Success',
@@ -36,30 +33,32 @@ export default function AlertBanner({ message, type = 'success', onClose }) {
       iconPath: "M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
     }
   };
-
   const currentConfig = alertConfig[finalType] || alertConfig.success;
-
   return (
-    <div className={`alert-banner-card alert-${finalType} ${isClosing ? 'closing' : ''}`}>
-      <div className="alert-icon-box">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d={currentConfig.iconPath} />
-        </svg>
+    /* ต้องมี Wrapper ตัวนี้หุ้ม เพื่อใช้จัดตำแหน่งลอยที่มุมจอ */
+    <div className="alert-banner-wrapper">
+      <div className={`alert-banner-card alert-${finalType} ${isClosing ? 'closing' : ''}`}>
+        <div className="alert-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d={currentConfig.iconPath} />
+          </svg>
+        </div>
+        
+        <div className="alert-content">
+          <div className="alert-title">{currentConfig.title}</div>
+          <div className="alert-message">{displayMessage}</div>
+        </div>
+
+        <button className="alert-close-btn" onClick={handleClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
-      <div className="alert-content">
-        <div className="alert-title">{currentConfig.title}</div>
-        <div className="alert-message">{displayMessage}</div>
-      </div>
-      <button className="alert-close-btn" onClick={handleClose}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
     </div>
   );
 }
-
 AlertBanner.propTypes = {
   message: PropTypes.oneOfType([
     PropTypes.string,
@@ -68,7 +67,6 @@ AlertBanner.propTypes = {
       type: PropTypes.string,
     }),
   ]).isRequired,
-
   type: PropTypes.oneOf(['success', 'warning', 'error']),
   onClose: PropTypes.func,
 };
