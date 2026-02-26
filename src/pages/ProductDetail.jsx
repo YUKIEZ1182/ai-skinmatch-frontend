@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
@@ -24,11 +24,9 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [galleryImages, setGalleryImages] = useState([]);
-  
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [skinRecommendations, setSkinRecommendations] = useState([]);
   const [userSkinType, setUserSkinType] = useState(null);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -38,7 +36,6 @@ export default function ProductDetail() {
     id: item.id,
     name: item.name,
     price: Number(item.price), 
-    // ถ้ามี originalPrice ติดมาด้วย (จาก Mock) ให้เก็บไว้แสดงผล
     originalPrice: item.originalPrice ? Number(item.originalPrice) : null,
     image: item.thumbnail ? `${API_URL}/assets/${item.thumbnail}` : (item.image || 'https://via.placeholder.com/300x300?text=No+Image'),
     brand: item.brand_name || item.brand || 'General', 
@@ -50,23 +47,14 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-
-        // 1. ตรวจสอบใน Mock Data ก่อน (กรณีสินค้าลดราคาพิเศษ)
         const mockedItem = mockProducts.find(p => String(p.id) === String(id));
         if (mockedItem) {
-          setProduct({
-            ...mockedItem,
-            price: Number(mockedItem.price),
-            originalPrice: mockedItem.originalPrice ? Number(mockedItem.originalPrice) : null,
-            brand_name: mockedItem.brand,
-            suitable_skin_type: mockedItem.skinType || []
-          });
+          setProduct({ ...mockedItem, price: Number(mockedItem.price), originalPrice: mockedItem.originalPrice ? Number(mockedItem.originalPrice) : null, brand_name: mockedItem.brand, suitable_skin_type: mockedItem.skinType || [] });
           setGalleryImages([mockedItem.image]);
           setLoading(false);
           return;
         }
 
-        // 2. ถ้าไม่เจอใน Mock ให้ดึงจาก Directus API
         const item = await getProductById(id);
         if (item) {
           let images = [];
@@ -78,22 +66,13 @@ export default function ProductDetail() {
 
           const ingredientList = item.ingredients?.map((i) => i.ingredient_id?.name).filter(Boolean).join(', ') || '-';
 
-          setProduct({
-            ...item,
-            price: Number(item.price),
-            originalPrice: null, // สินค้าจาก API ปกติจะไม่มีส่วนลด
-            ingredientsDisplay: ingredientList,
-            suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : [])
-          });
+          setProduct({ ...item, price: Number(item.price), originalPrice: null, ingredientsDisplay: ingredientList, suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : []) });
           setGalleryImages(images);
           setCurrentIndex(0);
           setQuantity(1);
         }
-      } catch (error) {
-        console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) { console.error('Error fetching product:', error); } 
+      finally { setLoading(false); }
     };
     if (id) fetchProduct();
   }, [id]);
@@ -119,15 +98,15 @@ export default function ProductDetail() {
         const skinType = userData.data?.skin_type;
 
         if (skinType) {
-            setUserSkinType(skinType);
-            const thaiSkinType = skinTypeOptions[skinType] || skinType;
-            const filterString = `filter[status][_eq]=active&filter[_or][0][suitable_skin_type][_icontains]=${skinType}&filter[_or][1][suitable_skin_type][_icontains]=${thaiSkinType}`;
-            const excludeCurrent = `&filter[id][_neq]=${id}`; 
-            const productRes = await apiFetch(`/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type&${filterString}${excludeCurrent}`);
-            if (productRes.ok) {
-                const json = await productRes.json();
-                if (json.data) setSkinRecommendations(json.data.map(mapProductData));
-            }
+          setUserSkinType(skinType);
+          const thaiSkinType = skinTypeOptions[skinType] || skinType;
+          const filterString = `filter[status][_eq]=active&filter[_or][0][suitable_skin_type][_icontains]=${skinType}&filter[_or][1][suitable_skin_type][_icontains]=${thaiSkinType}`;
+          const excludeCurrent = `&filter[id][_neq]=${id}`; 
+          const productRes = await apiFetch(`/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type&${filterString}${excludeCurrent}`);
+          if (productRes.ok) {
+            const json = await productRes.json();
+            if (json.data) setSkinRecommendations(json.data.map(mapProductData));
+          }
         }
       } catch (error) { console.error(error); }
     };
@@ -141,19 +120,18 @@ export default function ProductDetail() {
 
   const handleAddToCart = async () => {
       if (product.originalPrice) {
-        setAlertMessage({ text:"ขออภัย: ระบบส่วนลดกำลังอยู่ระหว่างการพัฒนา สิ่งที่ท่านเห็นเป็นเพียงการทดสอบระบบตัวอย่างเท่านั้น จึงยังไม่สามารถสั่งซื้อได้ในขณะนี้", type: "warning" });
+        setAlertMessage({ text:"ขออภัย: ระบบส่วนลดกำลังอยู่ระหว่างการพัฒนา จึงยังไม่สามารถสั่งซื้อได้ในขณะนี้", type: "warning" });
         return;
       }
 
       const token = localStorage.getItem('access_token');
       if (!token) {
-        setAlertMessage("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+        setAlertMessage({ text: "กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ", type: "warning" });
         return;
       }
   
       try {
         setAddingToCart(true);
-
         const stockRes = await apiFetch(`/items/product/${product.id}?fields=quantity`);
         const stockData = await stockRes.json();
         const availableStock = stockData.data?.quantity ?? 0;
@@ -165,87 +143,45 @@ export default function ProductDetail() {
         const currentQtyInCart = existingItem ? existingItem.quantity : 0;
         const totalNewQuantity = currentQtyInCart + quantity;
 
-      if (totalNewQuantity > availableStock) {
-          if (existingItem) {
-            setAlertMessage({
-              text: `ไม่สามารถเพิ่มได้: คุณมีในตะกร้าแล้ว ${currentQtyInCart} ชิ้น (คงเหลือ ${availableStock} ชิ้น)`,
-              type: "warning"
-            });
-          } else {
-            setAlertMessage({
-              text: `ไม่สามารถเพิ่มได้: จำนวนที่เลือกเกินกว่าสินค้าที่มีในสต็อก (คงเหลือ ${availableStock} ชิ้น)`,
-              type: "warning"
-            });
-          }
+        if (totalNewQuantity > availableStock) {
+          setAlertMessage({ text: `ไม่สามารถเพิ่มได้: คงเหลือในสต็อก ${availableStock} ชิ้น`, type: "warning" });
           return;
         }
 
         if (existingItem) {
-          await apiFetch(`/items/cart_detail/${existingItem.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ quantity: totalNewQuantity })
-          });
-          setAlertMessage(`อัปเดตจำนวนสินค้าในตะกร้าเป็น ${totalNewQuantity} ชิ้น เรียบร้อยแล้ว`);
+          await apiFetch(`/items/cart_detail/${existingItem.id}`, { method: 'PATCH', body: JSON.stringify({ quantity: totalNewQuantity }) });
+          setAlertMessage({ text: `อัปเดตตะกร้าเรียบร้อยแล้ว`, type: "success" });
         } else {
-          await apiFetch(`/items/cart_detail`, {
-            method: 'POST',
-            body: JSON.stringify({ product: product.id, quantity: quantity })
-          });
-          setAlertMessage(`เพิ่มสินค้า ${quantity} ชิ้น ลงในตะกร้าเรียบร้อย`);
+          await apiFetch(`/items/cart_detail`, { method: 'POST', body: JSON.stringify({ product: product.id, quantity: quantity }) });
+          setAlertMessage({ text: `เพิ่มสินค้าลงในตะกร้าเรียบร้อย`, type: "success" });
         }
         window.dispatchEvent(new Event('cart-updated'));
       } catch (error) {
         console.error("Add to cart error:", error);
-        setAlertMessage("เกิดข้อผิดพลาดในการเพิ่มสินค้า");
-      } finally {
-        setAddingToCart(false);
-      }
+        setAlertMessage({ text: "เกิดข้อผิดพลาดในการเพิ่มสินค้า", type: "error" });
+      } finally { setAddingToCart(false); }
   };
 
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (!product) return null;
 
-  const isOutOfStock = product.status === 'inactive';
-  const mainImage = galleryImages[currentIndex];
-  
-  // คำนวณเปอร์เซ็นต์ส่วนลด (เฉพาะถ้ามี originalPrice)
-  const discountPercent = product.originalPrice 
-    ? Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100) 
-    : 0;
+  // คืนค่า Logic สินค้าหมดที่ถูกต้อง
+  const isOutOfStock = product.status === 'out_of_stock' || product.status === 'inactive' || (product.quantity <= 0 && product.status !== 'active');
+  const discountPercent = product.originalPrice ? Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   return (
     <div className="product-detail-page">
-      {alertMessage && (
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
-          <AlertBanner message={alertMessage} onClose={() => setAlertMessage(null)} />
-        </div>
-      )}
-
       <div className="product-main-layout">
         <div className="left-column-gallery">
-          <div className="main-image-frame" style={{ position: 'relative' }}>
-            {/* ป้าย SAVE % จะขึ้นเฉพาะเมื่อมีการลดราคาจริง (มี originalPrice) */}
+          {/* คืนค่า UI กรอบรูปสินค้าหมด */}
+          <div className={`main-image-frame ${isOutOfStock ? 'out-of-stock-mode' : ''}`}>
             {!isOutOfStock && product.originalPrice && discountPercent > 0 && (
-                <div className="detail-discount-badge" style={{
-                    position: 'absolute',
-                    top: '20px',
-                    left: '20px',
-                    backgroundColor: '#FF2D55',
-                    color: 'white',
-                    padding: '6px 14px',
-                    borderRadius: '8px',
-                    fontWeight: '800',
-                    fontSize: '0.9rem',
-                    zIndex: 10,
-                    boxShadow: '0 4px 12px rgba(255, 45, 85, 0.3)'
-                }}>
-                   SAVE {discountPercent}%
-                </div>
+                <div className="detail-discount-badge">SAVE {discountPercent}%</div>
             )}
-            
-            <img src={mainImage} alt={product.name} className="main-img-display" onError={(e) => { e.target.src = 'https://via.placeholder.com/500?text=Image+Error'; }} />
-            {isOutOfStock && <div className="out-of-stock-badge">สินค้าหมด</div>}
+            <img src={galleryImages[currentIndex]} alt={product.name} className="main-img-display" />
+            {isOutOfStock && <div className="out-of-stock-center-overlay"><span>สินค้าหมด</span></div>}
           </div>
+          
           {galleryImages.length > 1 && (
             <div className="thumbnails-container">
               <button className="nav-arrow left" onClick={handlePrev}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -270,37 +206,26 @@ export default function ProductDetail() {
             ))}
           </div>
           
-          {/* การแสดงผลราคา: แยกกรณีลดราคา และไม่ลดราคา */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', margin: '20px 0 10px 0' }}>
-            <div className="product-price-display" style={{ color: product.originalPrice ? '#FF2D55' : '#000', fontSize: '2rem', fontWeight: '700' }}>
-               ฿ {product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} 
-            </div>
-            
-            {/* แสดงราคาขีดฆ่า เฉพาะเมื่อมีข้อมูล originalPrice (สินค้าจาก Mock) */}
-            {product.originalPrice && (
-              <div style={{ textDecoration: 'line-through', color: '#9CA3AF', fontSize: '1.2rem', fontWeight: '500' }}>
-                  ฿ {product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-            )}
+          <div className="price-row-container">
+            <span className="current-price-red">฿{product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            {product.originalPrice && <span className="original-price-gray">฿{product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
           </div>
 
           <div className="actions-wrapper">
             <div className="quantity-selector">
               <span className="qty-label-top">จำนวน</span>
               <div className="qty-buttons">
-                <button onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <button onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1 || isOutOfStock}>
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <span className="qty-number">{quantity}</span>
-                <button onClick={() => handleQuantityChange(1)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <button onClick={() => handleQuantityChange(1)} disabled={isOutOfStock}>
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
               </div>
             </div>
-            <button className={`add-to-cart-btn-black ${isOutOfStock || addingToCart ? 'disabled' : ''}`} onClick={() => !isOutOfStock && !addingToCart && handleAddToCart()} disabled={isOutOfStock || addingToCart}>
-              {isOutOfStock ? 'สินค้าหมด' : addingToCart ? 'กำลังเพิ่ม...' : (
-                <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>เพิ่มในถุงชอปปิง</>
-              )}
+            <button className={`add-to-cart-btn-black ${isOutOfStock || addingToCart ? 'disabled' : ''}`} onClick={handleAddToCart} disabled={isOutOfStock || addingToCart}>
+              {isOutOfStock ? 'สินค้าหมด' : addingToCart ? 'กำลังเพิ่ม...' : 'เพิ่มในถุงชอปปิง'}
             </button>
           </div>
 
@@ -314,22 +239,25 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      {/* แนะนำพิเศษเพื่อคุณ */}
       {skinRecommendations.length > 0 && (
-        <div className="related-section" style={{marginBottom: '40px', background: '#FFF5F4', padding: '30px', borderRadius: '16px'}}>
-          <div className="section-header-flex" style={{marginBottom: '20px'}}>
-             <h2 className="related-title" style={{color: '#F1978C', margin: 0, display: 'flex', alignItems: 'center'}}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '10px' }}><path d="M12,2L9,9L2,12L9,15L12,22L15,15L22,12L15,9L12,2Z" /></svg>
-                แนะนำพิเศษเพื่อคุณ ({skinTypeOptions[userSkinType] || userSkinType})
-             </h2>
-          </div>
+        <div className="related-section special-rec">
+          <h2 className="related-title">แนะนำพิเศษเพื่อคุณ ({skinTypeOptions[userSkinType] || userSkinType})</h2>
           <div className="related-grid">{skinRecommendations.map((p) => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))}</div>
         </div>
       )}
 
       {relatedProducts.length > 0 && (
         <div className="related-section">
-          <h2 className="related-title">สินค้าที่มีส่วนผสมคล้ายคลึงกัน</h2>
+          <h2 className="related-title">สินค้าที่คล้ายกัน</h2>
           <div className="related-grid">{relatedProducts.map((p) => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))}</div>
+        </div>
+      )}
+
+      {/* แจ้งเตือนลอยมุมจอ */}
+      {alertMessage && (
+        <div className="alert-banner-wrapper">
+          <AlertBanner message={alertMessage} onClose={() => setAlertMessage(null)} />
         </div>
       )}
     </div>
