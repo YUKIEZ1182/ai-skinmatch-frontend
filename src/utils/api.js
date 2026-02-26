@@ -67,7 +67,7 @@ export const deleteCartDetail = async (id) => {
 
 export const getProductById = async (id) => {
   const response = await apiFetch(
-    `/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,illustration.directus_files_id,ingredients.ingredient_id.name`
+    `/items/product/${id}?fields=id,name,price,description,brand_name,suitable_skin_type,status,quantity,illustration.directus_files_id,ingredients.ingredient_id.name`
   );
   if (!response.ok) throw new Error('Failed to fetch product');
   const json = await response.json();
