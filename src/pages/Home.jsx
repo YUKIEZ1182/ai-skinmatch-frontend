@@ -43,7 +43,9 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     brand: item.brand_name || item.categories?.[0]?.category_id?.name || 'Brand', 
     suitable_skin_type: Array.isArray(item.suitable_skin_type) ? item.suitable_skin_type : (item.suitable_skin_type ? [item.suitable_skin_type] : []),
     date_created: item.date_created,
-    date_updated: item.date_updated
+    date_updated: item.date_updated,
+    status: item.status,
+    quantity: item.quantity
   });
 
   const getThaiSkinType = (type) => {
@@ -57,7 +59,7 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
       if (activeCategory === 'home') {
         // 1. สินค้าใหม่
         try {
-            const newRes = await apiFetch('/items/product?sort=-date_created&limit=20&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,date_updated&filter[status][_eq]=active');
+            const newRes = await apiFetch('/items/product?sort=-date_created&limit=20&fields=id,name,price,thumbnail,brand_name,status,categories.category_id.name,suitable_skin_type,date_updated,quantity');
             const newData = await newRes.json();
             if (newData.data) setNewArrivals(newData.data.map(mapProductData));
         } catch (err) { console.warn(err); }
@@ -105,12 +107,12 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
   const fetchProducts = useCallback(async (searchTerm, categoryId) => {
     setLoading(true);
     try {
-        const filterObj = { _and: [{ status: { _eq: 'active' } }] };
+        const filterObj = { _and: [] };
         if (searchTerm) filterObj._and.push({ _or: [{ name: { _icontains: searchTerm } }, { brand_name: { _icontains: searchTerm } }] });
         if (categoryId && categoryId !== 'home' && categoryId !== 'new') filterObj._and.push({ categories: { category_id: { id: { _eq: categoryId } } } });
 
-        const filterParam = JSON.stringify(filterObj);
-        const response = await apiFetch(`/items/product?limit=50&fields=id,name,price,thumbnail,brand_name,categories.category_id.name,suitable_skin_type,date_created,date_updated&sort=-date_created&filter=${encodeURIComponent(filterParam)}`);
+        const filterParam = filterObj._and.length > 0 ? `&filter=${encodeURIComponent(JSON.stringify(filterObj))}` : '';
+        const response = await apiFetch(`/items/product?limit=50&fields=id,name,price,thumbnail,brand_name,categories.category_id.name,suitable_skin_type,date_created,date_updated,status,quantity&sort=-date_created${filterParam}`);
         const json = await response.json();
         if (json.data) setProducts(json.data.map(mapProductData));
     } catch (err) { console.warn(err); setProducts([]); } finally { setLoading(false); }

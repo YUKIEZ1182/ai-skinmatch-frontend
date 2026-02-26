@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/ProductDetail.css';
 import ProductCard from '../components/ProductCard';
@@ -100,9 +100,9 @@ export default function ProductDetail() {
         if (skinType) {
           setUserSkinType(skinType);
           const thaiSkinType = skinTypeOptions[skinType] || skinType;
-          const filterString = `filter[status][_eq]=active&filter[_or][0][suitable_skin_type][_icontains]=${skinType}&filter[_or][1][suitable_skin_type][_icontains]=${thaiSkinType}`;
+          const filterString = `filter[_or][0][suitable_skin_type][_icontains]=${skinType}&filter[_or][1][suitable_skin_type][_icontains]=${thaiSkinType}`;
           const excludeCurrent = `&filter[id][_neq]=${id}`; 
-          const productRes = await apiFetch(`/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,suitable_skin_type&${filterString}${excludeCurrent}`);
+          const productRes = await apiFetch(`/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,quantity,suitable_skin_type&${filterString}${excludeCurrent}`);
           if (productRes.ok) {
             const json = await productRes.json();
             if (json.data) setSkinRecommendations(json.data.map(mapProductData));
@@ -166,7 +166,9 @@ export default function ProductDetail() {
   if (!product) return null;
 
   // คืนค่า Logic สินค้าหมดที่ถูกต้อง
-  const isOutOfStock = product.status === 'out_of_stock' || product.status === 'inactive' || (product.quantity <= 0 && product.status !== 'active');
+  const isOutOfStock = product.status === 'inactive' || 
+                       (product.quantity !== undefined && product.quantity <= 0) || 
+                       (product.stock !== undefined && product.stock <= 0);
   const discountPercent = product.originalPrice ? Math.floor(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   return (

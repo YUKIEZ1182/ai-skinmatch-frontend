@@ -12,7 +12,7 @@ export const mockProducts = [
     type: "skincare",
     suitable_skin_type: ["combination", "oily"],
     stock: 0,
-    status: "out_of_stock",
+    status: "inactive",
     description: "เซรั่มสูตรน้ำเข้มข้นที่รวมวิตามินบี 3 (Niacinamide) และซิงค์ ช่วยลดการอุดตันของรูขุมขน ควบคุมความมันส่วนเกิน และปรับผิวให้เรียบเนียนสม่ำเสมอ",
   },
   {
@@ -39,7 +39,7 @@ export const mockProducts = [
     type: "cleanser",
     suitable_skin_type: ["oily", "combination"],
     stock: 0,
-    status: "out_of_stock",
+    status: "inactive",
     description: "โฟมทำความสะอาดผิวหน้าและผิวกาย สูตรสำหรับผิวธรรมดาถึงผิวมัน ช่วยขจัดน้ำมันส่วนเกินและสิ่งสกปรกโดยไม่ทำลายปราการผิวด้วยเซราไมด์ที่จำเป็น 3 ชนิด",
   },
   {
@@ -131,7 +131,7 @@ export const mockProducts = [
     type: "skincare",
     suitable_skin_type: ["oily"],
     stock: 0,
-    status: "out_of_stock",
+    status: "inactive",
     description: "เอสเซนส์วิตามินซีสกัดจากส้มเชจู ช่วยลดเลือนจุดด่างดำและปรับสีผิวให้กระจ่างใส พร้อมเสริมสร้างปราการผิวให้แข็งแรงดูสุขภาพดี",
   },
   {
@@ -158,7 +158,7 @@ export const mockProducts = [
     type: "skincare",
     suitable_skin_type: ["dry", "combination"],
     stock: 0,
-    status: "out_of_stock",
+    status: "inactive",
     description: "เซรั่มสูตรเข้มข้น ช่วยฟื้นฟูผิวที่เหนื่อยล้าให้กลับมาดูมีออร่า กระจ่างใส และลดเลือนจุดด่างดำอย่างเห็นผล",
   },
   {

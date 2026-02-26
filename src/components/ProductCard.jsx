@@ -2,8 +2,10 @@ import React from 'react';
 import '../styles/ProductCard.css';
 
 export default function ProductCard({ product, onClick }) {
-  // เช็คสถานะสินค้าหมด
-  const isOutOfStock = product.status === 'out_of_stock';
+  // เช็คสถานะสินค้าหมด: API ใช้ 'inactive' หรือ quantity <= 0 (Mock ใช้ stock <= 0)
+  const isOutOfStock = product.status === 'inactive' || 
+                       (product.quantity !== undefined && product.quantity <= 0) || 
+                       (product.stock !== undefined && product.stock <= 0);
 
   // คำนวณ % ลดราคา
   const discountPercentage = product.originalPrice 
