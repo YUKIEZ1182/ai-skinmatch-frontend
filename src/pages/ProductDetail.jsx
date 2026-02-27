@@ -25,8 +25,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [galleryImages, setGalleryImages] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const [skinRecommendations, setSkinRecommendations] = useState([]);
-  const [userSkinType, setUserSkinType] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -85,32 +83,6 @@ export default function ProductDetail() {
       } catch (error) { console.error("Error loading similar products:", error); }
     };
     if (id) fetchRelated();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchSkinRecs = async () => {
-      const token = localStorage.getItem('access_token');
-      if (!token) return;
-      try {
-        const userRes = await apiFetch('/users/me');
-        if (!userRes.ok) return;
-        const userData = await userRes.json();
-        const skinType = userData.data?.skin_type;
-
-        if (skinType) {
-          setUserSkinType(skinType);
-          const thaiSkinType = skinTypeOptions[skinType] || skinType;
-          const filterString = `filter[_or][0][suitable_skin_type][_icontains]=${skinType}&filter[_or][1][suitable_skin_type][_icontains]=${thaiSkinType}`;
-          const excludeCurrent = `&filter[id][_neq]=${id}`; 
-          const productRes = await apiFetch(`/items/product?limit=4&fields=id,name,price,thumbnail,brand_name,status,quantity,suitable_skin_type&${filterString}${excludeCurrent}`);
-          if (productRes.ok) {
-            const json = await productRes.json();
-            if (json.data) setSkinRecommendations(json.data.map(mapProductData));
-          }
-        }
-      } catch (error) { console.error(error); }
-    };
-    if (id) fetchSkinRecs();
   }, [id]);
 
   const handlePrev = () => setCurrentIndex((prev) => prev === 0 ? galleryImages.length - 1 : prev - 1);
@@ -241,17 +213,9 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* แนะนำพิเศษเพื่อคุณ */}
-      {skinRecommendations.length > 0 && (
-        <div className="related-section special-rec">
-          <h2 className="related-title">แนะนำพิเศษเพื่อคุณ ({skinTypeOptions[userSkinType] || userSkinType})</h2>
-          <div className="related-grid">{skinRecommendations.map((p) => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))}</div>
-        </div>
-      )}
-
       {relatedProducts.length > 0 && (
         <div className="related-section">
-          <h2 className="related-title">สินค้าที่คล้ายกัน</h2>
+          <h2 className="related-title">สินค้าที่มีส่วนผสมใกล้เคียงกัน</h2>
           <div className="related-grid">{relatedProducts.map((p) => (<ProductCard key={p.id} product={p} onClick={() => handleProductSelect(p)} />))}</div>
         </div>
       )}
