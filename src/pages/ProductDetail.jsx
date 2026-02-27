@@ -75,12 +75,19 @@ export default function ProductDetail() {
     if (id) fetchProduct();
   }, [id]);
 
+  const lastFetchedIdRef = useRef(null);
+
   useEffect(() => {
     const fetchRelated = async () => {
+      if (lastFetchedIdRef.current === id) return;
       try {
+        lastFetchedIdRef.current = id;
         const json = await getSimilarProducts(id);
         if (json.data) setRelatedProducts(json.data.map(mapProductData));
-      } catch (error) { console.error("Error loading similar products:", error); }
+      } catch (error) { 
+        console.error("Error loading similar products:", error); 
+        lastFetchedIdRef.current = null;
+      }
     };
     if (id) fetchRelated();
   }, [id]);
