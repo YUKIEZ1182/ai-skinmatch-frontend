@@ -53,8 +53,19 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     return map[type] || type;
   };
 
+  const lastFetchedRef = useRef({ skinType: null, categoryId: null });
+
   const fetchHeaderData = useCallback(async (manualSkinType = null) => {
+    const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
+    
+    // Check if we are already fetching the same data
+    if (lastFetchedRef.current.skinType === skinToUse && lastFetchedRef.current.categoryId === activeCategory) {
+      return;
+    }
+    
     setLoading(true);
+    lastFetchedRef.current = { skinType: skinToUse, categoryId: activeCategory };
+    
     try {
       if (activeCategory === 'home') {
         // 1. สินค้าใหม่
@@ -75,14 +86,14 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
       setSaleItems(discountedMock);
 
       // 3. สินค้าแนะนำ
-      const skinToUse = manualSkinType || currentSkinType || currentUser?.skin_type;
       if (isLoggedIn && skinToUse) {
-        setCurrentSkinType(skinToUse);
         try {
           const recData = await getRecommendedProducts(skinToUse, activeCategory);
           let items = Array.isArray(recData) ? recData : (recData.data || []);
           setRecommended(items.map(mapProductData));
         } catch (recErr) { console.warn(recErr); setRecommended([]); }
+      } else {
+        setRecommended([]);
       }
     } catch (mainErr) { console.error(mainErr); } finally { setLoading(false); }
   }, [isLoggedIn, currentUser, currentSkinType, activeCategory]);
@@ -100,7 +111,7 @@ export default function Home({ activeCategory, handleProductSelect, isLoggedIn, 
     setShowConfirmModal(false);
     try {
       if (isLoggedIn) await apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify({ skin_type: pendingSkinType }) });
-      fetchHeaderData(pendingSkinType); 
+      // The useEffect will trigger fetchHeaderData when currentSkinType updates
     } catch (error) { console.error(error); }
   };
 
